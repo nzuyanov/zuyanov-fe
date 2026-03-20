@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="mane" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Mane -->
+  <path d="M32 4C18 4 8 14 8 28c0 10 5 18 12 22l-2 8h28l-2-8c7-4 12-12 12-22C56 14 46 4 32 4z" fill="url(#mane)"/>
+  <!-- Face -->
+  <ellipse cx="32" cy="30" rx="16" ry="18" fill="url(#face)"/>
+  <!-- Eyes -->
+  <ellipse cx="25" cy="26" rx="2.5" ry="3" fill="#1e293b"/>
+  <ellipse cx="39" cy="26" rx="2.5" ry="3" fill="#1e293b"/>
+  <circle cx="25.8" cy="25.2" r="0.8" fill="#fff"/>
+  <circle cx="39.8" cy="25.2" r="0.8" fill="#fff"/>
+  <!-- Nose -->
+  <path d="M29 33 l3 -3 l3 3z" fill="#92400e"/>
+  <!-- Mouth -->
+  <path d="M28 36 q4 4 8 0" stroke="#92400e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+</svg>
