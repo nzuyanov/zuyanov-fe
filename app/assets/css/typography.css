@@ -1,0 +1,20 @@
+.text-body {
+	font-family: var(--font-body);
+}
+
+.text-heading {
+	font-family: var(--font-heading);
+}
+
+.text-caption {
+	font-family: var(--font-caption);
+	font-size: 0.75rem;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: var(--text-3);
+}
+
+.text-inter {
+	font-family: 'Inter Variable', Inter, sans-serif;
+}
