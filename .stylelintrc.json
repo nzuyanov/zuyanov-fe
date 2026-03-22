@@ -1,0 +1,22 @@
+{
+	"extends": [
+		"stylelint-config-standard",
+		"stylelint-config-recommended-vue"
+	],
+	"plugins": [
+		"@stylistic/stylelint-plugin"
+	],
+	"overrides": [
+		{
+			"files": ["**/*.vue"],
+			"customSyntax": "postcss-html"
+		}
+	],
+	"rules": {
+		"@stylistic/indentation": "tab",
+		"declaration-no-important": true,
+		"selector-class-pattern": null,
+		"custom-property-pattern": null,
+		"no-empty-source": null
+	}
+}

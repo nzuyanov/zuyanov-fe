@@ -124,7 +124,7 @@
 					</UiTooltip>
 					<UiTooltip text="UI/UX">
 						<div class="skill">
-							<img src="/icons/figma.svg" alt="Figma" class="skill__img"/>
+							<img src="/icons/figma.svg" alt="Figma" class="skill__img">
 						</div>
 					</UiTooltip>
 				</div>
@@ -271,8 +271,8 @@ useSeoMeta({
 	border-radius: 50%;
 	background: radial-gradient(
 		circle,
-		rgba(189, 52, 254, 0.12) 0%,
-		rgba(65, 209, 255, 0.06) 40%,
+		rgb(189 52 254 / 12%) 0%,
+		rgb(65 209 255 / 6%) 40%,
 		transparent 70%
 	);
 	pointer-events: none;
@@ -299,14 +299,12 @@ useSeoMeta({
 	line-height: 1.1;
 	background: linear-gradient(135deg, #c4b5fd 30%, var(--accent-2));
 	background-clip: text;
-	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
 .hero__accent {
 	background: linear-gradient(135deg, var(--accent) 20%, var(--accent-2));
 	background-clip: text;
-	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
@@ -373,12 +371,12 @@ useSeoMeta({
 	transition: color 0.2s, opacity 0.2s;
 }
 
-.contact:hover .contact__copy {
-	opacity: 1;
-}
-
 .contact__copy:hover {
 	color: var(--accent-light);
+}
+
+.contact:hover .contact__copy {
+	opacity: 1;
 }
 
 /* Content sections */
@@ -399,8 +397,8 @@ useSeoMeta({
 
 .section:hover {
 	background: var(--bg-card-hover);
-	border-color: rgba(189, 52, 254, 0.2);
-	box-shadow: 0 0 40px rgba(189, 52, 254, 0.04);
+	border-color: rgb(189 52 254 / 20%);
+	box-shadow: 0 0 40px rgb(189 52 254 / 4%);
 }
 
 .section__header {
@@ -419,54 +417,64 @@ useSeoMeta({
 
 .section:hover .section__icon {
 	color: var(--accent-light);
-	filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+	filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	animation: neon-flicker 2.5s infinite;
 }
 
 @keyframes neon-flicker {
 	0%, 100% {
 		opacity: 1;
-		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	}
+
 	4% {
 		opacity: 0.7;
-		filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 6px rgba(189, 52, 254, 0.2));
+		filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 6px rgb(189 52 254 / 20%));
 	}
+
 	8% {
 		opacity: 1;
-		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	}
+
 	40% {
 		opacity: 1;
-		filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 18px var(--accent)) drop-shadow(0 0 32px rgba(189, 52, 254, 0.5));
+		filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 18px var(--accent)) drop-shadow(0 0 32px rgb(189 52 254 / 50%));
 	}
+
 	42% {
 		opacity: 0.6;
-		filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 4px rgba(189, 52, 254, 0.15));
+		filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 4px rgb(189 52 254 / 15%));
 	}
+
 	43% {
 		opacity: 0.85;
 		filter: drop-shadow(0 0 4px var(--accent)) drop-shadow(0 0 10px var(--accent));
 	}
+
 	45% {
 		opacity: 0.5;
 		filter: drop-shadow(0 0 1px var(--accent));
 	}
+
 	46% {
 		opacity: 1;
-		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	}
+
 	75% {
 		opacity: 1;
-		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	}
+
 	77% {
 		opacity: 0.8;
-		filter: drop-shadow(0 0 3px var(--accent)) drop-shadow(0 0 8px rgba(189, 52, 254, 0.25));
+		filter: drop-shadow(0 0 3px var(--accent)) drop-shadow(0 0 8px rgb(189 52 254 / 25%));
 	}
+
 	78% {
 		opacity: 1;
-		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(189, 52, 254, 0.4));
+		filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	}
 }
 
@@ -475,7 +483,6 @@ useSeoMeta({
 	font-weight: 700;
 	background: linear-gradient(135deg, var(--accent) 20%, var(--accent-2));
 	background-clip: text;
-	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
@@ -512,7 +519,7 @@ useSeoMeta({
 	letter-spacing: 0.05em;
 	padding: 2px 8px;
 	border-radius: 6px;
-	background: rgba(0, 220, 130, 0.12);
+	background: rgb(0 220 130 / 12%);
 	color: #00dc82;
 }
 
@@ -645,11 +652,11 @@ useSeoMeta({
 }
 
 .talk-link__icon--yt {
-	color: #ff0000;
+	color: #f00;
 }
 
 /* Desktop */
-@media (min-width: 641px) {
+@media (width >= 641px) {
 	.hero {
 		padding: 96px 0 48px;
 	}

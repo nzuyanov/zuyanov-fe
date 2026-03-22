@@ -51,7 +51,7 @@ const iconMap = {
 	color: var(--text);
 	font-family: var(--font-body);
 	font-size: 0.875rem;
-	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
 	max-width: 360px;
 }
 

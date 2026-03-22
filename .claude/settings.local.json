@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:vite.dev)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(npx stylelint:*)",
+      "Bash(node -e \"import\\(''./.nuxt/eslint.config.mjs''\\).then\\(m => m.default.then\\(configs => { const plugins = new Set\\(\\); configs.forEach\\(c => { if\\(c.plugins\\) Object.keys\\(c.plugins\\).forEach\\(p => plugins.add\\(p\\)\\) }\\); console.log\\([...plugins].sort\\(\\).join\\(''\\\\n''\\)\\) }\\)\\)\")",
+      "Bash(node -e \"const s=require\\(''fs''\\).readFileSync\\(''.claude/settings.json'',''utf8''\\); const j=JSON.parse\\(s\\); const hooks=j.hooks.PostToolUse[0]; console.log\\(''matcher:'', hooks.matcher\\); hooks.hooks.forEach\\(\\(h,i\\) => console.log\\(''hook'', i, '':'', h.type, ''-'', h.statusMessage\\)\\); console.log\\(''JSON valid''\\)\")",
+      "Bash(npx eslint:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(npx nuxi:*)"
     ]
   }
 }
