@@ -54,5 +54,6 @@ export default defineNuxtConfig({
 
 	routeRules: {
 		'/': {prerender: true},
+		'/tlp': {prerender: true},
 	},
 })
