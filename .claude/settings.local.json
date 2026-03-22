@@ -10,7 +10,8 @@
       "Bash(node -e \"const s=require\\(''fs''\\).readFileSync\\(''.claude/settings.json'',''utf8''\\); const j=JSON.parse\\(s\\); const hooks=j.hooks.PostToolUse[0]; console.log\\(''matcher:'', hooks.matcher\\); hooks.hooks.forEach\\(\\(h,i\\) => console.log\\(''hook'', i, '':'', h.type, ''-'', h.statusMessage\\)\\); console.log\\(''JSON valid''\\)\")",
       "Bash(npx eslint:*)",
       "Bash(npx vue-tsc:*)",
-      "Bash(npx nuxi:*)"
+      "Bash(npx nuxi:*)",
+      "Bash(ls -la \"E:\\\\projects\\\\zuyanov-fe\\\\app\"\" 2>/dev/null || find \"E:projectszuyanov-feapp \" -maxdepth 2 -type d)"
     ]
   }
 }

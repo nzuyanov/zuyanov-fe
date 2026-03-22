@@ -15,7 +15,7 @@
 
 ---
 
-## Фаза 1: Типы и стор
+## Фаза 1: Типы и стор ✅
 
 1. **`types/poker.ts`** — все интерфейсы:
    - `PokerConfig` (buyIn, maxRebuys, rebuyPeriodMinutes, gameDurationMinutes, prizes, blinds, chips)
