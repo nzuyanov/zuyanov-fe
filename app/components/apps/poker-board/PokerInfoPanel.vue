@@ -74,10 +74,15 @@
 			</div>
 		</section>
 
-		<!-- Кнопка следующей раздачи -->
-		<button class="info-next-deal" @click="$emit('nextDeal')">
-			Следующая раздача →
-		</button>
+		<!-- Кнопки управления -->
+		<div class="info-actions">
+			<button class="info-next-deal" @click="$emit('nextDeal')">
+				Следующая раздача →
+			</button>
+			<button class="info-finish" @click="$emit('finish')">
+				Завершить турнир
+			</button>
+		</div>
 	</aside>
 </template>
 
@@ -86,6 +91,7 @@ const store = usePokerStore()
 
 defineEmits<{
 	nextDeal: []
+	finish: []
 }>()
 
 // Форматирование таймера игры (ЧЧ:ММ:СС)
@@ -314,9 +320,15 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 	color: var(--poker-gold);
 }
 
-/* Кнопка следующей раздачи */
-.info-next-deal {
+/* Кнопки управления */
+.info-actions {
 	margin-top: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.info-next-deal {
 	padding: 14px;
 	font-size: 1rem;
 	font-weight: 800;
@@ -337,5 +349,24 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-next-deal:active {
 	transform: translateY(0);
+}
+
+.info-finish {
+	padding: 10px 14px;
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--poker-red);
+	background: var(--poker-red-dim);
+	border: none;
+	border-radius: var(--poker-radius);
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+}
+
+.info-finish:hover {
+	background: var(--poker-red);
+	color: #fff;
 }
 </style>

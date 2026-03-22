@@ -10,8 +10,7 @@
 			<PokerBoard
 				v-else-if="isGameActive"
 				@back="onBack"
-				@rebuy="onRebuy"
-				@eliminate="onEliminate"
+				@finished="onGameFinished"
 			/>
 
 			<div v-else class="poker-start">
@@ -58,13 +57,9 @@ const onBack = () => {
 	navigateTo('/')
 }
 
-const onRebuy = (playerId: number) => {
-	store.rebuy(playerId)
-}
-
-const onEliminate = (playerId: number) => {
-	// В будущих фазах — модалка подтверждения
-	store.eliminatePlayer(playerId)
+const onGameFinished = () => {
+	// В будущих фазах — экран результатов
+	// Пока просто показываем стартовый экран
 }
 </script>
 
