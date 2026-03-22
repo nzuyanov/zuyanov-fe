@@ -1,3 +1,5 @@
+import { META_TITLE, META_DESCRIPTION, META_IMAGE } from './app/constants/meta'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
@@ -11,12 +13,24 @@ export default defineNuxtConfig({
 			htmlAttrs: {lang: 'ru'},
 			charset: 'utf-8',
 			viewport: 'width=device-width, initial-scale=1',
-			title: 'Никита Зуянов ✨',
+			title: META_TITLE,
 			link: [
 				{rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg'},
 			],
 			meta: [
-				{name: 'description', content: 'Никита Зуянов, frontend developer 💻'},
+				{name: 'keywords', content: 'frontend, javascript, tlp, vue, nuxt'},
+				{name: 'description', content: META_DESCRIPTION},
+				{property: 'og:type', content: 'website'},
+				{property: 'og:title', content: META_TITLE},
+				{property: 'og:description', content: META_DESCRIPTION},
+				{property: 'og:image', content: META_IMAGE},
+				{property: 'og:locale', content: 'ru_RU'},
+				{property: 'og:url', content: 'https://zuyanov.ru'},
+				{name: 'twitter:card', content: 'summary_large_image'},
+				{name: 'twitter:title', content: META_TITLE},
+				{name: 'twitter:description', content: META_DESCRIPTION},
+				{name: 'twitter:image', content: META_IMAGE},
+				{name: 'twitter:site', content: 'https://zuyanov.ru'},
 			],
 			noscript: [
 				{
