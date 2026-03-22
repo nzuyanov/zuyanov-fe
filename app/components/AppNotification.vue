@@ -1,21 +1,22 @@
 <template>
-	<Teleport to="body">
-		<TransitionGroup name="notif" tag="div" class="notif-container">
-			<div
-				v-for="n in notifications"
-				:key="n.id"
-				class="notif"
-				:class="`notif--${n.type}`"
-			>
-				<Icon :name="iconMap[n.type]" class="notif__icon"/>
-				<span class="notif__message">{{ n.message }}</span>
-				<button class="notif__close" @click="dismiss(n.id)">
-					<Icon name="ph:x-bold" />
-				</button>
-			</div>
-		</TransitionGroup>
-	</Teleport>
-</template>
+	<ClientOnly>
+		<Teleport to="body">
+			<TransitionGroup name="notif" tag="div" class="notif-container">
+				<div
+					v-for="n in notifications"
+					:key="n.id"
+					class="notif"
+					:class="`notif--${n.type}`"
+				>
+					<Icon :name="iconMap[n.type]" class="notif__icon"/>
+					<span class="notif__message">{{ n.message }}</span>
+					<button class="notif__close" @click="dismiss(n.id)">
+						<Icon name="ph:x-bold" />
+					</button>
+				</div>
+			</TransitionGroup>
+		</Teleport>
+	</ClientOnly></template>
 
 <script setup lang="ts">
 const { notifications, dismiss } = useNotification()
