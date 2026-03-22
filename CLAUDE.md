@@ -16,6 +16,10 @@
 - Внешний API (отдельный бэкенд)
 - Без UI-библиотеки — кастомные компоненты
 
+## Спецификации
+- Poker Board: @docs/POKER_BOARD_SPEC.md
+- Poker Board план: @docs/POKER_BOARD_PLAN.md
+
 ## Стиль кода
 
 ### Общие правила
