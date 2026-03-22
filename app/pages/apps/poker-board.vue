@@ -7,6 +7,13 @@
 				@close="onClose"
 			/>
 
+			<PokerBoard
+				v-else-if="isGameActive"
+				@back="onBack"
+				@rebuy="onRebuy"
+				@eliminate="onEliminate"
+			/>
+
 			<div v-else class="poker-start">
 				<h1 class="poker-start__title">🃏 Poker Tournament</h1>
 				<p class="poker-start__desc">Настрой турнир и начинай игру</p>
@@ -21,6 +28,7 @@
 <script setup lang="ts">
 import type { PokerConfig, PokerPlayer } from '~/types/poker'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
+import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
 
 definePageMeta({
 	layout: false,
@@ -29,6 +37,10 @@ definePageMeta({
 const store = usePokerStore()
 const showSetup = ref(true)
 
+const isGameActive = computed(() =>
+	store.gameState.status === 'playing' || store.gameState.status === 'paused',
+)
+
 const onTournamentStart = (config: PokerConfig, players: PokerPlayer[]) => {
 	store.initGame(config, players)
 	showSetup.value = false
@@ -36,6 +48,23 @@ const onTournamentStart = (config: PokerConfig, players: PokerPlayer[]) => {
 
 const onClose = () => {
 	navigateTo('/')
+}
+
+const onBack = () => {
+	// В будущих фазах — модалка подтверждения при активной игре
+	if (isGameActive.value) {
+		store.pause()
+	}
+	navigateTo('/')
+}
+
+const onRebuy = (playerId: number) => {
+	store.rebuy(playerId)
+}
+
+const onEliminate = (playerId: number) => {
+	// В будущих фазах — модалка подтверждения
+	store.eliminatePlayer(playerId)
 }
 </script>
 
