@@ -401,6 +401,7 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-next-deal {
 	padding: 14px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1rem;
 	font-weight: 800;
 	text-transform: uppercase;
@@ -424,6 +425,7 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-finish {
 	padding: 10px 14px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.8rem;
 	font-weight: 700;
 	text-transform: uppercase;

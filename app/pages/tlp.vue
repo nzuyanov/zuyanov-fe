@@ -11,7 +11,7 @@
 		</header>
 
 		<section class="cards">
-			<NuxtLink to="/poker-board" class="card">
+			<NuxtLink to="/apps/poker-board" class="card">
 				<div class="card__cover">
 					<NuxtImg
 						src="https://storage.yandexcloud.net/tlp-media/poker.jpg"

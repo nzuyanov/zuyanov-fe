@@ -60,10 +60,13 @@
 
 		<!-- Оверлей паузы -->
 		<Transition name="pause-overlay">
-			<div v-if="store.gameState.status === 'paused'" class="board__pause-overlay">
+			<div v-if="store.gameState.status === 'paused'" class="board__pause-overlay" @click.self="store.resume()">
 				<div class="board__pause-content">
 					<span class="board__pause-icon">⏸</span>
 					<span class="board__pause-text">ПАУЗА</span>
+					<button class="board__pause-resume" @click="store.resume()">
+						▶ Продолжить
+					</button>
 				</div>
 			</div>
 		</Transition>
@@ -339,6 +342,29 @@ watch(() => store.gameState.status, (status) => {
 	color: var(--poker-text);
 	text-shadow: 0 0 40px rgb(255 255 255 / 20%);
 	animation: pause-pulse 2s ease-in-out infinite;
+}
+
+.board__pause-resume {
+	margin-top: 16px;
+	padding: 14px 40px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #fff;
+	background: var(--poker-green);
+	border: none;
+	border-radius: var(--poker-radius);
+	cursor: pointer;
+	transition: background 0.2s, transform 0.15s;
+}
+
+.board__pause-resume:hover {
+	background: var(--poker-green-hover);
+	transform: translateY(-2px);
+}
+
+.board__pause-resume:active {
+	transform: translateY(0);
 }
 
 @keyframes pause-pulse {

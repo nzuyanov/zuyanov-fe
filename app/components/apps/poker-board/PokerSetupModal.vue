@@ -20,8 +20,8 @@
 									v-model.number="playerCount"
 									type="number"
 									class="field__input"
-									min="2"
-									max="20"
+									min="3"
+									max="9"
 								>
 							</div>
 							<div class="field">
@@ -434,7 +434,7 @@ generatePlayers(playerCount.value)
 
 // Обновляем список при изменении количества игроков
 watch(playerCount, (count) => {
-	const clamped = Math.max(2, Math.min(20, count || 2))
+	const clamped = Math.max(3, Math.min(9, count || 3))
 	generatePlayers(clamped)
 })
 
@@ -466,8 +466,8 @@ const hasEmptyNames = computed(() =>
 const isFormValid = computed(() => isPrizesValid.value
 	&& !hasDuplicateNames.value
 	&& !hasEmptyNames.value
-	&& playerCount.value >= 2
-	&& playerCount.value <= 20
+	&& playerCount.value >= 3
+	&& playerCount.value <= 9
 	&& buyIn.value > 0
 	&& totalDurationMinutes.value >= 10
 	&& maxRebuys.value >= 0

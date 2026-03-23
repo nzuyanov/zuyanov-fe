@@ -271,6 +271,7 @@ const formatMoney = (value: number): string =>
 .results__btn {
 	margin-top: 8px;
 	padding: 16px 40px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.15rem;
 	font-weight: 700;
 	border: none;

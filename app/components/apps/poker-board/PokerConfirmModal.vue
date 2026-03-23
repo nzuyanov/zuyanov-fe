@@ -75,6 +75,7 @@ defineEmits<{
 .confirm-dialog__btn {
 	flex: 1;
 	padding: 12px 16px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.9rem;
 	font-weight: 700;
 	border: none;

@@ -189,6 +189,7 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 .player-card__btn {
 	flex: 1;
 	padding: 6px 8px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.75rem;
 	font-weight: 700;
 	border: none;
