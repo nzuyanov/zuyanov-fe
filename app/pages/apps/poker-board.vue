@@ -20,25 +20,83 @@
 					🚀 Новый турнир
 				</button>
 			</div>
+
+			<!-- Модалка восстановления сохранённой игры -->
+			<PokerConfirmModal
+				v-if="showRestoreModal"
+				:message="restoreMessage"
+				confirm-text="Продолжить"
+				cancel-text="Начать новую"
+				variant="primary"
+				@confirm="onRestore"
+				@cancel="onDeclineRestore"
+			/>
 		</ClientOnly>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { PokerConfig, PokerPlayer } from '~/types/poker'
+import type { PokerConfig, PokerPlayer, PokerSaveData } from '~/types/poker'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
 import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
+import PokerConfirmModal from '~/components/apps/poker-board/PokerConfirmModal.vue'
 
 definePageMeta({
 	layout: false,
 })
 
 const store = usePokerStore()
-const showSetup = ref(true)
+const showSetup = ref(false)
+const showRestoreModal = ref(false)
+const savedData = ref<PokerSaveData | null>(null)
 
 const isGameActive = computed(() =>
 	store.gameState.status === 'playing' || store.gameState.status === 'paused',
 )
+
+const restoreMessage = computed(() => {
+	if (!savedData.value) return ''
+	const date = new Date(savedData.value.savedAt)
+	const formatted = date.toLocaleString('ru-RU', {
+		day: 'numeric',
+		month: 'long',
+		hour: '2-digit',
+		minute: '2-digit',
+	})
+	const playerCount = savedData.value.gameState.players.length
+	const activePlayers = savedData.value.gameState.players.filter(p => !p.isEliminated).length
+	return `Обнаружена незавершённая игра (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
+})
+
+// Проверка localStorage при загрузке страницы
+onMounted(() => {
+	const storage = usePokerStorage()
+	const data = storage.load()
+	if (data) {
+		savedData.value = data
+		showRestoreModal.value = true
+	}
+	else {
+		showSetup.value = true
+	}
+})
+
+const onRestore = () => {
+	if (savedData.value) {
+		store.restoreState(savedData.value.config, savedData.value.gameState)
+		savedData.value = null
+		showRestoreModal.value = false
+		showSetup.value = false
+	}
+}
+
+const onDeclineRestore = () => {
+	const storage = usePokerStorage()
+	storage.clear()
+	savedData.value = null
+	showRestoreModal.value = false
+	showSetup.value = true
+}
 
 const onTournamentStart = (config: PokerConfig, players: PokerPlayer[]) => {
 	store.initGame(config, players)
@@ -50,7 +108,6 @@ const onClose = () => {
 }
 
 const onBack = () => {
-	// В будущих фазах — модалка подтверждения при активной игре
 	if (isGameActive.value) {
 		store.pause()
 	}
@@ -58,8 +115,8 @@ const onBack = () => {
 }
 
 const onGameFinished = () => {
-	// В будущих фазах — экран результатов
-	// Пока просто показываем стартовый экран
+	const storage = usePokerStorage()
+	storage.clear()
 }
 </script>
 

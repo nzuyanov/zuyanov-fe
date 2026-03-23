@@ -97,6 +97,15 @@ const store = usePokerStore()
 const sound = usePokerSound()
 const storage = usePokerStorage()
 
+// Запуск автосохранения и beforeunload при монтировании доски
+onMounted(() => {
+	storage.setupAutoSaveListeners()
+})
+
+onUnmounted(() => {
+	storage.cleanupAutoSaveListeners()
+})
+
 // --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)
 const blindsUpNotice = ref(false)
@@ -172,12 +181,15 @@ const requestElimination = (playerId: number) => {
 const confirmElimination = () => {
 	if (eliminatingPlayer.value) {
 		store.eliminatePlayer(eliminatingPlayer.value.id)
-		storage.saveOnAction()
 		eliminatingPlayer.value = null
 
-		// Если игра завершилась после выбывания
+		// Если игра завершилась после выбывания — очищаем сохранение
 		if (store.gameState.status === 'finished') {
+			storage.clear()
 			emit('finished')
+		}
+		else {
+			storage.saveOnAction()
 		}
 	}
 }
@@ -192,13 +204,14 @@ const requestFinish = () => {
 const confirmFinish = () => {
 	store.finishGame()
 	showFinishConfirm.value = false
-	storage.saveOnAction()
+	storage.clear()
 	emit('finished')
 }
 
 // Следим за автозавершением (1 игрок остался)
 watch(() => store.gameState.status, (status) => {
 	if (status === 'finished') {
+		storage.clear()
 		emit('finished')
 	}
 })

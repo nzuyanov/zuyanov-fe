@@ -86,15 +86,15 @@ export const usePokerStorage = () => {
 		}
 	}
 
-	onMounted(() => {
+	const setupAutoSaveListeners = () => {
 		window.addEventListener('beforeunload', onBeforeUnload)
 		startAutosave()
-	})
+	}
 
-	onUnmounted(() => {
+	const cleanupAutoSaveListeners = () => {
 		window.removeEventListener('beforeunload', onBeforeUnload)
 		stopAutosave()
-	})
+	}
 
 	return {
 		save,
@@ -104,5 +104,7 @@ export const usePokerStorage = () => {
 		saveOnAction,
 		startAutosave,
 		stopAutosave,
+		setupAutoSaveListeners,
+		cleanupAutoSaveListeners,
 	}
 }
