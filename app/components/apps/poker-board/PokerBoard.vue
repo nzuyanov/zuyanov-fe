@@ -3,7 +3,7 @@
 		<PokerHeader
 			:is-paused="store.gameState.status === 'paused'"
 			:is-muted="sound.muted.value"
-			@back="$emit('back')"
+			@back="requestBack"
 			@toggle-pause="store.togglePause()"
 			@toggle-sound="sound.toggleMute()"
 		/>
@@ -45,6 +45,17 @@
 			variant="danger"
 			@confirm="confirmFinish"
 			@cancel="showFinishConfirm = false"
+		/>
+
+		<!-- Модалка подтверждения выхода -->
+		<PokerConfirmModal
+			v-if="showBackConfirm"
+			message="Игра будет поставлена на паузу. Вы уверены, что хотите покинуть страницу?"
+			confirm-text="Покинуть"
+			cancel-text="Остаться"
+			variant="danger"
+			@confirm="confirmBack"
+			@cancel="showBackConfirm = false"
 		/>
 
 		<!-- Оверлей паузы -->
@@ -206,6 +217,25 @@ const confirmFinish = () => {
 	showFinishConfirm.value = false
 	storage.clear()
 	emit('finished')
+}
+
+// --- Выход со страницы ---
+const showBackConfirm = ref(false)
+
+const requestBack = () => {
+	if (store.gameState.status === 'playing' || store.gameState.status === 'paused') {
+		showBackConfirm.value = true
+	}
+	else {
+		emit('back')
+	}
+}
+
+const confirmBack = () => {
+	store.pause()
+	storage.saveOnAction()
+	showBackConfirm.value = false
+	emit('back')
 }
 
 // Следим за автозавершением (1 игрок остался)

@@ -13,6 +13,11 @@
 				@finished="onGameFinished"
 			/>
 
+			<PokerResults
+				v-else-if="showResults"
+				@new-game="onNewGame"
+			/>
+
 			<div v-else class="poker-start">
 				<h1 class="poker-start__title">🃏 Poker Tournament</h1>
 				<p class="poker-start__desc">Настрой турнир и начинай игру</p>
@@ -39,6 +44,7 @@
 import type { PokerConfig, PokerPlayer, PokerSaveData } from '~/types/poker'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
 import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
+import PokerResults from '~/components/apps/poker-board/PokerResults.vue'
 import PokerConfirmModal from '~/components/apps/poker-board/PokerConfirmModal.vue'
 
 definePageMeta({
@@ -47,6 +53,7 @@ definePageMeta({
 
 const store = usePokerStore()
 const showSetup = ref(false)
+const showResults = ref(false)
 const showRestoreModal = ref(false)
 const savedData = ref<PokerSaveData | null>(null)
 
@@ -108,15 +115,19 @@ const onClose = () => {
 }
 
 const onBack = () => {
-	if (isGameActive.value) {
-		store.pause()
-	}
 	navigateTo('/')
 }
 
 const onGameFinished = () => {
 	const storage = usePokerStorage()
 	storage.clear()
+	showResults.value = true
+}
+
+const onNewGame = () => {
+	store.reset()
+	showResults.value = false
+	showSetup.value = true
 }
 </script>
 
