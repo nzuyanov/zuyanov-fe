@@ -94,6 +94,15 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	border-color: transparent;
 }
 
+.player-card__avatar {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: var(--poker-bg-input);
+	flex-shrink: 0;
+}
+
+
 .player-card--eliminated .player-card__avatar {
 	filter: grayscale(1);
 }
@@ -144,14 +153,6 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	display: flex;
 	gap: 12px;
 	align-items: center;
-}
-
-.player-card__avatar {
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	background: var(--poker-bg-input);
-	flex-shrink: 0;
 }
 
 .player-card__info {

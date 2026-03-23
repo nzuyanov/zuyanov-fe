@@ -284,7 +284,7 @@
 									@click="cycleAvatar(i)"
 								>
 									<!-- eslint-disable-next-line vue/no-v-html -->
-									<span v-html="getAvatarSvg(player.avatarId)" class="player-avatar-wrapper" />
+									<span class="player-avatar-wrapper" v-html="getAvatarSvg(player.avatarId)" />
 								</button>
 								<PokerInput
 									v-model="player.name"
@@ -487,19 +487,6 @@ const chipsSummary = computed(() => {
 	if (totalValue === 0) return null
 	const perPlayer = Math.round(totalValue / (playerCount.value || 1))
 	return { totalValue, perPlayer }
-})
-
-const chipRatesPreview = computed(() => {
-	const totalValue = chips.value.reduce((sum, c) => sum + c.denomination * c.totalCount, 0)
-	const perPlayer = totalValue / (playerCount.value || 1)
-	if (perPlayer === 0) return []
-	const rate = buyIn.value / perPlayer
-	return chips.value
-		.filter(c => c.denomination > 0)
-		.map(c => ({
-			denomination: c.denomination,
-			rate: Math.round(c.denomination * rate * 100) / 100,
-		}))
 })
 
 // Курс фишки: сколько рублей стоит 1 фишка минимального номинала
@@ -1194,6 +1181,11 @@ onUnmounted(() => {
 	transition: background 0.2s, opacity 0.2s, transform 0.15s;
 }
 
+.setup-footer__btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
 .setup-footer__btn:hover:not(:disabled) {
 	background: var(--poker-green-hover);
 	transform: translateY(-1px);
@@ -1203,15 +1195,7 @@ onUnmounted(() => {
 	transform: translateY(0);
 }
 
-.setup-footer__btn:disabled {
-	opacity: 0.4;
-	cursor: not-allowed;
-}
-
 /* --- Utility --- */
-.mono {
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
-}
 
 .rub-icon {
 	display: inline-block;
