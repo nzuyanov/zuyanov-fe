@@ -1,5 +1,5 @@
 import { createAvatar } from '@dicebear/core'
-import * as style from '@dicebear/bottts-neutral'
+import * as style from '@dicebear/avataaars'
 
 const AVATAR_COUNT = 30
 const DEFAULT_SEED = 'poker-avatar-0'

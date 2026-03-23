@@ -222,15 +222,23 @@
 					<!-- Секция 5: Игроки -->
 					<section class="setup-section">
 						<h2 class="setup-section__title">👥 Игроки</h2>
-						<div class="players-list">
+						<div class="players-grid">
 							<div
 								v-for="(player, i) in players"
 								:key="player.id"
-								class="player-row"
+								class="player-card"
+								:class="{ 'player-card--error': isNameDuplicate(i) }"
 							>
-								<span class="player-row__num">{{ i + 1 }}</span>
 								<button
-									class="player-row__avatar"
+									v-if="players.length > 3"
+									class="player-card__remove"
+									@click="removePlayer(i)"
+								>
+									<Icon name="ph:trash-bold" />
+								</button>
+								<span class="player-card__num">{{ i + 1 }}</span>
+								<button
+									class="player-card__avatar"
 									@click="cycleAvatar(i)"
 								>
 									<!-- eslint-disable-next-line vue/no-v-html -->
@@ -238,26 +246,19 @@
 								</button>
 								<PokerInput
 									v-model="player.name"
-									class="player-row__name"
+									class="player-card__name"
 									:error="isNameDuplicate(i)"
 									:placeholder="`Игрок ${i + 1}`"
 								/>
-								<button
-									v-if="players.length > 3"
-									class="player-row__remove"
-									@click="removePlayer(i)"
-								>
-									<Icon name="ph:trash-bold" />
-								</button>
 							</div>
-						</div>
-						<div class="players-actions">
 							<button
 								v-if="players.length < 9"
-								class="btn-add"
+								ref="addBtnRef"
+								class="player-card player-card--add"
 								@click="addPlayer"
 							>
-								+ Добавить игрока
+								<Icon name="ph:plus-bold" class="player-card__add-icon" />
+								<span class="player-card__add-text">Добавить игрока</span>
 							</button>
 						</div>
 						<p
@@ -370,6 +371,27 @@ const pluralizeChip = (n: number): string => {
 const chipsPerRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
 
 // --- Секция 5: Игроки ---
+const FUN_NAMES = [
+	'Покерфейс', 'Блефмастер', 'Джокер', 'Lucky Cat', 'Туз в рукаве',
+	'Шулер', 'BigStack', 'Картёжник', 'All-in Andy', 'Фишкожор',
+	'Дама Пик', 'Royal Flush', 'Чипоед', 'Ва-банк', 'Кинг-Конг',
+	'Full House', 'Дилер Дима', 'PokerMom', 'Тузик', 'River Rat',
+	'Казиноша', 'Флопзилла', 'Мистер Фолд', 'Бет-мен', 'Ривер Кинг',
+	'Чек-рейзер', 'Донк Бет', 'Nuts Мэн', 'Колл-машина', 'Тильт Тоха',
+	'Slow Roll', 'Фишка Судьбы', 'Крупье Коля', 'Dead Man\'s Hand', 'Стрит Боец',
+	'Барон Блайнд', 'Pocket Rocket', 'Мадам Ребай', 'Flush Gordon', 'Дядя Фолд',
+	'Ace Ventura', 'Пиковый Валет', 'Chip Leader', 'Раздатчик Зла', 'The Grinder',
+	'Катала', 'Bubble Boy', 'Рыба-пила', 'Хитрый Лис', 'Short Stack Саня',
+	'Монстр-пот', 'Трефовый Том', 'Lady Luck', 'Блайнд Спот', 'Турнирный Волк',
+	'Fish & Chips', 'Бубновый Боб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
+]
+
+const getRandomName = (usedNames: string[]): string => {
+	const available = FUN_NAMES.filter(n => !usedNames.includes(n))
+	if (available.length === 0) return `Игрок ${usedNames.length + 1}`
+	return available[Math.floor(Math.random() * available.length)]!
+}
+
 interface SetupPlayer {
 	id: number
 	name: string
@@ -380,6 +402,7 @@ const players = ref<SetupPlayer[]>([])
 
 const generatePlayers = (count: number) => {
 	const usedSeeds: string[] = []
+	const usedNames: string[] = []
 	const newPlayers: SetupPlayer[] = []
 	for (let i = 0; i < count; i++) {
 		// Сохраняем существующего игрока, если он есть
@@ -387,13 +410,16 @@ const generatePlayers = (count: number) => {
 		if (existing) {
 			newPlayers.push(existing)
 			usedSeeds.push(existing.avatarId)
+			usedNames.push(existing.name)
 		}
 		else {
 			const seed = getRandomSeed(usedSeeds)
 			usedSeeds.push(seed)
+			const name = getRandomName(usedNames)
+			usedNames.push(name)
 			newPlayers.push({
 				id: i + 1,
-				name: `Игрок ${i + 1}`,
+				name,
 				avatarId: seed,
 			})
 		}
@@ -410,17 +436,24 @@ watch(playerCount, (count) => {
 	generatePlayers(clamped)
 })
 
+const addBtnRef = ref<HTMLButtonElement | null>(null)
+
 const addPlayer = () => {
 	if (players.value.length >= 9) return
 	const usedSeeds = players.value.map(p => p.avatarId)
+	const usedNames = players.value.map(p => p.name)
 	const seed = getRandomSeed(usedSeeds)
+	const name = getRandomName(usedNames)
 	const id = players.value.length > 0 ? Math.max(...players.value.map(p => p.id)) + 1 : 1
 	players.value.push({
 		id,
-		name: `Игрок ${players.value.length + 1}`,
+		name,
 		avatarId: seed,
 	})
 	playerCount.value = players.value.length
+	nextTick(() => {
+		addBtnRef.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+	})
 }
 
 const removePlayer = (index: number) => {
@@ -570,7 +603,7 @@ const startTournament = () => {
 /* --- Body --- */
 .setup-body {
 	flex: 1;
-	overflow-y: auto;
+	overflow: hidden auto;
 	padding: 24px 28px;
 	display: flex;
 	flex-direction: column;
@@ -872,55 +905,73 @@ const startTournament = () => {
 	color: var(--poker-text-muted);
 }
 
-.btn-add {
-	align-self: flex-start;
-	margin-top: 8px;
-	padding: 8px 16px;
-	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: var(--poker-green);
-	background: var(--poker-green-dim, rgb(16 185 129 / 15%));
-	border: 1px dashed var(--poker-green);
-	border-radius: var(--poker-radius-sm);
-	cursor: pointer;
-	transition: background 0.2s;
+
+/* --- Players Grid --- */
+.players-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	min-width: 0;
 }
 
-.btn-add:hover {
-	background: rgb(16 185 129 / 25%);
-}
-
-/* --- Players --- */
-.players-list {
+.player-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	align-items: center;
+	gap: 10px;
+	padding: 20px 12px 16px;
+	min-width: 0;
+	height: 180px;
+	background: var(--poker-bg-input);
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius);
+	transition: border-color 0.2s;
 }
 
-.player-row {
+.player-card--error {
+	border-color: var(--poker-red);
+}
+
+.player-card__num {
+	position: absolute;
+	top: 8px;
+	left: 10px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.95rem;
+	font-weight: 800;
+	color: var(--poker-text-muted);
+}
+
+.player-card__remove {
+	position: absolute;
+	top: 6px;
+	right: 6px;
 	display: flex;
 	align-items: center;
-	gap: 12px;
-}
-
-.player-row__num {
+	justify-content: center;
 	width: 28px;
-	text-align: center;
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
-	font-size: 0.875rem;
-	font-weight: 600;
+	height: 28px;
+	border: none;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
 	color: var(--poker-text-muted);
-	flex-shrink: 0;
+	cursor: pointer;
+	transition: color 0.2s, background 0.2s;
 }
 
-.player-row__avatar {
-	width: 44px;
-	height: 44px;
+.player-card__remove:hover {
+	color: var(--poker-red);
+	background: var(--poker-red-dim);
+}
+
+.player-card__avatar {
+	width: 80px;
+	height: 80px;
 	border: none;
 	border-radius: 50%;
 	outline: 2px solid var(--poker-border);
-	background: var(--poker-bg-input);
+	background: var(--poker-bg-card);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -930,43 +981,51 @@ const startTournament = () => {
 	transition: outline 0.2s;
 }
 
-.player-row__avatar:hover {
+.player-card__avatar:hover {
 	outline: 2px solid var(--poker-green);
 }
 
-.player-row__avatar :deep(svg) {
+.player-card__avatar :deep(svg) {
 	width: 100%;
 	height: 100%;
 }
 
-.player-row__name {
-	flex: 1;
-	max-width: 320px;
+.player-card__name {
+	width: 100%;
 }
 
-.player-row__remove {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 36px;
-	height: 36px;
-	border: none;
-	border-radius: var(--poker-radius-sm);
-	background: transparent;
-	color: var(--poker-text-muted);
+.player-card__name :deep(input) {
+	text-align: center;
+}
+
+/* Кнопка добавления игрока */
+.player-card--add {
 	cursor: pointer;
-	transition: color 0.2s, background 0.2s;
-	flex-shrink: 0;
+	border-style: dashed;
+	border-color: var(--poker-border);
+	background: transparent;
+	justify-content: center;
+	gap: 8px;
+	color: var(--poker-text-muted);
+	transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 
-.player-row__remove:hover {
-	color: var(--poker-red);
-	background: var(--poker-red-dim);
+.player-card--add:hover {
+	border-color: var(--poker-green);
+	color: var(--poker-green);
+	background: rgb(16 185 129 / 8%);
 }
 
-.players-actions {
-	margin-top: 8px;
+.player-card__add-icon {
+	font-size: 2.5rem;
 }
+
+.player-card__add-text {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
 
 /* --- Footer --- */
 .setup-footer {
