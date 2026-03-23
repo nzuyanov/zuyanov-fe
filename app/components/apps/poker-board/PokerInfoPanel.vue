@@ -37,7 +37,7 @@
 		<!-- Банк -->
 		<section class="info-section">
 			<h3 class="info-section__label">Банк</h3>
-			<span class="info-pot">{{ formatMoney(store.gameState.totalPot) }}</span>
+			<span class="info-pot">{{ formatMoney(store.gameState.totalPot) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 		</section>
 
 		<!-- Призовые -->
@@ -46,17 +46,17 @@
 			<div class="info-prizes">
 				<div class="info-prize">
 					<span class="info-prize__icon">🥇</span>
-					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[0]) }}</span>
+					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[0]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[0] }}%</span>
 				</div>
 				<div class="info-prize">
 					<span class="info-prize__icon">🥈</span>
-					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[1]) }}</span>
+					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[1]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[1] }}%</span>
 				</div>
 				<div class="info-prize">
 					<span class="info-prize__icon">🥉</span>
-					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[2]) }}</span>
+					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[2]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[2] }}%</span>
 				</div>
 			</div>
@@ -69,7 +69,7 @@
 				<span v-for="rate in store.chipRates" :key="rate.denomination" class="info-chip">
 					<span class="info-chip__denom">{{ rate.denomination }}</span>
 					<span class="info-chip__eq">=</span>
-					<span class="info-chip__rate">{{ rate.rateInRubles }} ₽</span>
+					<span class="info-chip__rate">{{ rate.rateInRubles }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 				</span>
 			</div>
 		</section>
@@ -160,7 +160,7 @@ onUnmounted(() => {
 	if (blindsPulseTimeout) clearTimeout(blindsPulseTimeout)
 })
 
-const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')} ₽`
+const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 </script>
 
 <style scoped>
@@ -441,5 +441,18 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 .info-finish:hover {
 	background: var(--poker-red);
 	color: #fff;
+}
+
+.rub-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+}
+
+.rub-icon :deep(svg) {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
 }
 </style>

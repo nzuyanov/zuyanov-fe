@@ -5,7 +5,7 @@
 			<span>Назад</span>
 		</button>
 
-		<h1 class="poker-header__title">🃏 Poker Tournament</h1>
+		<h1 class="poker-header__title">🃏 {{ title }}</h1>
 
 		<div class="poker-header__controls">
 			<button
@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 defineProps<{
+	title: string
 	isPaused: boolean
 	isMuted: boolean
 }>()

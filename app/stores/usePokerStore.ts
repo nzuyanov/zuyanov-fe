@@ -7,6 +7,7 @@ import type {
 } from '~/types/poker'
 
 const createDefaultConfig = (): PokerConfig => ({
+	name: '',
 	buyIn: 500,
 	maxRebuys: 3,
 	rebuyPeriodMinutes: 60,

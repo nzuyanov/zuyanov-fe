@@ -11,6 +11,7 @@ export interface PokerChipConfig {
 }
 
 export interface PokerConfig {
+	name: string
 	buyIn: number
 	maxRebuys: number
 	rebuyPeriodMinutes: number

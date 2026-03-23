@@ -1,6 +1,6 @@
 <template>
 	<Teleport to="body">
-		<div class="setup-overlay">
+		<div class="setup-overlay poker-shimmer-overlay">
 			<div class="setup-modal">
 				<header class="setup-header">
 					<h1 class="setup-header__title">🃏 Настройка турнира</h1>
@@ -14,44 +14,50 @@
 					<section class="setup-section">
 						<h2 class="setup-section__title">⚙️ Основные параметры</h2>
 						<div class="setup-grid">
-							<div class="field">
-								<label class="field__label">Количество игроков</label>
-								<input
-									v-model.number="playerCount"
-									type="number"
-									class="field__input"
-									min="3"
-									max="9"
-								>
+							<div class="field field--wide">
+								<label class="field__label">Название турнира</label>
+								<PokerInput
+									v-model="tournamentName"
+									placeholder="Турнир 23.03.2026"
+								/>
 							</div>
 							<div class="field">
-								<label class="field__label">Размер закупа (buy-in), ₽</label>
-								<input
-									v-model.number="buyIn"
+								<label class="field__label">Количество игроков</label>
+								<PokerInput
+									v-model="playerCount"
 									type="number"
-									class="field__input"
-									min="1"
-								>
+									:min="3"
+									:max="9"
+								/>
+							</div>
+							<div class="field">
+								<label class="field__label">Размер закупа (buy-in), <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></label>
+								<PokerInput
+									v-model="buyIn"
+									type="number"
+									:min="1"
+									:step="100"
+								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Длительность игры</label>
 								<div class="field__row">
-									<input
-										v-model.number="durationHours"
+									<PokerInput
+										v-model="durationHours"
 										type="number"
-										class="field__input field__input--small"
-										min="0"
-										max="23"
-									>
+										:min="0"
+										:max="23"
+										small
+									/>
 									<span class="field__unit">ч</span>
-									<input
-										v-model.number="durationMinutes"
+									<PokerInput
+										v-model="durationMinutes"
 										type="number"
-										class="field__input field__input--small"
-										min="0"
-										max="59"
-										step="5"
-									>
+										:min="0"
+										:max="59"
+										:step="5"
+										small
+									/>
 									<span class="field__unit">мин</span>
 								</div>
 								<span
@@ -61,21 +67,20 @@
 							</div>
 							<div class="field">
 								<label class="field__label">Макс. ребаев на игрока</label>
-								<input
-									v-model.number="maxRebuys"
+								<PokerInput
+									v-model="maxRebuys"
 									type="number"
-									class="field__input"
-									min="0"
-								>
+									:min="0"
+								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Период ребаев, мин</label>
-								<input
-									v-model.number="rebuyPeriodMinutes"
+								<PokerInput
+									v-model="rebuyPeriodMinutes"
 									type="number"
-									class="field__input"
-									min="0"
-								>
+									:min="0"
+									:step="5"
+								/>
 							</div>
 						</div>
 					</section>
@@ -91,17 +96,19 @@
 							>
 								<span class="prizes__label">{{ place }}</span>
 								<div class="prizes__input-wrap">
-									<input
-										v-model.number="prizes[i]"
+									<PokerInput
+										:model-value="prizes[i]"
 										type="number"
-										class="field__input field__input--small"
-										min="0"
-										max="100"
-									>
+										:min="0"
+										:max="100"
+										small
+										@update:model-value="prizes[i] = Number($event)"
+									/>
 									<span class="field__unit">%</span>
 								</div>
 								<span class="prizes__amount">
-									{{ formatMoney(prizeAmountsPreview[i] ?? 0) }}
+									{{ (prizeAmountsPreview[i] ?? 0).toLocaleString('ru-RU') }}
+									<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
 								</span>
 							</div>
 							<div
@@ -119,67 +126,69 @@
 					<!-- Секция 3: Блайнды -->
 					<section class="setup-section">
 						<h2 class="setup-section__title">🎰 Блайнды</h2>
-						<div class="setup-grid">
-							<div class="field">
-								<label class="field__label">Начальный SB</label>
-								<input
-									v-model.number="startSB"
-									type="number"
-									class="field__input"
-									min="1"
-								>
+						<div class="blinds-layout">
+							<div class="blinds-fields">
+								<div class="field">
+									<label class="field__label">Начальный SB</label>
+									<PokerInput
+										v-model="startSB"
+										type="number"
+										:min="1"
+										:step="5"
+									/>
+								</div>
+								<div class="field">
+									<label class="field__label">Начальный BB</label>
+									<PokerInput
+										v-model="startBB"
+										type="number"
+										:min="1"
+										:step="10"
+									/>
+								</div>
+								<div class="field">
+									<label class="field__label">Интервал роста, мин</label>
+									<PokerInput
+										v-model="blindInterval"
+										type="number"
+										:min="1"
+										:step="5"
+									/>
+								</div>
+								<div class="field">
+									<label class="field__label">Множитель роста</label>
+									<PokerInput
+										v-model="blindMultiplier"
+										type="number"
+										:min="1.1"
+										:step="0.1"
+										allow-decimals
+									/>
+								</div>
 							</div>
-							<div class="field">
-								<label class="field__label">Начальный BB</label>
-								<input
-									v-model.number="startBB"
-									type="number"
-									class="field__input"
-									min="1"
-								>
-							</div>
-							<div class="field">
-								<label class="field__label">Интервал роста, мин</label>
-								<input
-									v-model.number="blindInterval"
-									type="number"
-									class="field__input"
-									min="1"
-								>
-							</div>
-							<div class="field">
-								<label class="field__label">Множитель роста</label>
-								<input
-									v-model.number="blindMultiplier"
-									type="number"
-									class="field__input"
-									min="1.1"
-									step="0.1"
-								>
-							</div>
-						</div>
 
-						<div class="blinds-preview">
-							<h3 class="blinds-preview__title">Превью уровней</h3>
-							<table class="blinds-table">
-								<thead>
-									<tr>
-										<th>Уровень</th>
-										<th>SB</th>
-										<th>BB</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr
-										v-for="level in blindLevelsPreview"
-										:key="level.level"
-									>
-										<td>{{ level.level }}</td>
-										<td class="mono">{{ level.sb }}</td>
-										<td class="mono">{{ level.bb }}</td>
-									</tr>
-								</tbody>
-							</table>
+							<div class="blinds-preview">
+								<h3 class="blinds-preview__title">Превью уровней</h3>
+								<table class="blinds-table">
+									<thead>
+										<tr>
+											<th>Ур.</th>
+											<th>SB</th>
+											<th>BB</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr
+											v-for="level in blindLevelsPreview"
+											:key="level.level"
+										>
+											<td class="blinds-table__level">{{ level.level }}</td>
+											<td class="mono">{{ level.sb }}</td>
+											<td class="mono">{{ level.bb }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</section>
 
@@ -194,22 +203,22 @@
 							>
 								<div class="field">
 									<label v-if="i === 0" class="field__label">Номинал</label>
-									<input
-										v-model.number="chip.denomination"
+									<PokerInput
+										v-model="chip.denomination"
 										type="number"
-										class="field__input"
-										min="1"
-										:class="{ 'field__input--error': isDuplicateChip(i) }"
-									>
+										:min="1"
+										:step="25"
+										:error="isDuplicateChip(i)"
+									/>
 								</div>
 								<div class="field">
 									<label v-if="i === 0" class="field__label">Количество</label>
-									<input
-										v-model.number="chip.totalCount"
+									<PokerInput
+										v-model="chip.totalCount"
 										type="number"
-										class="field__input"
-										min="1"
-									>
+										:min="1"
+										:step="10"
+									/>
 								</div>
 								<button
 									class="chips-row__remove"
@@ -225,23 +234,32 @@
 						</button>
 
 						<div v-if="chipsSummary" class="chips-summary">
-							<div class="chips-summary__row">
-								<span>Всего фишек:</span>
-								<span class="mono">{{ chipsSummary.totalValue }} фишек</span>
+							<div class="chips-summary__stats">
+								<div class="chips-summary__stat">
+									<span class="chips-summary__stat-label">Всего фишек</span>
+									<span class="chips-summary__stat-value">{{ chipsSummary.totalValue.toLocaleString('ru-RU') }}</span>
+								</div>
+								<div class="chips-summary__stat">
+									<span class="chips-summary__stat-label">На 1 игрока</span>
+									<span class="chips-summary__stat-value">{{ chipsSummary.perPlayer.toLocaleString('ru-RU') }}</span>
+								</div>
 							</div>
-							<div class="chips-summary__row">
-								<span>На 1 игрока:</span>
-								<span class="mono">{{ chipsSummary.perPlayer }} фишек</span>
-							</div>
-							<div class="chips-summary__title">Курс фишки:</div>
-							<div
-								v-for="rate in chipRatesPreview"
-								:key="rate.denomination"
-								class="chips-summary__rate"
-							>
-								<span class="mono">{{ rate.denomination }}</span> фишка
-								= <span class="mono">{{ rate.rate }} ₽</span>
-							</div>
+
+							<h4 class="chips-summary__title">Курс фишки</h4>
+							<table class="chips-rate-table">
+								<thead>
+									<tr>
+										<th>Номинал</th>
+										<th>Курс</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="rate in chipRatesPreview" :key="rate.denomination">
+										<td class="mono">{{ rate.denomination }}</td>
+										<td class="mono chips-rate-table__rub">{{ rate.rate }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</section>
 
@@ -262,14 +280,29 @@
 									<!-- eslint-disable-next-line vue/no-v-html -->
 									<span v-html="getAvatarSvg(player.avatarId)" />
 								</button>
-								<input
+								<PokerInput
 									v-model="player.name"
-									type="text"
-									class="field__input player-row__name"
-									:class="{ 'field__input--error': isNameDuplicate(i) }"
+									class="player-row__name"
+									:error="isNameDuplicate(i)"
 									:placeholder="`Игрок ${i + 1}`"
+								/>
+								<button
+									v-if="players.length > 3"
+									class="player-row__remove"
+									@click="removePlayer(i)"
 								>
+									<Icon name="ph:trash-bold" />
+								</button>
 							</div>
+						</div>
+						<div class="players-actions">
+							<button
+								v-if="players.length < 9"
+								class="btn-add"
+								@click="addPlayer"
+							>
+								+ Добавить игрока
+							</button>
 						</div>
 						<p
 							v-if="hasDuplicateNames"
@@ -302,6 +335,7 @@
 
 <script setup lang="ts">
 import type { PokerConfig, PokerPlayer, PokerChipConfig } from '~/types/poker'
+import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 
 const emit = defineEmits<{
 	start: [config: PokerConfig, players: PokerPlayer[]]
@@ -309,6 +343,10 @@ const emit = defineEmits<{
 }>()
 
 const { getAvatarSvg, getRandomSeed, getNextSeed } = usePokerAvatars()
+
+// --- Название турнира ---
+const defaultTournamentName = `Турнир ${new Date().toLocaleDateString('ru-RU')}`
+const tournamentName = ref(defaultTournamentName)
 
 // --- Секция 1: Основные параметры ---
 const playerCount = ref(6)
@@ -438,6 +476,25 @@ watch(playerCount, (count) => {
 	generatePlayers(clamped)
 })
 
+const addPlayer = () => {
+	if (players.value.length >= 9) return
+	const usedSeeds = players.value.map(p => p.avatarId)
+	const seed = getRandomSeed(usedSeeds)
+	const id = players.value.length > 0 ? Math.max(...players.value.map(p => p.id)) + 1 : 1
+	players.value.push({
+		id,
+		name: `Игрок ${players.value.length + 1}`,
+		avatarId: seed,
+	})
+	playerCount.value = players.value.length
+}
+
+const removePlayer = (index: number) => {
+	if (players.value.length <= 3) return
+	players.value.splice(index, 1)
+	playerCount.value = players.value.length
+}
+
 const cycleAvatar = (index: number) => {
 	const player = players.value[index]
 	if (player) {
@@ -480,14 +537,12 @@ const isFormValid = computed(() => isPrizesValid.value
 	&& chips.value.every(c => c.denomination > 0 && c.totalCount > 0)
 	&& !chips.value.some((c, i) => isDuplicateChip(i)))
 
-// --- Форматирование ---
-const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')} ₽`
-
 // --- Старт турнира ---
 const startTournament = () => {
 	if (!isFormValid.value) return
 
 	const config: PokerConfig = {
+		name: tournamentName.value.trim() || defaultTournamentName,
 		buyIn: buyIn.value,
 		maxRebuys: maxRebuys.value,
 		rebuyPeriodMinutes: rebuyPeriodMinutes.value,
@@ -525,7 +580,6 @@ const startTournament = () => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: rgb(0 0 0 / 80%);
 	backdrop-filter: blur(4px);
 }
 
@@ -606,47 +660,21 @@ const startTournament = () => {
 }
 
 /* --- Field --- */
+.field--wide {
+	grid-column: 1 / -1;
+}
+
 .field__label {
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 0.8125rem;
-	font-weight: 500;
+	font-weight: 600;
 	color: var(--poker-text-muted);
 	margin-bottom: 6px;
 }
 
-.field__input {
-	width: 100%;
-	padding: 10px 14px;
-	font-size: 0.9375rem;
-	font-family: inherit;
-	color: var(--poker-text);
-	background: var(--poker-bg-input, #2D333B);
-	border: 1px solid var(--poker-border);
-	border-radius: var(--poker-radius-sm, 8px);
-	outline: none;
-	transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.field__input[type="number"] {
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
-}
-
-.field__input:focus {
-	border-color: var(--poker-green);
-	box-shadow: 0 0 0 3px var(--poker-green-dim, rgb(16 185 129 / 15%));
-}
-
-.field__input--small {
-	width: 80px;
-}
-
-.field__input--error {
-	border-color: var(--poker-red);
-}
-
-.field__input--error:focus {
-	box-shadow: 0 0 0 3px var(--poker-red-dim, rgb(239 68 68 / 15%));
-}
 
 .field__row {
 	display: flex;
@@ -655,13 +683,17 @@ const startTournament = () => {
 }
 
 .field__unit {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.875rem;
+	font-weight: 500;
 	color: var(--poker-text-muted);
 }
 
 .field__error {
 	display: block;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.8125rem;
+	font-weight: 500;
 	color: var(--poker-red);
 	margin-top: 4px;
 }
@@ -682,6 +714,7 @@ const startTournament = () => {
 
 .prizes__label {
 	width: 100px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 0.9375rem;
 	font-weight: 600;
 	flex-shrink: 0;
@@ -694,6 +727,9 @@ const startTournament = () => {
 }
 
 .prizes__amount {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
 	font-family: var(--poker-font-mono);
 	font-size: 0.9375rem;
 	color: var(--poker-gold);
@@ -703,9 +739,9 @@ const startTournament = () => {
 .prizes__total {
 	padding-top: 8px;
 	border-top: 1px solid var(--poker-border);
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 0.9375rem;
-	font-weight: 600;
+	font-weight: 700;
 	color: var(--poker-green);
 }
 
@@ -713,41 +749,84 @@ const startTournament = () => {
 	color: var(--poker-red);
 }
 
+/* --- Blinds layout --- */
+.blinds-layout {
+	display: flex;
+	gap: 28px;
+	align-items: stretch;
+}
+
+.blinds-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex-shrink: 0;
+	width: 220px;
+}
+
 /* --- Blinds preview --- */
 .blinds-preview {
-	margin-top: 16px;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .blinds-preview__title {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 0.875rem;
-	font-weight: 600;
+	font-weight: 700;
 	color: var(--poker-text-muted);
-	margin-bottom: 8px;
+	margin-bottom: 10px;
 }
 
 .blinds-table {
 	width: 100%;
-	max-width: 320px;
-	border-collapse: collapse;
+	flex: 1;
+	border-collapse: separate;
+	border-spacing: 0;
 	font-size: 0.875rem;
+	background: var(--poker-bg-card, #21252D);
+	border-radius: var(--poker-radius-sm);
+	overflow: hidden;
 }
 
 .blinds-table th {
 	text-align: left;
-	padding: 6px 12px;
+	padding: 8px 14px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
 	color: var(--poker-text-muted);
-	font-weight: 600;
+	background: var(--poker-bg-input, #2D333B);
 	border-bottom: 1px solid var(--poker-border);
 }
 
 .blinds-table td {
-	padding: 6px 12px;
+	padding: 8px 14px;
+	color: var(--poker-text-secondary);
 	border-bottom: 1px solid var(--poker-border);
 }
 
-.blinds-table tr:first-child td {
+.blinds-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.blinds-table tbody tr:first-child td {
 	color: var(--poker-green);
-	font-weight: 600;
+	font-weight: 700;
+}
+
+.blinds-table tbody tr:hover td {
+	background: rgb(255 255 255 / 3%);
+}
+
+.blinds-table__level {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-weight: 700;
+	color: var(--poker-text-muted);
 }
 
 /* --- Chips --- */
@@ -796,6 +875,7 @@ const startTournament = () => {
 	align-self: flex-start;
 	margin-top: 4px;
 	padding: 8px 16px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--poker-green);
@@ -812,29 +892,88 @@ const startTournament = () => {
 
 .chips-summary {
 	margin-top: 16px;
-	padding: 14px 18px;
-	background: var(--poker-bg-card, #21252D);
-	border-radius: var(--poker-radius-sm);
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
-	font-size: 0.875rem;
+	gap: 12px;
 }
 
-.chips-summary__row {
+.chips-summary__stats {
 	display: flex;
-	justify-content: space-between;
-	max-width: 300px;
+	gap: 24px;
+}
+
+.chips-summary__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 16px;
+	background: var(--poker-bg-card, #21252D);
+	border-radius: var(--poker-radius-sm);
+}
+
+.chips-summary__stat-label {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--poker-text-muted);
+}
+
+.chips-summary__stat-value {
+	font-family: var(--poker-font-mono, 'Courier New', monospace);
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--poker-text);
 }
 
 .chips-summary__title {
-	font-weight: 600;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.875rem;
+	font-weight: 700;
 	color: var(--poker-gold);
-	margin-top: 6px;
 }
 
-.chips-summary__rate {
+.chips-rate-table {
+	width: 100%;
+	max-width: 280px;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 0.875rem;
+	background: var(--poker-bg-card, #21252D);
+	border-radius: var(--poker-radius-sm);
+	overflow: hidden;
+}
+
+.chips-rate-table th {
+	text-align: left;
+	padding: 8px 14px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--poker-text-muted);
+	background: var(--poker-bg-input, #2D333B);
+	border-bottom: 1px solid var(--poker-border);
+}
+
+.chips-rate-table td {
+	padding: 8px 14px;
 	color: var(--poker-text-secondary);
+	border-bottom: 1px solid var(--poker-border);
+}
+
+.chips-rate-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.chips-rate-table__rub {
+	color: var(--poker-gold);
+}
+
+.chips-rate-table tbody tr:hover td {
+	background: rgb(255 255 255 / 3%);
 }
 
 /* --- Players --- */
@@ -890,6 +1029,30 @@ const startTournament = () => {
 	max-width: 320px;
 }
 
+.player-row__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: none;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
+	color: var(--poker-text-muted);
+	cursor: pointer;
+	transition: color 0.2s, background 0.2s;
+	flex-shrink: 0;
+}
+
+.player-row__remove:hover {
+	color: var(--poker-red);
+	background: var(--poker-red-dim);
+}
+
+.players-actions {
+	margin-top: 8px;
+}
+
 /* --- Footer --- */
 .setup-footer {
 	display: flex;
@@ -903,7 +1066,7 @@ const startTournament = () => {
 	padding: 14px 36px;
 	font-size: 1.0625rem;
 	font-weight: 700;
-	font-family: inherit;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	border: none;
 	border-radius: var(--poker-radius-sm);
 	background: var(--poker-green);
@@ -929,6 +1092,19 @@ const startTournament = () => {
 /* --- Utility --- */
 .mono {
 	font-family: var(--poker-font-mono, 'Courier New', monospace);
+}
+
+.rub-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+}
+
+.rub-icon :deep(svg) {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
 }
 
 /* --- Scrollbar --- */

@@ -19,7 +19,8 @@
 				>
 				<span class="results__name">{{ entry.player.name }}</span>
 				<span class="results__prize">
-					{{ entry.prize > 0 ? formatMoney(entry.prize) : '—' }}
+					<template v-if="entry.prize > 0">{{ formatMoney(entry.prize) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></template>
+					<template v-else>—</template>
 				</span>
 				<span class="results__percent">
 					{{ entry.percent > 0 ? `${entry.percent}%` : '' }}
@@ -49,7 +50,7 @@
 		<div class="results__stats">
 			<div class="results__stat">
 				<span class="results__stat-label">Банк</span>
-				<span class="results__stat-value">{{ formatMoney(store.gameState.totalPot) }}</span>
+				<span class="results__stat-value">{{ formatMoney(store.gameState.totalPot) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 			</div>
 			<div class="results__stat">
 				<span class="results__stat-label">Игроков</span>
@@ -87,8 +88,7 @@ const podium = computed(() => {
 
 const otherPlayers = computed(() => results.value.slice(3))
 
-const formatMoney = (value: number): string =>
-	`${value.toLocaleString('ru-RU')} ₽`
+const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 </script>
 
 <style scoped>
@@ -289,5 +289,18 @@ const formatMoney = (value: number): string =>
 
 .results__btn:active {
 	transform: translateY(0);
+}
+
+.rub-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+}
+
+.rub-icon :deep(svg) {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
 }
 </style>

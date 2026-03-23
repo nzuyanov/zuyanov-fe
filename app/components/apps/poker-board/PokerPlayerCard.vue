@@ -22,7 +22,7 @@
 			<div class="player-card__info">
 				<span class="player-card__name">{{ player.name }}</span>
 				<span class="player-card__contributed">
-					Внёс: <span class="player-card__money">{{ formatMoney(player.totalContributed) }}</span>
+					Внёс: <span class="player-card__money">{{ formatMoney(player.totalContributed) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 				</span>
 				<span class="player-card__rebuys">
 					Ребаев: <span class="player-card__money">{{ player.rebuysUsed }}/{{ maxRebuys }}</span>
@@ -73,7 +73,7 @@ const { getAvatarDataUri } = usePokerAvatars()
 
 const avatarUri = computed(() => getAvatarDataUri(props.player.avatarId))
 
-const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')} ₽`
+const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 </script>
 
 <style scoped>
@@ -230,6 +230,19 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 .player-card__btn--eliminate:hover {
 	background: var(--poker-red);
 	color: #fff;
+}
+
+.rub-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+}
+
+.rub-icon :deep(svg) {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
 }
 
 .player-card__eliminated-label {

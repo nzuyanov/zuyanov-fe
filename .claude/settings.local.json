@@ -13,7 +13,16 @@
       "Bash(npx nuxi:*)",
       "Bash(ls -la \"E:\\\\projects\\\\zuyanov-fe\\\\app\"\" 2>/dev/null || find \"E:projectszuyanov-feapp \" -maxdepth 2 -type d)",
       "Bash(npx nuxt:*)",
-      "Bash(find E:projectszuyanov-fe -path */.nuxt -prune -o -path */node_modules -prune -o \\\\\\(-type f \\\\\\(-name *poker* -o -name *.ts -o -name *.vue \\\\\\) \\\\\\) -print)"
+      "Bash(find E:projectszuyanov-fe -path */.nuxt -prune -o -path */node_modules -prune -o \\\\\\(-type f \\\\\\(-name *poker* -o -name *.ts -o -name *.vue \\\\\\) \\\\\\) -print)",
+      "WebSearch",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(where npx:*)",
+      "Bash(where node:*)",
+      "Bash(ls E:/projects/zuyanov-fe/node_modules/.bin/nuxt*)",
+      "Bash(npm search:*)",
+      "Bash(npm view:*)",
+      "Bash(xxd)"
     ]
   }
 }

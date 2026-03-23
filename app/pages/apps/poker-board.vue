@@ -70,9 +70,10 @@ const restoreMessage = computed(() => {
 		hour: '2-digit',
 		minute: '2-digit',
 	})
+	const name = savedData.value.config.name || 'Турнир'
 	const playerCount = savedData.value.gameState.players.length
 	const activePlayers = savedData.value.gameState.players.filter(p => !p.isEliminated).length
-	return `Обнаружена незавершённая игра (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
+	return `Обнаружена незавершённая игра «${name}» (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
 })
 
 // Проверка localStorage при загрузке страницы
@@ -111,11 +112,11 @@ const onTournamentStart = (config: PokerConfig, players: PokerPlayer[]) => {
 }
 
 const onClose = () => {
-	navigateTo('/')
+	navigateTo('/tlp')
 }
 
 const onBack = () => {
-	navigateTo('/')
+	navigateTo('/tlp')
 }
 
 const onGameFinished = () => {
@@ -131,8 +132,9 @@ const onNewGame = () => {
 }
 </script>
 
-<style scoped>
-.poker-page {
+<style>
+/* Покерные переменные на :root для доступа из Teleport-модалок */
+:root {
 	--poker-bg: #0D1117;
 	--poker-bg-surface: #1A1D23;
 	--poker-bg-card: #21252D;
@@ -153,7 +155,40 @@ const onNewGame = () => {
 	--poker-radius: 12px;
 	--poker-radius-sm: 8px;
 	--poker-font-mono: 'Courier New', monospace;
+}
 
+/* Переливающийся overlay для покерных модалок */
+@keyframes poker-shimmer {
+	0% { background-position: 0% 50%; }
+	25% { background-position: 50% 100%; }
+	50% { background-position: 100% 50%; }
+	75% { background-position: 50% 0%; }
+	100% { background-position: 0% 50%; }
+}
+
+.poker-shimmer-overlay {
+	background:
+		radial-gradient(ellipse at 15% 50%, rgb(16 185 129 / 35%) 0%, transparent 50%),
+		radial-gradient(ellipse at 85% 20%, rgb(139 92 246 / 30%) 0%, transparent 50%),
+		radial-gradient(ellipse at 50% 85%, rgb(56 189 248 / 28%) 0%, transparent 50%),
+		radial-gradient(ellipse at 80% 70%, rgb(99 102 241 / 25%) 0%, transparent 45%),
+		linear-gradient(
+			135deg,
+			#050a0e 0%,
+			rgb(16 185 129 / 22%) 20%,
+			#070c12 35%,
+			rgb(139 92 246 / 20%) 50%,
+			#050a0e 65%,
+			rgb(56 189 248 / 18%) 80%,
+			#070c12 100%
+		);
+	background-size: 300% 300%;
+	animation: poker-shimmer 12s ease infinite;
+}
+</style>
+
+<style scoped>
+.poker-page {
 	width: 100vw;
 	height: 100vh;
 	overflow: hidden;

@@ -1,6 +1,7 @@
 <template>
 	<div class="board">
 		<PokerHeader
+			:title="store.config.name || 'Poker Tournament'"
 			:is-paused="store.gameState.status === 'paused'"
 			:is-muted="sound.muted.value"
 			@back="requestBack"

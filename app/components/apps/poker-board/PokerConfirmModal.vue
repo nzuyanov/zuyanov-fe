@@ -1,6 +1,6 @@
 <template>
 	<Teleport to="body">
-		<div class="confirm-overlay" @click.self="$emit('cancel')">
+		<div class="confirm-overlay poker-shimmer-overlay" @click.self="$emit('cancel')">
 			<div class="confirm-dialog">
 				<p class="confirm-dialog__message">{{ message }}</p>
 				<div class="confirm-dialog__actions">
@@ -46,7 +46,7 @@ defineEmits<{
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: rgb(0 0 0 / 60%);
+	backdrop-filter: blur(4px);
 }
 
 .confirm-dialog {
@@ -59,6 +59,7 @@ defineEmits<{
 }
 
 .confirm-dialog__message {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 1.05rem;
 	font-weight: 600;
 	color: var(--poker-text, #F9FAFB);
