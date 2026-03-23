@@ -125,7 +125,7 @@ const restoreMessage = computed(() => {
 	return `Обнаружена незавершённая игра «${name}» (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
 })
 
-// Проверка localStorage при загрузке страницы
+// Проверка localStorage при загрузке страницы!
 onMounted(() => {
 	const storage = usePokerStorage()
 	const data = storage.load()
