@@ -1297,7 +1297,7 @@ const startTournament = () => {
 }
 
 .errors-tooltip__item::before {
-	content: '⚠ ';
+	content: '❗ ';
 }
 
 .tooltip-fade-enter-active,
