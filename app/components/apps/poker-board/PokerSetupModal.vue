@@ -244,12 +244,20 @@
 									<!-- eslint-disable-next-line vue/no-v-html -->
 									<span class="player-avatar-wrapper" v-html="getAvatarSvg(player.avatarId)" />
 								</button>
-								<PokerInput
-									v-model="player.name"
-									class="player-card__name"
-									:error="isNameDuplicate(i)"
-									:placeholder="`Игрок ${i + 1}`"
-								/>
+								<div class="player-card__name-row">
+									<PokerInput
+										v-model="player.name"
+										class="player-card__name"
+										:error="isNameDuplicate(i)"
+										:placeholder="`Игрок ${i + 1}`"
+									/>
+									<button
+										class="player-card__reroll"
+										@click="rerollName(i)"
+									>
+										<Icon name="ph:dice-five-bold" />
+									</button>
+								</div>
 							</div>
 							<button
 								v-if="players.length < 9"
@@ -372,18 +380,18 @@ const chipsPerRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
 
 // --- Секция 5: Игроки ---
 const FUN_NAMES = [
-	'Покерфейс', 'Блефмастер', 'Джокер', 'Lucky Cat', 'Туз в рукаве',
-	'Шулер', 'BigStack', 'Картёжник', 'All-in Andy', 'Фишкожор',
-	'Дама Пик', 'Royal Flush', 'Чипоед', 'Ва-банк', 'Кинг-Конг',
-	'Full House', 'Дилер Дима', 'PokerMom', 'Тузик', 'River Rat',
-	'Казиноша', 'Флопзилла', 'Мистер Фолд', 'Бет-мен', 'Ривер Кинг',
-	'Чек-рейзер', 'Донк Бет', 'Nuts Мэн', 'Колл-машина', 'Тильт Тоха',
-	'Slow Roll', 'Фишка Судьбы', 'Крупье Коля', 'Dead Man\'s Hand', 'Стрит Боец',
-	'Барон Блайнд', 'Pocket Rocket', 'Мадам Ребай', 'Flush Gordon', 'Дядя Фолд',
-	'Ace Ventura', 'Пиковый Валет', 'Chip Leader', 'Раздатчик Зла', 'The Grinder',
-	'Катала', 'Bubble Boy', 'Рыба-пила', 'Хитрый Лис', 'Short Stack Саня',
-	'Монстр-пот', 'Трефовый Том', 'Lady Luck', 'Блайнд Спот', 'Турнирный Волк',
-	'Fish & Chips', 'Бубновый Боб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
+	'Дама ДикПик', 'Блефмастер', 'Покерфейс', 'Ва-банк Ёбанк', 'Туз в жопе',
+	'Шулер-хуюлер', 'BigDick Stack', 'Картёжник', 'All-in Алкаш', 'Фишкожор',
+	'Хуяльный Флеш', 'Royal Хуяль', 'Чипоед', 'Ебать-колл', 'Кинг-Хуинг',
+	'Full Хаус', 'Дилер Хуилер', 'PokerМамка', 'Тузик-Пузик', 'River Крыса',
+	'Казиноёб', 'Флопзилла', 'Мистер Фолд', 'Бет-мен', 'Ривер Кинг',
+	'Чек-Хуек', 'Донк Ёбт', 'Nuts Мэн', 'Колл-машина', 'Тильт Тоха',
+	'Слоу Ролл Бл*', 'Фишка Судьбы', 'Крупье Хуюпье', 'Мёртвый Хенд', 'Стрит Боец',
+	'Барон Блайнд', 'Pocket Ракета', 'Мадам Ребай', 'Флеш Гордон', 'Дядя Фолд',
+	'Ас Хуяс', 'Пиковый Хер', 'Chip Licker', 'Раздатчик Зла', 'The Гриндер',
+	'Катала-Ебала', 'Bubble Бой', 'Рыба-пила', 'Хитрожопый Лис', 'Шортстек Саня',
+	'Монстр-хуёт', 'Трефовый Хрен', 'Lady Дрюк', 'Блайнд Спот', 'Турнирный Волк',
+	'Fish & Tits', 'Бубновый Хуб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
 ]
 
 const getRandomName = (usedNames: string[]): string => {
@@ -469,6 +477,15 @@ const cycleAvatar = (index: number) => {
 	}
 }
 
+const rerollName = (index: number) => {
+	const player = players.value[index]
+	if (!player) return
+	const usedNames = players.value
+		.filter((_, i) => i !== index)
+		.map(p => p.name.trim())
+	player.name = getRandomName(usedNames)
+}
+
 const isNameDuplicate = (index: number): boolean => {
 	const player = players.value[index]
 	if (!player) return false
@@ -552,7 +569,7 @@ const startTournament = () => {
 
 .setup-modal {
 	width: 92vw;
-	max-width: 960px;
+	max-width: 1100px;
 	max-height: 92vh;
 	display: flex;
 	flex-direction: column;
@@ -990,12 +1007,44 @@ const startTournament = () => {
 	height: 100%;
 }
 
-.player-card__name {
+.player-card__name-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	width: 100%;
+}
+
+.player-card__name {
+	flex: 1;
+	min-width: 0;
 }
 
 .player-card__name :deep(input) {
 	text-align: center;
+}
+
+.player-card__reroll {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
+	color: var(--poker-text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.player-card__reroll:hover {
+	color: var(--poker-gold);
+	background: var(--poker-gold-dim);
+}
+
+.player-card__reroll:active {
+	transform: rotate(90deg);
 }
 
 /* Кнопка добавления игрока */
