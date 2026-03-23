@@ -1,0 +1,23 @@
+{
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);const f=j.tool_response?.filePath||j.tool_input?.file_path||'';if(/\\.(vue|ts)$/.test(f)){const{execSync}=require('child_process');try{execSync('npx eslint --fix '+JSON.stringify(f),{stdio:'inherit'})}catch(e){}}})\"",
+						"timeout": 30,
+						"statusMessage": "ESLint --fix"
+					},
+					{
+						"type": "command",
+						"command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);const f=j.tool_response?.filePath||j.tool_input?.file_path||'';if(/\\.(vue|css)$/.test(f)){const{execSync}=require('child_process');try{execSync('npx stylelint --fix '+JSON.stringify(f),{stdio:'inherit'})}catch(e){}}})\"",
+						"timeout": 30,
+						"statusMessage": "Stylelint --fix"
+					}
+				]
+			}
+		]
+	}
+}

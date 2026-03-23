@@ -4,7 +4,7 @@ import { META_TITLE, META_DESCRIPTION, META_IMAGE } from './app/constants/meta'
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
 	devtools: {enabled: true},
-	modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/image'],
+	modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/icon', '@nuxt/image'],
 
 	css: ['~/assets/css/global.css'],
 
@@ -54,5 +54,6 @@ export default defineNuxtConfig({
 
 	routeRules: {
 		'/': {prerender: true},
+		'/tlp': {prerender: true},
 	},
 })

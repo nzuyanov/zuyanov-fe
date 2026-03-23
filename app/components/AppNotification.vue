@@ -1,21 +1,22 @@
 <template>
-	<Teleport to="body">
-		<TransitionGroup name="notif" tag="div" class="notif-container">
-			<div
-				v-for="n in notifications"
-				:key="n.id"
-				class="notif"
-				:class="`notif--${n.type}`"
-			>
-				<Icon :name="iconMap[n.type]" class="notif__icon"/>
-				<span class="notif__message">{{ n.message }}</span>
-				<button class="notif__close" @click="dismiss(n.id)">
-					<Icon name="ph:x-bold" />
-				</button>
-			</div>
-		</TransitionGroup>
-	</Teleport>
-</template>
+	<ClientOnly>
+		<Teleport to="body">
+			<TransitionGroup name="notif" tag="div" class="notif-container">
+				<div
+					v-for="n in notifications"
+					:key="n.id"
+					class="notif"
+					:class="`notif--${n.type}`"
+				>
+					<Icon :name="iconMap[n.type]" class="notif__icon"/>
+					<span class="notif__message">{{ n.message }}</span>
+					<button class="notif__close" @click="dismiss(n.id)">
+						<Icon name="ph:x-bold" />
+					</button>
+				</div>
+			</TransitionGroup>
+		</Teleport>
+	</ClientOnly></template>
 
 <script setup lang="ts">
 const { notifications, dismiss } = useNotification()
@@ -51,7 +52,7 @@ const iconMap = {
 	color: var(--text);
 	font-family: var(--font-body);
 	font-size: 0.875rem;
-	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
 	max-width: 360px;
 }
 
