@@ -47,7 +47,30 @@
 			@cancel="showFinishConfirm = false"
 		/>
 
-		<!-- Уведомление о времени -->
+		<!-- Оверлей паузы -->
+		<Transition name="pause-overlay">
+			<div v-if="store.gameState.status === 'paused'" class="board__pause-overlay">
+				<div class="board__pause-content">
+					<span class="board__pause-icon">⏸</span>
+					<span class="board__pause-text">ПАУЗА</span>
+				</div>
+			</div>
+		</Transition>
+
+		<!-- Уведомления -->
+		<Transition name="toast">
+			<div v-if="blindsUpNotice" class="board__toast board__toast--blinds">
+				🔺 Блайнды повышены!
+				<span class="board__toast-blinds-value">{{ store.currentBlinds.sb }} / {{ store.currentBlinds.bb }}</span>
+			</div>
+		</Transition>
+
+		<Transition name="toast">
+			<div v-if="rebuyEndNotice" class="board__toast board__toast--addon">
+				🔄 Ребай-период завершён. Доступен Add-on
+			</div>
+		</Transition>
+
 		<Transition name="toast">
 			<div v-if="timeUpNotice" class="board__toast board__toast--danger">
 				⏰ Время вышло! Завершите турнир вручную или продолжайте игру.
@@ -74,12 +97,34 @@ const store = usePokerStore()
 const sound = usePokerSound()
 const storage = usePokerStorage()
 
-// --- Таймеры ---
+// --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)
+const blindsUpNotice = ref(false)
+const rebuyEndNotice = ref(false)
+
+let blindsUpTimeout: ReturnType<typeof setTimeout> | null = null
+let rebuyEndTimeout: ReturnType<typeof setTimeout> | null = null
+
+const showBlindsUpNotice = () => {
+	blindsUpNotice.value = true
+	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
+	blindsUpTimeout = setTimeout(() => {
+		blindsUpNotice.value = false
+	}, 3000)
+}
+
+const showRebuyEndNotice = () => {
+	rebuyEndNotice.value = true
+	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
+	rebuyEndTimeout = setTimeout(() => {
+		rebuyEndNotice.value = false
+	}, 4000)
+}
 
 usePokerTimer({
 	onBlindsUp: () => {
 		sound.play('blindsUp')
+		showBlindsUpNotice()
 	},
 	onGameTimeUp: () => {
 		sound.play('gameEnd')
@@ -93,7 +138,13 @@ usePokerTimer({
 	},
 	onRebuyPeriodEnd: () => {
 		sound.play('rebuyEnd')
+		showRebuyEndNotice()
 	},
+})
+
+onUnmounted(() => {
+	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
+	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
 })
 
 // --- Ребай ---
@@ -211,6 +262,87 @@ watch(() => store.gameState.status, (status) => {
 
 .board__toast-close:hover {
 	color: #fff;
+}
+
+/* Оверлей паузы */
+.board__pause-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgb(0 0 0 / 60%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 200;
+	backdrop-filter: blur(4px);
+}
+
+.board__pause-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+}
+
+.board__pause-icon {
+	font-size: 4rem;
+	opacity: 0.7;
+}
+
+.board__pause-text {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 5rem;
+	font-weight: 900;
+	letter-spacing: 0.2em;
+	color: var(--poker-text);
+	text-shadow: 0 0 40px rgb(255 255 255 / 20%);
+	animation: pause-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pause-pulse {
+	0%, 100% { opacity: 0.8; }
+	50% { opacity: 1; }
+}
+
+.pause-overlay-enter-active {
+	transition: opacity 0.3s ease;
+}
+
+.pause-overlay-leave-active {
+	transition: opacity 0.3s ease;
+}
+
+.pause-overlay-enter-from,
+.pause-overlay-leave-to {
+	opacity: 0;
+}
+
+/* Toast-уведомления — варианты */
+.board__toast--blinds {
+	background: var(--poker-green);
+	color: #fff;
+	animation: toast-glow-green 0.6s ease-out;
+}
+
+.board__toast-blinds-value {
+	font-family: var(--poker-font-mono);
+	font-weight: 800;
+	margin-left: 4px;
+}
+
+.board__toast--addon {
+	background: var(--poker-gold);
+	color: #000;
+	animation: toast-glow-gold 0.6s ease-out;
+}
+
+@keyframes toast-glow-green {
+	0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 60%); }
+	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
+}
+
+@keyframes toast-glow-gold {
+	0% { box-shadow: 0 0 0 0 rgb(245 158 11 / 60%); }
+	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
 }
 
 .toast-enter-active,

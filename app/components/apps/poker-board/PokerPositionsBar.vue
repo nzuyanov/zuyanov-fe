@@ -1,17 +1,23 @@
 <template>
 	<footer class="positions-bar">
-		<div v-if="store.dealerPlayer" class="positions-bar__item positions-bar__item--dealer">
-			<span class="positions-bar__badge">D</span>
-			<span class="positions-bar__name">{{ store.dealerPlayer.name }}</span>
-		</div>
-		<div v-if="store.sbPlayer" class="positions-bar__item positions-bar__item--sb">
-			<span class="positions-bar__badge">SB</span>
-			<span class="positions-bar__name">{{ store.sbPlayer.name }}</span>
-		</div>
-		<div v-if="store.bbPlayer" class="positions-bar__item positions-bar__item--bb">
-			<span class="positions-bar__badge">BB</span>
-			<span class="positions-bar__name">{{ store.bbPlayer.name }}</span>
-		</div>
+		<Transition name="position-swap" mode="out-in">
+			<div v-if="store.dealerPlayer" :key="store.dealerPlayer.id" class="positions-bar__item positions-bar__item--dealer">
+				<span class="positions-bar__badge">D</span>
+				<span class="positions-bar__name">{{ store.dealerPlayer.name }}</span>
+			</div>
+		</Transition>
+		<Transition name="position-swap" mode="out-in">
+			<div v-if="store.sbPlayer" :key="store.sbPlayer.id" class="positions-bar__item positions-bar__item--sb">
+				<span class="positions-bar__badge">SB</span>
+				<span class="positions-bar__name">{{ store.sbPlayer.name }}</span>
+			</div>
+		</Transition>
+		<Transition name="position-swap" mode="out-in">
+			<div v-if="store.bbPlayer" :key="store.bbPlayer.id" class="positions-bar__item positions-bar__item--bb">
+				<span class="positions-bar__badge">BB</span>
+				<span class="positions-bar__name">{{ store.bbPlayer.name }}</span>
+			</div>
+		</Transition>
 	</footer>
 </template>
 
@@ -69,5 +75,24 @@ const store = usePokerStore()
 	font-size: 0.9rem;
 	font-weight: 600;
 	color: var(--poker-text-secondary);
+}
+
+/* Анимация смены позиций */
+.position-swap-enter-active {
+	transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.position-swap-leave-active {
+	transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.position-swap-enter-from {
+	opacity: 0;
+	transform: translateY(8px);
+}
+
+.position-swap-leave-to {
+	opacity: 0;
+	transform: translateY(-8px);
 }
 </style>

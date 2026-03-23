@@ -1,7 +1,7 @@
 <template>
 	<aside class="info-panel">
 		<!-- Блайнды -->
-		<section class="info-section">
+		<section class="info-section" :class="{ 'info-section--blinds-pulse': blindsPulse }">
 			<h3 class="info-section__label">Блайнды</h3>
 			<div class="info-blinds">
 				<span class="info-blinds__current">
@@ -13,7 +13,7 @@
 					След.: {{ store.nextBlinds.sb }} / {{ store.nextBlinds.bb }}
 				</span>
 			</div>
-			<div class="info-timer info-timer--blinds">
+			<div class="info-timer info-timer--blinds" :class="{ 'info-timer--warning': isBlindTimerLow }">
 				<Icon name="ph:clock-bold" class="info-timer__icon" />
 				<span class="info-timer__value">{{ formatBlindTimer }}</span>
 			</div>
@@ -141,6 +141,25 @@ const rebuyStatusClass = computed(() => {
 	return 'info-rebuy-status--done'
 })
 
+// Пульсация блайндов при повышении
+const blindsPulse = ref(false)
+let blindsPulseTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(() => store.gameState.currentBlindLevel, () => {
+	blindsPulse.value = true
+	if (blindsPulseTimeout) clearTimeout(blindsPulseTimeout)
+	blindsPulseTimeout = setTimeout(() => {
+		blindsPulse.value = false
+	}, 3000)
+})
+
+// Предупреждение — 1 минута до повышения блайндов
+const isBlindTimerLow = computed(() => store.gameState.blindTimerSeconds <= 60 && store.gameState.blindTimerSeconds > 0)
+
+onUnmounted(() => {
+	if (blindsPulseTimeout) clearTimeout(blindsPulseTimeout)
+})
+
 const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')} ₽`
 </script>
 
@@ -227,6 +246,40 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-timer--danger .info-timer__value {
 	color: var(--poker-red);
+	animation: timer-danger-pulse 1s ease-in-out infinite;
+}
+
+@keyframes timer-danger-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
+}
+
+/* Предупреждение — скоро блайнды повысятся */
+.info-timer--warning .info-timer__value {
+	color: var(--poker-gold);
+}
+
+.info-timer--warning .info-timer__icon {
+	color: var(--poker-gold);
+}
+
+/* Пульсация блайндов при повышении */
+.info-section--blinds-pulse {
+	animation: blinds-pulse 0.6s ease-out 3;
+}
+
+.info-section--blinds-pulse .info-blinds__current {
+	animation: blinds-glow 0.6s ease-out 3;
+}
+
+@keyframes blinds-pulse {
+	0% { background: rgb(16 185 129 / 15%); }
+	100% { background: transparent; }
+}
+
+@keyframes blinds-glow {
+	0% { text-shadow: 0 0 16px rgb(16 185 129 / 60%); }
+	100% { text-shadow: none; }
 }
 
 /* Ребай-статус */
