@@ -3,7 +3,7 @@
 		<div class="setup-overlay poker-shimmer-overlay">
 			<div class="setup-modal">
 				<header class="setup-header">
-					<h1 class="setup-header__title">🃏 Настройка турнира</h1>
+					<h1 class="setup-header__title">🃏 Настройки турнира</h1>
 					<button class="setup-header__close" @click="emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
@@ -12,7 +12,7 @@
 				<div class="setup-body">
 					<!-- Секция 1: Основные параметры -->
 					<section class="setup-section">
-						<h2 class="setup-section__title">⚙️ Основные параметры</h2>
+						<h2 class="setup-section__title">⚙️ Основное</h2>
 						<div class="setup-grid">
 							<div class="field field--wide">
 								<label class="field__label">Название турнира</label>
@@ -739,13 +739,13 @@ onUnmounted(() => {
 /* --- Grid --- */
 .setup-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-template-columns: repeat(4, minmax(200px, 1fr));
 	gap: 16px;
 }
 
 /* --- Field --- */
 .field--wide {
-	grid-column: 1 / -1;
+	grid-column: 1 / 4;
 }
 
 .field__label {
@@ -1121,6 +1121,7 @@ onUnmounted(() => {
 .player-row__avatar {
 	width: 44px;
 	height: 44px;
+	border: none;
 	border-radius: 50%;
 	outline: 2px solid var(--poker-border);
 	background: var(--poker-bg-input);
