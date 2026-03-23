@@ -68,7 +68,7 @@ const arrowStyles = computed(() => {
 		left: 'right',
 	}
 
-	const placement = props.placement.split('-')[0]
+	const placement = props.placement.split('-')[0]!
 	const side = staticSide[placement] ?? 'bottom'
 
 	return {

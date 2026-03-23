@@ -102,7 +102,7 @@
 								<span class="prizes__label">{{ place }}</span>
 								<div class="prizes__input-wrap">
 									<PokerInput
-										:model-value="prizes[i]"
+										:model-value="prizes[i] ?? 0"
 										type="number"
 										:min="0"
 										:max="100"
@@ -374,13 +374,13 @@ const durationDisplay = computed(() => {
 const parseDurationInput = (raw: string): number | null => {
 	// Попробуем формат «X ч Y мин»
 	const full = raw.match(/(\d+)\s*ч\s*(\d+)\s*мин/)
-	if (full) return parseInt(full[1]) * 60 + parseInt(full[2])
+	if (full) return parseInt(full[1]!) * 60 + parseInt(full[2]!)
 	// «X ч»
 	const hoursOnly = raw.match(/(\d+)\s*ч/)
-	if (hoursOnly) return parseInt(hoursOnly[1]) * 60
+	if (hoursOnly) return parseInt(hoursOnly[1]!) * 60
 	// «X мин»
 	const minsOnly = raw.match(/(\d+)\s*мин/)
-	if (minsOnly) return parseInt(minsOnly[1])
+	if (minsOnly) return parseInt(minsOnly[1]!)
 	// Просто число — минуты
 	const num = parseInt(raw)
 	if (!isNaN(num)) return num

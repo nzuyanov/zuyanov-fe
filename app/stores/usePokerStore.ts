@@ -61,7 +61,7 @@ export const usePokerStore = defineStore('poker', () => {
 
 		if (denominations.length === 0) return value
 
-		const minDenom = denominations[0]
+		const minDenom = denominations[0]!
 		const rounded = Math.ceil(value / minDenom) * minDenom
 		return Math.max(rounded, minDenom)
 	}
@@ -138,12 +138,12 @@ export const usePokerStore = defineStore('poker', () => {
 		if (currentPos === -1) {
 			// Find the nearest active index after fromIndex
 			for (let i = 0; i < indices.length; i++) {
-				if (indices[i] > fromIndex) return indices[i]
+				if (indices[i]! > fromIndex) return indices[i]!
 			}
-			return indices[0]
+			return indices[0]!
 		}
 
-		return indices[(currentPos + 1) % indices.length]
+		return indices[(currentPos + 1) % indices.length]!
 	}
 
 	const dealerPlayer = computed<PokerPlayer | null>(() => {

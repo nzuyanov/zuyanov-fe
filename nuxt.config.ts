@@ -5,9 +5,9 @@ export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
 	devtools: {enabled: true},
 	modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/icon', '@nuxt/image'],
-	// typescript: {
-	// 	typeCheck: true,
-	// },
+	typescript: {
+		typeCheck: true,
+	},
 	css: ['~/assets/css/global.css'],
 
 	app: {

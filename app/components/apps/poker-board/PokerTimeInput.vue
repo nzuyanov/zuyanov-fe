@@ -82,19 +82,19 @@ const parseTimeInput = (raw: string): number | null => {
 
 	// «X ч Y мин»
 	const full = trimmed.match(/^(\d+)\s*ч\s+(\d+)\s*мин?$/)
-	if (full) return parseInt(full[1]) * 60 + parseInt(full[2])
+	if (full) return parseInt(full[1]!) * 60 + parseInt(full[2]!)
 
 	// «X ч»
 	const hoursOnly = trimmed.match(/^(\d+)\s*ч$/)
-	if (hoursOnly) return parseInt(hoursOnly[1]) * 60
+	if (hoursOnly) return parseInt(hoursOnly[1]!) * 60
 
 	// «X мин»
 	const minsOnly = trimmed.match(/^(\d+)\s*мин?$/)
-	if (minsOnly) return parseInt(minsOnly[1])
+	if (minsOnly) return parseInt(minsOnly[1]!)
 
 	// Просто число — минуты
 	const justNum = trimmed.match(/^(\d+)$/)
-	if (justNum) return parseInt(justNum[1])
+	if (justNum) return parseInt(justNum[1]!)
 
 	return null
 }

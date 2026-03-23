@@ -8,10 +8,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "npm run lint:js && npm run lint:css && npm run typecheck",
+    "lint": "npm run lint:js && npm run lint:css && npm run ts",
     "lint:js": "eslint . --fix",
     "lint:css": "stylelint \"app/**/*.{vue,css}\" --fix",
-    "typecheck": "vue-tsc --noEmit",
+    "ts": "nuxt typecheck",
     "lint:fix": "npm run lint:js && npm run lint:css"
   },
   "dependencies": {
