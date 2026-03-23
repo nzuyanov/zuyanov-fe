@@ -187,7 +187,8 @@ const formatMoney = (value: number): string =>
 }
 
 .results__percent {
-	font-size: 0.8rem;
+	font-family: var(--poker-font-mono);
+	font-size: 0.85rem;
 	color: var(--poker-text-muted);
 }
 

@@ -627,6 +627,10 @@ const startTournament = () => {
 	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.field__input[type="number"] {
+	font-family: var(--poker-font-mono, 'Courier New', monospace);
+}
+
 .field__input:focus {
 	border-color: var(--poker-green);
 	box-shadow: 0 0 0 3px var(--poker-green-dim, rgb(16 185 129 / 15%));
@@ -699,6 +703,7 @@ const startTournament = () => {
 .prizes__total {
 	padding-top: 8px;
 	border-top: 1px solid var(--poker-border);
+	font-family: var(--poker-font-mono, 'Courier New', monospace);
 	font-size: 0.9375rem;
 	font-weight: 600;
 	color: var(--poker-green);
@@ -848,6 +853,7 @@ const startTournament = () => {
 .player-row__num {
 	width: 28px;
 	text-align: center;
+	font-family: var(--poker-font-mono, 'Courier New', monospace);
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--poker-text-muted);

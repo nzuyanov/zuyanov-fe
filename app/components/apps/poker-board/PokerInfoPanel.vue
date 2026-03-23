@@ -174,6 +174,23 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 	overflow-y: auto;
 }
 
+.info-panel::-webkit-scrollbar {
+	width: 6px;
+}
+
+.info-panel::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+	background: rgb(255 255 255 / 15%);
+	border-radius: 3px;
+}
+
+.info-panel::-webkit-scrollbar-thumb:hover {
+	background: rgb(255 255 255 / 25%);
+}
+
 .info-section {
 	display: flex;
 	flex-direction: column;
@@ -214,7 +231,7 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-blinds__next {
 	font-family: var(--poker-font-mono);
-	font-size: 0.85rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
@@ -285,7 +302,7 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 /* Ребай-статус */
 .info-rebuy-status {
 	font-family: var(--poker-font-mono);
-	font-size: 0.8rem;
+	font-size: 0.85rem;
 	font-weight: 700;
 	padding: 6px 10px;
 	border-radius: var(--poker-radius-sm);
@@ -335,13 +352,14 @@ const formatMoney = (value: number): string => `${value.toLocaleString('ru-RU')}
 
 .info-prize__amount {
 	font-family: var(--poker-font-mono);
-	font-size: 0.95rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	color: var(--poker-text);
 }
 
 .info-prize__pct {
-	font-size: 0.75rem;
+	font-family: var(--poker-font-mono);
+	font-size: 0.8rem;
 	color: var(--poker-text-muted);
 }
 

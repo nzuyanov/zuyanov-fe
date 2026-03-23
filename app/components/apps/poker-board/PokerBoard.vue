@@ -281,8 +281,8 @@ watch(() => store.gameState.status, (status) => {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	padding: 12px 20px;
-	font-size: 0.95rem;
+	padding: 14px 24px;
+	font-size: 1.1rem;
 	font-weight: 600;
 	border-radius: var(--poker-radius);
 	box-shadow: 0 8px 32px rgb(0 0 0 / 40%);
@@ -368,6 +368,7 @@ watch(() => store.gameState.status, (status) => {
 
 .board__toast-blinds-value {
 	font-family: var(--poker-font-mono);
+	font-size: 1.2rem;
 	font-weight: 800;
 	margin-left: 4px;
 }
