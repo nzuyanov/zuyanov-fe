@@ -31,39 +31,43 @@
 								/>
 							</div>
 							<div class="field">
-								<label class="field__label">Размер закупа (buy-in), <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></label>
+								<label class="field__label">Размер закупа (buy-in)</label>
 								<PokerInput
 									v-model="buyIn"
 									type="number"
 									:min="1"
 									:step="100"
+									suffix="₽"
 								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Длительность игры</label>
-								<div class="field__row">
-									<PokerInput
-										v-model="durationHours"
-										type="number"
-										:min="0"
-										:max="23"
-										small
-									/>
-									<span class="field__unit">ч</span>
-									<PokerInput
-										v-model="durationMinutes"
-										type="number"
-										:min="0"
-										:max="59"
-										:step="5"
-										small
-									/>
-									<span class="field__unit">мин</span>
+								<div class="duration-input">
+									<button
+										class="duration-input__step"
+										tabindex="-1"
+										@mousedown.prevent="startDurationDecrement"
+										@mouseup="stopDurationRepeat"
+										@mouseleave="stopDurationRepeat"
+									>
+										<Icon name="ph:minus-bold" />
+									</button>
+									<input
+										class="duration-input__native"
+										:value="durationDisplay"
+										@input="onDurationInput"
+										@blur="onDurationBlur"
+									>
+									<button
+										class="duration-input__step"
+										tabindex="-1"
+										@mousedown.prevent="startDurationIncrement"
+										@mouseup="stopDurationRepeat"
+										@mouseleave="stopDurationRepeat"
+									>
+										<Icon name="ph:plus-bold" />
+									</button>
 								</div>
-								<span
-									v-if="totalDurationMinutes < 10"
-									class="field__error"
-								>Минимум 10 минут</span>
 							</div>
 							<div class="field">
 								<label class="field__label">Макс. ребаев на игрока</label>
@@ -74,12 +78,13 @@
 								/>
 							</div>
 							<div class="field">
-								<label class="field__label">Период ребаев, мин</label>
+								<label class="field__label">Период ребаев</label>
 								<PokerInput
 									v-model="rebuyPeriodMinutes"
 									type="number"
 									:min="0"
 									:step="5"
+									suffix="мин"
 								/>
 							</div>
 						</div>
@@ -102,9 +107,10 @@
 										:min="0"
 										:max="100"
 										small
+										:step="5"
+										suffix="%"
 										@update:model-value="prizes[i] = Number($event)"
 									/>
-									<span class="field__unit">%</span>
 								</div>
 								<span class="prizes__amount">
 									{{ (prizeAmountsPreview[i] ?? 0).toLocaleString('ru-RU') }}
@@ -147,12 +153,13 @@
 									/>
 								</div>
 								<div class="field">
-									<label class="field__label">Интервал роста, мин</label>
+									<label class="field__label">Интервал роста</label>
 									<PokerInput
 										v-model="blindInterval"
 										type="number"
 										:min="1"
 										:step="5"
+										suffix="мин"
 									/>
 								</div>
 								<div class="field">
@@ -183,8 +190,8 @@
 											:key="level.level"
 										>
 											<td class="blinds-table__level">{{ level.level }}</td>
-											<td class="mono">{{ level.sb }}</td>
-											<td class="mono">{{ level.bb }}</td>
+											<td>{{ level.sb }}</td>
+											<td>{{ level.bb }}</td>
 										</tr>
 									</tbody>
 								</table>
@@ -195,71 +202,70 @@
 					<!-- Секция 4: Фишки -->
 					<section class="setup-section">
 						<h2 class="setup-section__title">🪙 Фишки</h2>
-						<div class="chips-list">
-							<div
-								v-for="(chip, i) in chips"
-								:key="i"
-								class="chips-row"
-							>
-								<div class="field">
-									<label v-if="i === 0" class="field__label">Номинал</label>
-									<PokerInput
-										v-model="chip.denomination"
-										type="number"
-										:min="1"
-										:step="25"
-										:error="isDuplicateChip(i)"
-									/>
+						<div class="chips-layout">
+							<div class="chips-left">
+								<div class="chips-list">
+									<div
+										v-for="(chip, i) in chips"
+										:key="i"
+										class="chips-row"
+									>
+										<div class="field">
+											<label v-if="i === 0" class="field__label">Номинал</label>
+											<PokerInput
+												v-model="chip.denomination"
+												type="number"
+												:min="1"
+												:step="25"
+												:error="isDuplicateChip(i)"
+											/>
+										</div>
+										<div class="field">
+											<label v-if="i === 0" class="field__label">Количество</label>
+											<PokerInput
+												v-model="chip.totalCount"
+												type="number"
+												:min="1"
+												:step="10"
+											/>
+										</div>
+										<button
+											class="chips-row__remove"
+											:class="{
+												'chips-row__remove--hidden': chips.length <= 1,
+												'chips-row__remove--with-label': i === 0,
+											}"
+											@click="removeChip(i)"
+										>
+											<Icon name="ph:trash-bold" />
+										</button>
+									</div>
 								</div>
-								<div class="field">
-									<label v-if="i === 0" class="field__label">Количество</label>
-									<PokerInput
-										v-model="chip.totalCount"
-										type="number"
-										:min="1"
-										:step="10"
-									/>
-								</div>
-								<button
-									class="chips-row__remove"
-									:class="{ 'chips-row__remove--hidden': chips.length <= 1 }"
-									@click="removeChip(i)"
-								>
-									<Icon name="ph:trash-bold" />
+								<button class="btn-add" @click="addChip">
+									+ Добавить номинал
 								</button>
 							</div>
-						</div>
-						<button class="btn-add" @click="addChip">
-							+ Добавить номинал
-						</button>
 
-						<div v-if="chipsSummary" class="chips-summary">
-							<div class="chips-summary__stats">
-								<div class="chips-summary__stat">
-									<span class="chips-summary__stat-label">Всего фишек</span>
-									<span class="chips-summary__stat-value">{{ chipsSummary.totalValue.toLocaleString('ru-RU') }}</span>
-								</div>
-								<div class="chips-summary__stat">
-									<span class="chips-summary__stat-label">На 1 игрока</span>
-									<span class="chips-summary__stat-value">{{ chipsSummary.perPlayer.toLocaleString('ru-RU') }}</span>
+							<div v-if="chipsSummary" class="chips-right">
+								<div class="chips-info">
+									<div class="chips-info__item">
+										<span class="chips-info__label">Всего фишек</span>
+										<span class="chips-info__value">{{ chipsSummary.totalValue.toLocaleString('ru-RU') }}</span>
+									</div>
+									<div class="chips-info__item">
+										<span class="chips-info__label">На 1 игрока</span>
+										<span class="chips-info__value">{{ chipsSummary.perPlayer.toLocaleString('ru-RU') }}</span>
+									</div>
+									<div class="chips-info__divider" />
+									<div class="chips-info__item">
+										<span class="chips-info__label">Курс фишки</span>
+										<span class="chips-info__value chips-info__value--rate">
+											1 фишка = {{ chipCourseDisplay }}
+											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+										</span>
+									</div>
 								</div>
 							</div>
-
-							<h4 class="chips-summary__title">Курс фишки</h4>
-							<table class="chips-rate-table">
-								<thead>
-									<tr>
-										<th>Номинал</th>
-										<th>Курс</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="rate in chipRatesPreview" :key="rate.denomination">
-										<td class="mono">{{ rate.denomination }}</td>
-										<td class="mono chips-rate-table__rub">{{ rate.rate }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></td>
-									</tr>
-								</tbody>
-							</table>
 						</div>
 					</section>
 
@@ -278,7 +284,7 @@
 									@click="cycleAvatar(i)"
 								>
 									<!-- eslint-disable-next-line vue/no-v-html -->
-									<span v-html="getAvatarSvg(player.avatarId)" />
+									<span v-html="getAvatarSvg(player.avatarId)" class="player-avatar-wrapper" />
 								</button>
 								<PokerInput
 									v-model="player.name"
@@ -351,12 +357,73 @@ const tournamentName = ref(defaultTournamentName)
 // --- Секция 1: Основные параметры ---
 const playerCount = ref(6)
 const buyIn = ref(500)
-const durationHours = ref(3)
-const durationMinutes = ref(0)
+const gameDurationMinutes = ref(180)
 const maxRebuys = ref(3)
 const rebuyPeriodMinutes = ref(60)
 
-const totalDurationMinutes = computed(() => durationHours.value * 60 + durationMinutes.value)
+// --- Длительность: отображение в формате «X ч Y мин» ---
+const durationDisplay = computed(() => {
+	const m = gameDurationMinutes.value
+	if (m <= 59) return `${m} мин`
+	const hours = Math.floor(m / 60)
+	const mins = m % 60
+	if (mins === 0) return `${hours} ч`
+	return `${hours} ч ${mins} мин`
+})
+
+const parseDurationInput = (raw: string): number | null => {
+	// Попробуем формат «X ч Y мин»
+	const full = raw.match(/(\d+)\s*ч\s*(\d+)\s*мин/)
+	if (full) return parseInt(full[1]) * 60 + parseInt(full[2])
+	// «X ч»
+	const hoursOnly = raw.match(/(\d+)\s*ч/)
+	if (hoursOnly) return parseInt(hoursOnly[1]) * 60
+	// «X мин»
+	const minsOnly = raw.match(/(\d+)\s*мин/)
+	if (minsOnly) return parseInt(minsOnly[1])
+	// Просто число — минуты
+	const num = parseInt(raw)
+	if (!isNaN(num)) return num
+	return null
+}
+
+const onDurationInput = (e: Event) => {
+	const raw = (e.target as HTMLInputElement).value
+	const parsed = parseDurationInput(raw)
+	if (parsed !== null && parsed >= 15) {
+		gameDurationMinutes.value = parsed
+	}
+}
+
+const onDurationBlur = () => {
+	if (gameDurationMinutes.value < 15) gameDurationMinutes.value = 15
+}
+
+const incrementDuration = () => {
+	gameDurationMinutes.value = Math.min(gameDurationMinutes.value + 15, 1440)
+}
+
+const decrementDuration = () => {
+	gameDurationMinutes.value = Math.max(gameDurationMinutes.value - 15, 15)
+}
+
+let durationRepeatTimer: ReturnType<typeof setTimeout> | null = null
+let durationRepeatInterval: ReturnType<typeof setInterval> | null = null
+
+const startDurationRepeat = (action: () => void) => {
+	action()
+	durationRepeatTimer = setTimeout(() => {
+		durationRepeatInterval = setInterval(action, 80)
+	}, 400)
+}
+
+const stopDurationRepeat = () => {
+	if (durationRepeatTimer) { clearTimeout(durationRepeatTimer); durationRepeatTimer = null }
+	if (durationRepeatInterval) { clearInterval(durationRepeatInterval); durationRepeatInterval = null }
+}
+
+const startDurationIncrement = () => startDurationRepeat(incrementDuration)
+const startDurationDecrement = () => startDurationRepeat(decrementDuration)
 
 // --- Секция 2: Призовые ---
 const prizes = ref<[number, number, number]>([50, 30, 20])
@@ -433,6 +500,18 @@ const chipRatesPreview = computed(() => {
 			denomination: c.denomination,
 			rate: Math.round(c.denomination * rate * 100) / 100,
 		}))
+})
+
+// Курс фишки: сколько рублей стоит 1 фишка минимального номинала
+const chipCourseDisplay = computed(() => {
+	const totalValue = chips.value.reduce((sum, c) => sum + c.denomination * c.totalCount, 0)
+	const perPlayer = totalValue / (playerCount.value || 1)
+	if (perPlayer === 0) return '0'
+	const rate = buyIn.value / perPlayer
+	// Находим минимальный номинал
+	const minDenom = Math.min(...chips.value.filter(c => c.denomination > 0).map(c => c.denomination))
+	const rub = Math.round(minDenom * rate * 100) / 100
+	return rub.toLocaleString('ru-RU')
 })
 
 // --- Секция 5: Игроки ---
@@ -521,12 +600,13 @@ const hasEmptyNames = computed(() =>
 
 // --- Валидация ---
 const isFormValid = computed(() => isPrizesValid.value
+	&& tournamentName.value.trim().length > 0
 	&& !hasDuplicateNames.value
 	&& !hasEmptyNames.value
 	&& playerCount.value >= 3
 	&& playerCount.value <= 9
 	&& buyIn.value > 0
-	&& totalDurationMinutes.value >= 10
+	&& gameDurationMinutes.value >= 15
 	&& maxRebuys.value >= 0
 	&& rebuyPeriodMinutes.value >= 0
 	&& startSB.value > 0
@@ -546,7 +626,7 @@ const startTournament = () => {
 		buyIn: buyIn.value,
 		maxRebuys: maxRebuys.value,
 		rebuyPeriodMinutes: rebuyPeriodMinutes.value,
-		gameDurationMinutes: totalDurationMinutes.value,
+		gameDurationMinutes: gameDurationMinutes.value,
 		prizes: [...prizes.value],
 		blinds: {
 			startSB: startSB.value,
@@ -570,6 +650,10 @@ const startTournament = () => {
 
 	emit('start', config, gamePlayers)
 }
+
+onUnmounted(() => {
+	stopDurationRepeat()
+})
 </script>
 
 <style scoped>
@@ -698,6 +782,62 @@ const startTournament = () => {
 	margin-top: 4px;
 }
 
+/* --- Duration input --- */
+.duration-input {
+	display: flex;
+	align-items: center;
+	background: var(--poker-bg-input, #2D333B);
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm, 8px);
+	overflow: hidden;
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.duration-input:focus-within {
+	border-color: var(--poker-green);
+	box-shadow: 0 0 0 3px var(--poker-green-dim, rgb(16 185 129 / 15%));
+}
+
+.duration-input__native {
+	flex: 1;
+	min-width: 0;
+	padding: 10px 12px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 1.25rem;
+	color: var(--poker-text);
+	background: transparent;
+	border: none;
+	outline: none;
+	text-align: center;
+	min-height: 46px;
+}
+
+.duration-input__step {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	flex-shrink: 0;
+	align-self: stretch;
+	border: none;
+	background: var(--poker-border, rgb(255 255 255 / 8%));
+	color: var(--poker-text-muted);
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+	user-select: none;
+}
+
+.duration-input__step:hover {
+	background: var(--poker-border-hover, rgb(255 255 255 / 16%));
+	color: var(--poker-text);
+}
+
+.duration-input__step:active {
+	background: var(--poker-green-dim, rgb(16 185 129 / 15%));
+	color: var(--poker-green);
+}
+
 /* --- Prizes --- */
 .prizes {
 	display: flex;
@@ -730,8 +870,9 @@ const startTournament = () => {
 	display: inline-flex;
 	align-items: center;
 	gap: 2px;
-	font-family: var(--poker-font-mono);
-	font-size: 0.9375rem;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.125rem;
+	font-weight: 800;
 	color: var(--poker-gold);
 	white-space: nowrap;
 }
@@ -773,11 +914,11 @@ const startTournament = () => {
 }
 
 .blinds-preview__title {
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.875rem;
-	font-weight: 700;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 500;
 	color: var(--poker-text-muted);
-	margin-bottom: 10px;
+	margin-bottom: 6px;
 }
 
 .blinds-table {
@@ -785,7 +926,8 @@ const startTournament = () => {
 	flex: 1;
 	border-collapse: separate;
 	border-spacing: 0;
-	font-size: 0.875rem;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 1.125rem;
 	background: var(--poker-bg-card, #21252D);
 	border-radius: var(--poker-radius-sm);
 	overflow: hidden;
@@ -793,9 +935,9 @@ const startTournament = () => {
 
 .blinds-table th {
 	text-align: left;
-	padding: 8px 14px;
+	padding: 10px 14px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.75rem;
+	font-size: 0.8125rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -805,7 +947,7 @@ const startTournament = () => {
 }
 
 .blinds-table td {
-	padding: 8px 14px;
+	padding: 10px 14px;
 	color: var(--poker-text-secondary);
 	border-bottom: 1px solid var(--poker-border);
 }
@@ -830,10 +972,25 @@ const startTournament = () => {
 }
 
 /* --- Chips --- */
+.chips-layout {
+	display: flex;
+	gap: 28px;
+	align-items: flex-start;
+}
+
+.chips-left {
+	flex-shrink: 0;
+}
+
+.chips-right {
+	flex: 1;
+	min-width: 0;
+}
+
 .chips-list {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 }
 
 .chips-row {
@@ -851,8 +1008,8 @@ const startTournament = () => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
+	width: 46px;
+	height: 46px;
 	border: none;
 	border-radius: var(--poker-radius-sm);
 	background: transparent;
@@ -860,6 +1017,10 @@ const startTournament = () => {
 	cursor: pointer;
 	transition: color 0.2s, background 0.2s;
 	flex-shrink: 0;
+}
+
+.chips-row__remove--with-label {
+	margin-top: auto;
 }
 
 .chips-row__remove:hover {
@@ -871,9 +1032,52 @@ const startTournament = () => {
 	visibility: hidden;
 }
 
+.chips-info {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px;
+	margin-top: 27px;
+	background: var(--poker-bg-card, #21252D);
+	border-radius: var(--poker-radius-sm);
+}
+
+.chips-info__item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.chips-info__label {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: var(--poker-text-muted);
+}
+
+.chips-info__value {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: var(--poker-text);
+}
+
+.chips-info__value--rate {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	color: var(--poker-gold);
+	margin-bottom: 4px;
+}
+
+.chips-info__divider {
+	height: 1px;
+	background: var(--poker-border);
+}
+
 .btn-add {
 	align-self: flex-start;
-	margin-top: 4px;
+	margin-top: 8px;
 	padding: 8px 16px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.875rem;
@@ -890,91 +1094,6 @@ const startTournament = () => {
 	background: rgb(16 185 129 / 25%);
 }
 
-.chips-summary {
-	margin-top: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
-.chips-summary__stats {
-	display: flex;
-	gap: 24px;
-}
-
-.chips-summary__stat {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	padding: 10px 16px;
-	background: var(--poker-bg-card, #21252D);
-	border-radius: var(--poker-radius-sm);
-}
-
-.chips-summary__stat-label {
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.7rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--poker-text-muted);
-}
-
-.chips-summary__stat-value {
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
-	font-size: 1rem;
-	font-weight: 700;
-	color: var(--poker-text);
-}
-
-.chips-summary__title {
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.875rem;
-	font-weight: 700;
-	color: var(--poker-gold);
-}
-
-.chips-rate-table {
-	width: 100%;
-	max-width: 280px;
-	border-collapse: separate;
-	border-spacing: 0;
-	font-size: 0.875rem;
-	background: var(--poker-bg-card, #21252D);
-	border-radius: var(--poker-radius-sm);
-	overflow: hidden;
-}
-
-.chips-rate-table th {
-	text-align: left;
-	padding: 8px 14px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.75rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--poker-text-muted);
-	background: var(--poker-bg-input, #2D333B);
-	border-bottom: 1px solid var(--poker-border);
-}
-
-.chips-rate-table td {
-	padding: 8px 14px;
-	color: var(--poker-text-secondary);
-	border-bottom: 1px solid var(--poker-border);
-}
-
-.chips-rate-table tbody tr:last-child td {
-	border-bottom: none;
-}
-
-.chips-rate-table__rub {
-	color: var(--poker-gold);
-}
-
-.chips-rate-table tbody tr:hover td {
-	background: rgb(255 255 255 / 3%);
-}
 
 /* --- Players --- */
 .players-list {
@@ -1003,20 +1122,19 @@ const startTournament = () => {
 	width: 44px;
 	height: 44px;
 	border-radius: 50%;
-	border: 2px solid var(--poker-border);
+	outline: 2px solid var(--poker-border);
 	background: var(--poker-bg-input);
 	cursor: pointer;
-	padding: 2px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	overflow: hidden;
 	flex-shrink: 0;
-	transition: border-color 0.2s;
+	transition: outline 0.2s;
 }
 
 .player-row__avatar:hover {
-	border-color: var(--poker-green);
+	outline: 2px solid var(--poker-green);
 }
 
 .player-row__avatar :deep(svg) {
@@ -1123,5 +1241,10 @@ const startTournament = () => {
 
 .setup-body::-webkit-scrollbar-thumb:hover {
 	background: rgb(255 255 255 / 25%);
+}
+
+.player-avatar-wrapper {
+	width: 100%;
+	height: 100%;
 }
 </style>

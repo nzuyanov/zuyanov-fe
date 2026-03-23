@@ -1,6 +1,21 @@
 <template>
 	<div class="poker-page">
-		<ClientOnly>
+		<!-- Заглушка для маленьких экранов -->
+		<div v-if="isScreenTooSmall" class="poker-resolution-stub">
+			<div class="poker-resolution-stub__content">
+				<span class="poker-resolution-stub__icon">🖥️</span>
+				<h1 class="poker-resolution-stub__title">Нужен экран побольше</h1>
+				<p class="poker-resolution-stub__desc">
+					Покерная доска рассчитана на экраны с разрешением от 1280×720 (HD).
+					Подключи монитор или телевизор побольше 📺
+				</p>
+				<NuxtLink to="/tlp" class="poker-resolution-stub__btn">
+					← Вернуться
+				</NuxtLink>
+			</div>
+		</div>
+
+		<ClientOnly v-else>
 			<PokerSetupModal
 				v-if="showSetup"
 				@start="onTournamentStart"
@@ -42,6 +57,7 @@
 
 <script setup lang="ts">
 import type { PokerConfig, PokerPlayer, PokerSaveData } from '~/types/poker'
+import { POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
 import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
 import PokerResults from '~/components/apps/poker-board/PokerResults.vue'
@@ -49,6 +65,39 @@ import PokerConfirmModal from '~/components/apps/poker-board/PokerConfirmModal.v
 
 definePageMeta({
 	layout: false,
+})
+
+useHead({
+	title: `${POKER_BOARD_TITLE} — ${POKER_BOARD_DESCRIPTION}`,
+})
+
+useSeoMeta({
+	description: POKER_BOARD_DESCRIPTION,
+	ogTitle: `${POKER_BOARD_TITLE} — ${POKER_BOARD_DESCRIPTION}`,
+	ogDescription: POKER_BOARD_DESCRIPTION,
+	ogImage: POKER_BOARD_IMAGE,
+	ogType: 'website',
+	ogLocale: 'ru_RU',
+	twitterCard: 'summary_large_image',
+	twitterTitle: `${POKER_BOARD_TITLE} — ${POKER_BOARD_DESCRIPTION}`,
+	twitterDescription: POKER_BOARD_DESCRIPTION,
+	twitterImage: POKER_BOARD_IMAGE,
+})
+
+// Проверка разрешения экрана (минимум Full HD)
+const isScreenTooSmall = ref(false)
+
+const checkScreenSize = () => {
+	isScreenTooSmall.value = window.innerWidth < 1280 || window.innerHeight < 720
+}
+
+onMounted(() => {
+	checkScreenSize()
+	window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+	window.removeEventListener('resize', checkScreenSize)
 })
 
 const store = usePokerStore()
@@ -242,5 +291,63 @@ const onNewGame = () => {
 
 .poker-start__btn:active {
 	transform: translateY(0);
+}
+
+/* Заглушка для маленьких экранов */
+.poker-resolution-stub {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32px;
+}
+
+.poker-resolution-stub__content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	max-width: 480px;
+	text-align: center;
+}
+
+.poker-resolution-stub__icon {
+	font-size: 4rem;
+	line-height: 1;
+}
+
+.poker-resolution-stub__title {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 2rem;
+	font-weight: 800;
+	color: var(--poker-text);
+	letter-spacing: -0.02em;
+}
+
+.poker-resolution-stub__desc {
+	font-size: 1.125rem;
+	color: var(--poker-text-muted);
+	line-height: 1.6;
+}
+
+.poker-resolution-stub__btn {
+	margin-top: 8px;
+	padding: 12px 32px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1rem;
+	font-weight: 700;
+	border: none;
+	border-radius: var(--poker-radius);
+	background: var(--poker-green);
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.2s, transform 0.15s;
+}
+
+.poker-resolution-stub__btn:hover {
+	background: var(--poker-green-hover);
+	transform: translateY(-1px);
 }
 </style>

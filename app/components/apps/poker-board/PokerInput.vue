@@ -23,7 +23,7 @@
 			:type="type === 'number' ? 'text' : type"
 			:inputmode="type === 'number' ? (allowDecimals ? 'decimal' : 'numeric') : undefined"
 			class="poker-input__native"
-			:class="{ 'poker-input__native--mono': type === 'number' }"
+			:class="{ 'poker-input__native--center': type === 'number' }"
 			:value="displayValue"
 			:placeholder="placeholder"
 			@input="onInput"
@@ -31,6 +31,8 @@
 			@blur="onBlur"
 			@keydown="onKeydown"
 		>
+
+		<span v-if="suffix" class="poker-input__suffix">{{ suffix }}</span>
 
 		<button
 			v-if="showClear"
@@ -65,6 +67,7 @@ const props = withDefaults(defineProps<{
 	error?: boolean
 	small?: boolean
 	allowDecimals?: boolean
+	suffix?: string
 }>(), {
 	type: 'text',
 	placeholder: '',
@@ -74,6 +77,7 @@ const props = withDefaults(defineProps<{
 	error: false,
 	small: false,
 	allowDecimals: false,
+	suffix: '',
 })
 
 const emit = defineEmits<{
@@ -231,15 +235,15 @@ onUnmounted(() => {
 	min-width: 0;
 	padding: 10px 12px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.9375rem;
+	font-size: 1.25rem;
 	color: var(--poker-text);
 	background: transparent;
 	border: none;
 	outline: none;
+	min-height: 46px;
 }
 
-.poker-input__native--mono {
-	font-family: var(--poker-font-mono, 'Courier New', monospace);
+.poker-input__native--center {
 	text-align: center;
 }
 
@@ -254,18 +258,29 @@ onUnmounted(() => {
 	margin: 0;
 }
 
+/* Суффикс (единица измерения) */
+.poker-input__suffix {
+	flex-shrink: 0;
+	padding-right: 12px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.875rem;
+	color: var(--poker-text-muted);
+	pointer-events: none;
+	user-select: none;
+}
+
 /* Кнопки +/- */
 .poker-input__step {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 34px;
+	width: 38px;
 	flex-shrink: 0;
 	align-self: stretch;
 	border: none;
 	background: var(--poker-border, rgb(255 255 255 / 8%));
 	color: var(--poker-text-muted);
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	cursor: pointer;
 	transition: background 0.15s, color 0.15s;
 	user-select: none;
@@ -286,12 +301,12 @@ onUnmounted(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
+	width: 38px;
 	flex-shrink: 0;
 	border: none;
 	background: transparent;
 	color: var(--poker-text-muted);
-	font-size: 0.65rem;
+	font-size: 1rem;
 	cursor: pointer;
 	transition: color 0.15s;
 	padding: 0;
@@ -308,12 +323,12 @@ onUnmounted(() => {
 
 .poker-input--small .poker-input__native {
 	padding: 8px 6px;
-	font-size: 0.875rem;
+	font-size: 1.125rem;
 }
 
 .poker-input--small .poker-input__step {
-	width: 28px;
-	font-size: 0.65rem;
+	width: 32px;
+	font-size: 0.75rem;
 }
 
 .poker-input--small .poker-input__clear {

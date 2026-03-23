@@ -14,17 +14,17 @@
 			<NuxtLink to="/apps/poker-board" class="card">
 				<div class="card__cover">
 					<NuxtImg
-						src="https://storage.yandexcloud.net/tlp-media/poker.jpg"
-						alt="Poker Board"
+						:src="POKER_BOARD_IMAGE"
+						:alt="POKER_BOARD_TITLE"
 						class="card__cover-img"
 					/>
 				</div>
 				<div class="card__body">
 					<h2 class="card__title text-heading">
-						Poker Board
+						{{ POKER_BOARD_TITLE }}
 					</h2>
 					<p class="card__desc text-body">
-						Покерная доска для игры с друзьями вживую 🃏
+						{{ POKER_BOARD_DESCRIPTION }}
 					</p>
 				</div>
 			</NuxtLink>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { META_TITLE, META_DESCRIPTION, META_IMAGE } from '~/constants/meta'
+import { META_TITLE, META_DESCRIPTION, META_IMAGE, POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
 
 useHead({
 	title: `TLP — ${META_TITLE}`,
