@@ -11,7 +11,7 @@
 
 				<div class="setup-body">
 					<!-- Секция 1: Основные параметры -->
-					<section class="setup-section">
+					<section class="setup-section" data-section="basic">
 						<h2 class="setup-section__title">⚙️ Основное</h2>
 						<div class="setup-grid">
 							<div class="field field--wide">
@@ -19,6 +19,7 @@
 								<PokerInput
 									v-model="tournamentName"
 									placeholder="Турнир 23.03.2026"
+									:error="tournamentName.trim() === ''"
 								/>
 							</div>
 							<div class="field">
@@ -70,7 +71,7 @@
 					</section>
 
 					<!-- Секция 2: Призовые места -->
-					<section class="setup-section">
+					<section class="setup-section" data-section="prizes">
 						<h2 class="setup-section__title">🏆 Призовые места</h2>
 						<div class="prizes">
 							<div class="prizes__rows">
@@ -112,7 +113,7 @@
 					</section>
 
 					<!-- Секция 3: Блайнды -->
-					<section class="setup-section">
+					<section class="setup-section" data-section="blinds">
 						<h2 class="setup-section__title">🎰 Блайнды</h2>
 						<div class="blinds-layout">
 							<div class="blinds-fields">
@@ -186,7 +187,7 @@
 					</section>
 
 					<!-- Секция 4: Фишки -->
-					<section class="setup-section">
+					<section class="setup-section" data-section="chips">
 						<h2 class="setup-section__title">🪙 Фишки</h2>
 						<div class="chips-layout">
 							<div class="field">
@@ -220,14 +221,13 @@
 					</section>
 
 					<!-- Секция 5: Игроки -->
-					<section class="setup-section">
+					<section class="setup-section" data-section="players">
 						<h2 class="setup-section__title">👥 Игроки</h2>
 						<div class="players-grid">
 							<div
 								v-for="(player, i) in players"
 								:key="player.id"
 								class="player-card"
-								:class="{ 'player-card--error': isNameDuplicate(i) }"
 							>
 								<button
 									v-if="players.length > 3"
@@ -248,7 +248,7 @@
 									<PokerInput
 										v-model="player.name"
 										class="player-card__name"
-										:error="isNameDuplicate(i)"
+										:error="isNameInvalid(i)"
 										:placeholder="`Игрок ${i + 1}`"
 									/>
 									<button
@@ -285,16 +285,44 @@
 				</div>
 
 				<footer class="setup-footer">
-					<button
-						class="setup-footer__btn"
-						:disabled="!isFormValid"
-						@click="startTournament"
-					>
-						🚀 Начать турнир
-					</button>
+					<div class="setup-footer__wrapper">
+						<button
+							ref="startBtnRef"
+							class="setup-footer__btn"
+							:disabled="!isFormValid"
+							@click="startTournament"
+							@mouseenter="!isFormValid && (showErrorsTooltip = true)"
+							@mouseleave="showErrorsTooltip = false"
+						>
+							🚀 Начать турнир
+						</button>
+					</div>
 				</footer>
 			</div>
 		</div>
+	</Teleport>
+	<Teleport to="body">
+		<Transition name="tooltip-fade">
+			<div
+				v-if="showErrorsTooltip && validationErrors.length > 0"
+				class="errors-tooltip"
+				:style="errorsTooltipStyle"
+				@mouseenter="showErrorsTooltip = true"
+				@mouseleave="showErrorsTooltip = false"
+			>
+				<ul class="errors-tooltip__list">
+					<li
+						v-for="(err, i) in validationErrors"
+						:key="i"
+						class="errors-tooltip__item"
+						@click="scrollToSection(err.section)"
+					>
+						{{ err.message }}
+					</li>
+				</ul>
+				<div class="errors-tooltip__arrow" />
+			</div>
+		</Transition>
 	</Teleport>
 </template>
 
@@ -486,6 +514,12 @@ const rerollName = (index: number) => {
 	player.name = getRandomName(usedNames)
 }
 
+const isNameEmpty = (index: number): boolean => {
+	const player = players.value[index]
+	if (!player) return false
+	return player.name.trim() === ''
+}
+
 const isNameDuplicate = (index: number): boolean => {
 	const player = players.value[index]
 	if (!player) return false
@@ -493,6 +527,8 @@ const isNameDuplicate = (index: number): boolean => {
 	if (!name) return false
 	return players.value.some((p, i) => i !== index && p.name.trim().toLowerCase() === name)
 }
+
+const isNameInvalid = (index: number): boolean => isNameEmpty(index) || isNameDuplicate(index)
 
 const hasDuplicateNames = computed(() => {
 	const names = players.value.map(p => p.name.trim().toLowerCase())
@@ -504,21 +540,83 @@ const hasEmptyNames = computed(() =>
 )
 
 // --- Валидация ---
-const isFormValid = computed(() => isPrizesValid.value
-	&& tournamentName.value.trim().length > 0
-	&& !hasDuplicateNames.value
-	&& !hasEmptyNames.value
-	&& playerCount.value >= 3
-	&& playerCount.value <= 9
-	&& buyIn.value > 0
-	&& gameDurationMinutes.value >= 15
-	&& maxRebuys.value >= 0
-	&& rebuyPeriodMinutes.value >= 0
-	&& startSB.value > 0
-	&& startBB.value > 0
-	&& blindInterval.value > 0
-	&& blindMultiplier.value > 1
-	&& buyInChips.value > 0)
+interface ValidationError {
+	message: string
+	section: string
+}
+
+const validationErrors = computed<ValidationError[]>(() => {
+	const errors: ValidationError[] = []
+
+	if (tournamentName.value.trim() === '') {
+		errors.push({ message: 'Название турнира не задано', section: 'basic' })
+	}
+	if (playerCount.value < 3 || playerCount.value > 9) {
+		errors.push({ message: 'Количество игроков: от 3 до 9', section: 'basic' })
+	}
+	if (buyIn.value <= 0) {
+		errors.push({ message: 'Размер закупа должен быть больше 0', section: 'basic' })
+	}
+	if (gameDurationMinutes.value < 15) {
+		errors.push({ message: 'Длительность игры — минимум 15 минут', section: 'basic' })
+	}
+	if (maxRebuys.value < 0) {
+		errors.push({ message: 'Количество ребаев не может быть отрицательным', section: 'basic' })
+	}
+	if (rebuyPeriodMinutes.value < 0) {
+		errors.push({ message: 'Период ребаев не может быть отрицательным', section: 'basic' })
+	}
+	if (!isPrizesValid.value) {
+		errors.push({ message: 'Сумма призовых должна быть 100%', section: 'prizes' })
+	}
+	if (startSB.value <= 0) {
+		errors.push({ message: 'Начальный SB должен быть больше 0', section: 'blinds' })
+	}
+	if (startBB.value <= 0) {
+		errors.push({ message: 'Начальный BB должен быть больше 0', section: 'blinds' })
+	}
+	if (blindInterval.value <= 0) {
+		errors.push({ message: 'Интервал роста блайндов должен быть больше 0', section: 'blinds' })
+	}
+	if (blindMultiplier.value <= 1) {
+		errors.push({ message: 'Множитель роста должен быть больше 1', section: 'blinds' })
+	}
+	if (buyInChips.value <= 0) {
+		errors.push({ message: 'Закуп в фишках должен быть больше 0', section: 'chips' })
+	}
+	if (hasEmptyNames.value) {
+		errors.push({ message: 'Имена игроков не могут быть пустыми', section: 'players' })
+	}
+	if (hasDuplicateNames.value) {
+		errors.push({ message: 'Имена игроков должны быть уникальными', section: 'players' })
+	}
+
+	return errors
+})
+
+const isFormValid = computed(() => validationErrors.value.length === 0)
+
+const showErrorsTooltip = ref(false)
+const startBtnRef = ref<HTMLButtonElement | null>(null)
+
+const errorsTooltipStyle = computed(() => {
+	const btn = startBtnRef.value
+	if (!btn) return {}
+	const rect = btn.getBoundingClientRect()
+	return {
+		position: 'fixed' as const,
+		bottom: `${window.innerHeight - rect.top + 8}px`,
+		right: `${window.innerWidth - rect.right}px`,
+	}
+})
+
+const scrollToSection = (sectionId: string) => {
+	const el = document.querySelector(`[data-section="${sectionId}"]`)
+	if (el) {
+		el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+	}
+	showErrorsTooltip.value = false
+}
 
 // --- Старт турнира ---
 const startTournament = () => {
@@ -946,9 +1044,6 @@ const startTournament = () => {
 	transition: border-color 0.2s;
 }
 
-.player-card--error {
-	border-color: var(--poker-red);
-}
 
 .player-card__num {
 	position: absolute;
@@ -1112,6 +1207,11 @@ const startTournament = () => {
 	transform: translateY(0);
 }
 
+.setup-footer__wrapper {
+	position: relative;
+}
+
+
 /* --- Utility --- */
 
 .rub-icon {
@@ -1148,5 +1248,66 @@ const startTournament = () => {
 .player-avatar-wrapper {
 	width: 100%;
 	height: 100%;
+}
+</style>
+
+<style>
+/* Тултип ошибок — вне scoped, т.к. рендерится через Teleport */
+.errors-tooltip {
+	min-width: 280px;
+	max-width: 380px;
+	background: var(--poker-bg-elevated, #2C2C32);
+	border: 1px solid var(--poker-border, rgb(255 255 255 / 8%));
+	border-radius: 12px;
+	box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+	padding: 8px 0;
+	z-index: 10000;
+}
+
+.errors-tooltip__arrow {
+	position: absolute;
+	bottom: -5px;
+	right: 32px;
+	width: 10px;
+	height: 10px;
+	background: var(--poker-bg-elevated, #2C2C32);
+	border-right: 1px solid var(--poker-border, rgb(255 255 255 / 8%));
+	border-bottom: 1px solid var(--poker-border, rgb(255 255 255 / 8%));
+	transform: rotate(45deg);
+}
+
+.errors-tooltip__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.errors-tooltip__item {
+	padding: 8px 16px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: var(--poker-red, #EF4444);
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.errors-tooltip__item:hover {
+	background: rgb(255 255 255 / 6%);
+}
+
+.errors-tooltip__item::before {
+	content: '⚠ ';
+}
+
+.tooltip-fade-enter-active,
+.tooltip-fade-leave-active {
+	transition: opacity 0.2s, transform 0.2s;
+}
+
+.tooltip-fade-enter-from,
+.tooltip-fade-leave-to {
+	opacity: 0;
+	transform: translateY(4px);
 }
 </style>
