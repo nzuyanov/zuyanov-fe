@@ -45,17 +45,17 @@
 			<h3 class="info-section__label">Призовые</h3>
 			<div class="info-prizes">
 				<div class="info-prize">
-					<img src="~/assets/icons/poker/trophy-gold.svg" alt="1" class="info-prize__trophy">
+					<img :src="trophyGoldImg" alt="1" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[0]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[0] }}%</span>
 				</div>
 				<div class="info-prize">
-					<img src="~/assets/icons/poker/trophy-silver.svg" alt="2" class="info-prize__trophy">
+					<img :src="trophySilverImg" alt="2" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[1]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[1] }}%</span>
 				</div>
 				<div class="info-prize">
-					<img src="~/assets/icons/poker/trophy-bronze.svg" alt="3" class="info-prize__trophy">
+					<img :src="trophyBronzeImg" alt="3" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[2]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[2] }}%</span>
 				</div>
@@ -74,7 +74,7 @@
 				<span class="info-chip">
 					<span class="info-chip__denom">1 <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-chip__eq">=</span>
-					<span class="info-chip__rate">{{ store.chipRate.chipsPerRub }} фишек</span>
+					<span class="info-chip__rate">{{ store.chipRate.chipsPerRub }} {{ pluralizeChip(store.chipRate.chipsPerRub) }}</span>
 				</span>
 			</div>
 		</section>
@@ -92,6 +92,10 @@
 </template>
 
 <script setup lang="ts">
+import trophyGoldImg from '~/assets/images/trophy-gold.png'
+import trophySilverImg from '~/assets/images/trophy-silver.png'
+import trophyBronzeImg from '~/assets/images/trophy-bronze.png'
+
 const store = usePokerStore()
 
 defineEmits<{
@@ -353,8 +357,8 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .info-prize__trophy {
-	width: 24px;
-	height: 24px;
+	width: 48px;
+	height: 48px;
 	flex-shrink: 0;
 }
 

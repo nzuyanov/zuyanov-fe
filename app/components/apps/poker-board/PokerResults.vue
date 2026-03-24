@@ -65,9 +65,9 @@
 </template>
 
 <script setup lang="ts">
-import trophyGold from '~/assets/icons/poker/trophy-gold.svg'
-import trophySilver from '~/assets/icons/poker/trophy-silver.svg'
-import trophyBronze from '~/assets/icons/poker/trophy-bronze.svg'
+import trophyGold from '~/assets/images/trophy-gold.png'
+import trophySilver from '~/assets/images/trophy-silver.png'
+import trophyBronze from '~/assets/images/trophy-bronze.png'
 
 defineEmits<{
 	newGame: []

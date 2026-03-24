@@ -3,7 +3,7 @@
 		<div class="setup-overlay poker-shimmer-overlay">
 			<div class="setup-modal">
 				<header class="setup-header">
-					<h1 class="setup-header__title">🃏 Настройки турнира</h1>
+					<h1 class="setup-header__title"><img :src="imgPokerCards" alt="" class="section-icon"> Настройки турнира</h1>
 					<button class="setup-header__close" @click="emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
@@ -12,7 +12,7 @@
 				<div class="setup-body">
 					<!-- Секция 1: Основные параметры -->
 					<section class="setup-section" data-section="basic">
-						<h2 class="setup-section__title">⚙️ Основное</h2>
+						<h2 class="setup-section__title"><img :src="imgSetting" alt="" class="section-icon"> Основное</h2>
 						<div class="setup-grid">
 							<div class="field field--wide">
 								<label class="field__label">Название турнира</label>
@@ -72,7 +72,7 @@
 
 					<!-- Секция 2: Призовые места -->
 					<section class="setup-section" data-section="prizes">
-						<h2 class="setup-section__title">🏆 Призовые места</h2>
+						<h2 class="setup-section__title"><img :src="imgGold" alt="" class="section-icon"> Призовые места</h2>
 						<div class="prizes">
 							<div class="prizes__rows">
 								<div
@@ -117,7 +117,7 @@
 
 					<!-- Секция 3: Блайнды -->
 					<section class="setup-section" data-section="blinds">
-						<h2 class="setup-section__title">🎰 Блайнды</h2>
+						<h2 class="setup-section__title"><img :src="imgBandit" alt="" class="section-icon"> Блайнды</h2>
 						<div class="blinds-layout">
 							<div class="blinds-fields">
 								<div class="field">
@@ -191,7 +191,7 @@
 
 					<!-- Секция 4: Фишки -->
 					<section class="setup-section" data-section="chips">
-						<h2 class="setup-section__title">🪙 Фишки</h2>
+						<h2 class="setup-section__title"><img :src="imgPokerChip" alt="" class="section-icon"> Фишки</h2>
 						<div class="chips-layout">
 							<div class="field">
 								<label class="field__label">Закуп в фишках</label>
@@ -225,7 +225,7 @@
 
 					<!-- Секция 5: Игроки -->
 					<section class="setup-section" data-section="players">
-						<h2 class="setup-section__title">👥 Игроки</h2>
+						<h2 class="setup-section__title"><img :src="imgHelmet" alt="" class="section-icon"> Игроки</h2>
 						<div class="players-grid">
 							<div
 								v-for="(player, i) in players"
@@ -333,9 +333,15 @@
 import type { PokerConfig, PokerPlayer } from '~/types/poker'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
-import trophyGold from '~/assets/icons/poker/trophy-gold.svg'
-import trophySilver from '~/assets/icons/poker/trophy-silver.svg'
-import trophyBronze from '~/assets/icons/poker/trophy-bronze.svg'
+import trophyGold from '~/assets/images/trophy-gold.png'
+import trophySilver from '~/assets/images/trophy-silver.png'
+import trophyBronze from '~/assets/images/trophy-bronze.png'
+import imgPokerCards from '~/assets/images/poker-cards.png'
+import imgBandit from '~/assets/images/bandit.png'
+import imgPokerChip from '~/assets/images/poker-chip.png'
+import imgHelmet from '~/assets/images/helmet.png'
+import imgGold from '~/assets/images/gold.png'
+import imgSetting from '~/assets/images/setting.png'
 
 const emit = defineEmits<{
 	start: [config: PokerConfig, players: PokerPlayer[]]
@@ -401,15 +407,7 @@ const chipsPerRubRaw = computed(() => {
 
 const chipsPerRubDisplay = computed(() => chipsPerRubRaw.value.toLocaleString('ru-RU', { maximumFractionDigits: 4 }))
 
-const pluralizeChip = (n: number): string => {
-	const abs = Math.abs(n)
-	const int = Math.floor(abs)
-	const mod10 = int % 10
-	const mod100 = int % 100
-	if (mod10 === 1 && mod100 !== 11) return 'фишка'
-	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'фишки'
-	return 'фишек'
-}
+// pluralizeChip — auto-imported из utils/pluralize.ts
 
 const chipsPerRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
 
@@ -696,10 +694,18 @@ const startTournament = () => {
 }
 
 .setup-header__title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.5rem;
 	font-weight: 800;
 	color: var(--poker-text);
+}
+
+.setup-header__title .section-icon {
+	width: 32px;
+	height: 32px;
 }
 
 .setup-header__close {
@@ -734,11 +740,21 @@ const startTournament = () => {
 
 /* --- Section --- */
 .setup-section__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.125rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	margin-bottom: 16px;
+}
+
+.section-icon {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	vertical-align: middle;
 }
 
 /* --- Grid --- */
@@ -818,8 +834,8 @@ const startTournament = () => {
 }
 
 .prizes__trophy {
-	width: 22px;
-	height: 22px;
+	width: 28px;
+	height: 28px;
 	flex-shrink: 0;
 }
 
