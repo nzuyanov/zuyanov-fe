@@ -33,7 +33,8 @@
       "WebFetch(domain:pro-catalog.ru)",
       "Bash(curl -L -o \"E:/projects/zuyanov-fe/public/fonts/neoneon-cyrillic.zip\" \"https://pro-catalog.ru/download/4895/?tmstv=1773929860\" -H \"User-Agent: Mozilla/5.0\" -H \"Referer: https://pro-catalog.ru/fonts/font-neoneon-cyrillic/\" --max-time 15)",
       "Bash(unzip -o neoneon-cyrillic.zip Neoneon.woff Neoneon.ttf)",
-      "Bash(ls -la Neoneon.*)"
+      "Bash(ls -la Neoneon.*)",
+      "Bash(grep -E '\\\\.\\(ts|vue\\)$')"
     ]
   }
 }

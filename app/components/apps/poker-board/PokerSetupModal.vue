@@ -80,7 +80,10 @@
 									:key="i"
 									class="prizes__row"
 								>
-									<span class="prizes__label">{{ place }}</span>
+									<span class="prizes__label">
+										<img :src="trophyIcons[i]" alt="" class="prizes__trophy">
+										{{ place }}
+									</span>
 									<div class="prizes__input-wrap">
 										<PokerInput
 											:model-value="prizes[i] ?? 0"
@@ -330,6 +333,9 @@
 import type { PokerConfig, PokerPlayer } from '~/types/poker'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
+import trophyGold from '~/assets/icons/poker/trophy-gold.svg'
+import trophySilver from '~/assets/icons/poker/trophy-silver.svg'
+import trophyBronze from '~/assets/icons/poker/trophy-bronze.svg'
 
 const emit = defineEmits<{
 	start: [config: PokerConfig, players: PokerPlayer[]]
@@ -351,7 +357,8 @@ const rebuyPeriodMinutes = ref(60)
 
 // --- Секция 2: Призовые ---
 const prizes = ref<[number, number, number]>([50, 30, 20])
-const prizeLabels = ['🥇 1 место', '🥈 2 место', '🥉 3 место']
+const prizeLabels = ['1 место', '2 место', '3 место']
+const trophyIcons = [trophyGold, trophySilver, trophyBronze]
 const prizesSum = computed(() => prizes.value[0] + prizes.value[1] + prizes.value[2])
 const isPrizesValid = computed(() => prizesSum.value === 100)
 
@@ -800,10 +807,19 @@ const startTournament = () => {
 }
 
 .prizes__label {
-	width: 100px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 120px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 0.9375rem;
 	font-weight: 600;
+	flex-shrink: 0;
+}
+
+.prizes__trophy {
+	width: 22px;
+	height: 22px;
 	flex-shrink: 0;
 }
 

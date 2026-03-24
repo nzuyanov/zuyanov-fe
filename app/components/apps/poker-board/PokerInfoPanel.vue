@@ -45,17 +45,17 @@
 			<h3 class="info-section__label">Призовые</h3>
 			<div class="info-prizes">
 				<div class="info-prize">
-					<span class="info-prize__icon">🥇</span>
+					<img src="~/assets/icons/poker/trophy-gold.svg" alt="1" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[0]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[0] }}%</span>
 				</div>
 				<div class="info-prize">
-					<span class="info-prize__icon">🥈</span>
+					<img src="~/assets/icons/poker/trophy-silver.svg" alt="2" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[1]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[1] }}%</span>
 				</div>
 				<div class="info-prize">
-					<span class="info-prize__icon">🥉</span>
+					<img src="~/assets/icons/poker/trophy-bronze.svg" alt="3" class="info-prize__trophy">
 					<span class="info-prize__amount">{{ formatMoney(store.prizeAmounts[2]) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-prize__pct">{{ store.config.prizes[2] }}%</span>
 				</div>
@@ -235,7 +235,6 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .info-blinds__next {
-	font-family: var(--poker-font-mono);
 	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
@@ -248,8 +247,9 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .info-timer__icon {
-	font-size: 0.9rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
+	flex-shrink: 0;
 }
 
 .info-timer__value {
@@ -331,11 +331,12 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 
 /* Банк */
 .info-pot {
-	font-family: var(--poker-font-mono);
-	font-size: 1.75rem;
-	font-weight: 800;
+	font-size: 2.25rem;
+	font-weight: 900;
 	color: var(--poker-gold);
 	line-height: 1.1;
+	display: flex;
+	align-items: center;
 }
 
 /* Призовые */
@@ -351,19 +352,19 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	gap: 8px;
 }
 
-.info-prize__icon {
-	font-size: 1.1rem;
+.info-prize__trophy {
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
 }
 
 .info-prize__amount {
-	font-family: var(--poker-font-mono);
 	font-size: 1.05rem;
 	font-weight: 700;
 	color: var(--poker-text);
 }
 
 .info-prize__pct {
-	font-family: var(--poker-font-mono);
 	font-size: 0.8rem;
 	color: var(--poker-text-muted);
 }
@@ -371,16 +372,15 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 /* Курс фишки */
 .info-chips {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 6px 12px;
+	flex-direction: column;
+	gap: 6px;
 }
 
 .info-chip {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	font-family: var(--poker-font-mono);
-	font-size: 0.8rem;
+	gap: 6px;
+	font-size: 1.05rem;
 }
 
 .info-chip__denom {
@@ -393,7 +393,10 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .info-chip__rate {
+	font-weight: 700;
 	color: var(--poker-gold);
+	display: flex;
+	align-items: center;
 }
 
 /* Кнопки управления */

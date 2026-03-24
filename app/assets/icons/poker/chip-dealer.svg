@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Dealer chip">
+  <title>Dealer</title>
+  <desc>White poker chip with D text</desc>
+  <defs>
+    <radialGradient id="d-rim-grad" cx="40%" cy="35%" r="55%" fx="38%" fy="30%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="70%" stop-color="#e8e8e0" />
+      <stop offset="100%" stop-color="#b0b0a8" />
+    </radialGradient>
+    <radialGradient id="d-body-grad" cx="40%" cy="35%" r="55%" fx="38%" fy="30%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="70%" stop-color="#ececea" />
+      <stop offset="100%" stop-color="#c0c0b8" />
+    </radialGradient>
+    <radialGradient id="d-gloss" cx="38%" cy="28%" r="40%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="d-text-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a" />
+      <stop offset="100%" stop-color="#3a3a3a" />
+    </linearGradient>
+    <clipPath id="d-rim-clip">
+      <path d="M100,8 a92,92 0 1,1 0,184 a92,92 0 1,1 0,-184 Z M100,28 a72,72 0 1,0 0,144 a72,72 0 1,0 0,-144 Z" />
+    </clipPath>
+  </defs>
+  <g id="d-chip">
+    <circle cx="100" cy="100" r="96" fill="url(#d-rim-grad)" stroke="#909088" stroke-width="1" />
+    <circle cx="100" cy="100" r="92" fill="url(#d-rim-grad)" />
+    <g clip-path="url(#d-rim-clip)">
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(0,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(45,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(90,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(135,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(180,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(225,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(270,100,100)" />
+      <rect x="93" y="4" width="14" height="28" rx="2" fill="#c83030" stroke="#a02828" stroke-width="0.5" transform="rotate(315,100,100)" />
+    </g>
+    <circle cx="100" cy="100" r="70" fill="url(#d-body-grad)" stroke="#a0a098" stroke-width="1" />
+    <circle cx="100" cy="100" r="60" fill="none" stroke="#c8c8c0" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5" />
+    <text x="100" y="102" text-anchor="middle" dominant-baseline="central" font-family="'Helvetica Neue', Arial, sans-serif" font-size="52" font-weight="800" fill="url(#d-text-grad)" stroke="#2a2a2a" stroke-width="1">D</text>
+    <circle cx="100" cy="100" r="96" fill="url(#d-gloss)" />
+  </g>
+</svg>

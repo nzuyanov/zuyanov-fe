@@ -124,7 +124,7 @@
 					</UiTooltip>
 					<UiTooltip text="UI/UX">
 						<div class="skill">
-							<img src="/icons/figma.svg" alt="Figma" class="skill__img">
+							<img src="~/assets/icons/figma.svg" alt="Figma" class="skill__img">
 						</div>
 					</UiTooltip>
 				</div>
