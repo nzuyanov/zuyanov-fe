@@ -258,6 +258,10 @@ watch(() => store.gameState.status, (status) => {
 	width: 100%;
 	height: 100%;
 	position: relative;
+	background:
+		url('/patterns/poker-felt.svg') repeat center center,
+		var(--poker-bg);
+	background-size: 450px 450px, auto;
 }
 
 .board__body {

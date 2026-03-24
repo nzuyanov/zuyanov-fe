@@ -5,7 +5,9 @@
 			<span>Назад</span>
 		</button>
 
-		<h1 class="poker-header__title">🃏 {{ title }}</h1>
+		<h1 class="poker-header__title">
+			<span class="poker-header__title-text">{{ title }}</span>
+		</h1>
 
 		<div class="poker-header__controls">
 			<button
@@ -72,12 +74,44 @@ defineEmits<{
 }
 
 .poker-header__title {
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.5rem;
-	font-weight: 800;
-	letter-spacing: 0.04em;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.poker-header__title-text {
+	font-family: Neoneon, var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 2rem;
+	font-weight: normal;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--poker-green);
+	text-shadow:
+		0 0 7px var(--poker-green),
+		0 0 20px var(--poker-green),
+		0 0 40px var(--poker-green),
+		0 0 80px var(--poker-green);
+	animation: neon-flicker 4s ease-in-out infinite;
+}
+
+@keyframes neon-flicker {
+	0%, 100% {
+		text-shadow:
+			0 0 7px var(--poker-green),
+			0 0 20px var(--poker-green),
+			0 0 40px var(--poker-green),
+			0 0 80px var(--poker-green);
+		opacity: 1;
+	}
+
+	50% {
+		text-shadow:
+			0 0 4px var(--poker-green),
+			0 0 12px var(--poker-green),
+			0 0 28px var(--poker-green),
+			0 0 55px var(--poker-green);
+		opacity: 0.92;
+	}
 }
 
 .poker-header__controls {
