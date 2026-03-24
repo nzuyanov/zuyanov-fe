@@ -23,6 +23,7 @@
 				@focus="onFocus"
 				@input="onInput"
 				@blur="onBlur"
+				@keydown="onKeydown"
 			>
 			<button
 				class="time-input__step"
@@ -82,19 +83,19 @@ const parseTimeInput = (raw: string): number | null => {
 
 	// «X ч Y мин»
 	const full = trimmed.match(/^(\d+)\s*ч\s+(\d+)\s*мин?$/)
-	if (full) return parseInt(full[1]) * 60 + parseInt(full[2])
+	if (full) return parseInt(full[1]!) * 60 + parseInt(full[2]!)
 
 	// «X ч»
 	const hoursOnly = trimmed.match(/^(\d+)\s*ч$/)
-	if (hoursOnly) return parseInt(hoursOnly[1]) * 60
+	if (hoursOnly) return parseInt(hoursOnly[1]!) * 60
 
 	// «X мин»
 	const minsOnly = trimmed.match(/^(\d+)\s*мин?$/)
-	if (minsOnly) return parseInt(minsOnly[1])
+	if (minsOnly) return parseInt(minsOnly[1]!)
 
 	// Просто число — минуты
 	const justNum = trimmed.match(/^(\d+)$/)
-	if (justNum) return parseInt(justNum[1])
+	if (justNum) return parseInt(justNum[1]!)
 
 	return null
 }
@@ -132,14 +133,38 @@ const onBlur = () => {
 // --- Кнопки ± ---
 const clamp = (v: number) => Math.max(props.min, Math.min(v, props.max))
 
+const syncRawInput = (newMinutes: number) => {
+	if (isFocused.value) {
+		const m = newMinutes
+		if (m < 60) rawInput.value = `${m} мин`
+		else if (m % 60 === 0) rawInput.value = `${Math.floor(m / 60)} ч`
+		else rawInput.value = `${Math.floor(m / 60)} ч ${m % 60} мин`
+	}
+}
+
 const increment = () => {
-	emit('update:modelValue', clamp(props.modelValue + props.step))
+	const val = clamp(props.modelValue + props.step)
+	emit('update:modelValue', val)
+	syncRawInput(val)
 	hasError.value = false
 }
 
 const decrement = () => {
-	emit('update:modelValue', clamp(props.modelValue - props.step))
+	const val = clamp(props.modelValue - props.step)
+	emit('update:modelValue', val)
+	syncRawInput(val)
 	hasError.value = false
+}
+
+const onKeydown = (e: KeyboardEvent) => {
+	if (e.key === 'ArrowUp') {
+		e.preventDefault()
+		increment()
+	}
+	else if (e.key === 'ArrowDown') {
+		e.preventDefault()
+		decrement()
+	}
 }
 
 let repeatTimer: ReturnType<typeof setTimeout> | null = null

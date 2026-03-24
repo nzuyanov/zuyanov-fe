@@ -19,12 +19,7 @@ const createDefaultConfig = (): PokerConfig => ({
 		intervalMinutes: 15,
 		multiplier: 2,
 	},
-	chips: [
-		{ denomination: 25, totalCount: 50 },
-		{ denomination: 50, totalCount: 50 },
-		{ denomination: 100, totalCount: 50 },
-		{ denomination: 500, totalCount: 20 },
-	],
+	buyInChips: 2000,
 })
 
 const createDefaultGameState = (): PokerGameState => ({
@@ -54,17 +49,7 @@ export const usePokerStore = defineStore('poker', () => {
 			.filter(i => i !== -1),
 	)
 
-	const roundBlindToChip = (value: number): number => {
-		const denominations = config.value.chips
-			.map(c => c.denomination)
-			.sort((a, b) => a - b)
-
-		if (denominations.length === 0) return value
-
-		const minDenom = denominations[0]
-		const rounded = Math.ceil(value / minDenom) * minDenom
-		return Math.max(rounded, minDenom)
-	}
+	const roundBlindToChip = (value: number): number => Math.max(Math.round(value), 1)
 
 	const getBlindLevelValues = (level: number): { sb: number; bb: number } => {
 		const { startSB, startBB, multiplier } = config.value.blinds
@@ -94,20 +79,13 @@ export const usePokerStore = defineStore('poker', () => {
 		return config.value.prizes.map(p => Math.round(pot * p / 100)) as [number, number, number]
 	})
 
-	const chipRates = computed<{ denomination: number; rateInRubles: number }[]>(() => {
-		const totalChipValue = config.value.chips.reduce(
-			(sum, c) => sum + c.denomination * c.totalCount, 0,
-		)
-		const playerCount = gameState.value.players.length || 1
-		const chipsPerPlayer = totalChipValue / playerCount
-
-		if (chipsPerPlayer === 0) return []
-
-		const rate = config.value.buyIn / chipsPerPlayer
-		return config.value.chips.map(c => ({
-			denomination: c.denomination,
-			rateInRubles: Math.round(c.denomination * rate * 100) / 100,
-		}))
+	// Курс: сколько рублей стоит 1 фишка
+	const chipRate = computed(() => {
+		const { buyIn, buyInChips } = config.value
+		if (buyInChips === 0) return { rubPerChip: 0, chipsPerRub: 0 }
+		const rubPerChip = Math.round(buyIn / buyInChips * 100) / 100
+		const chipsPerRub = Math.round(buyInChips / buyIn * 100) / 100
+		return { rubPerChip, chipsPerRub }
 	})
 
 	const gameDurationSeconds = computed(() => config.value.gameDurationMinutes * 60)
@@ -138,12 +116,12 @@ export const usePokerStore = defineStore('poker', () => {
 		if (currentPos === -1) {
 			// Find the nearest active index after fromIndex
 			for (let i = 0; i < indices.length; i++) {
-				if (indices[i] > fromIndex) return indices[i]
+				if (indices[i]! > fromIndex) return indices[i]!
 			}
-			return indices[0]
+			return indices[0]!
 		}
 
-		return indices[(currentPos + 1) % indices.length]
+		return indices[(currentPos + 1) % indices.length]!
 	}
 
 	const dealerPlayer = computed<PokerPlayer | null>(() => {
@@ -335,7 +313,7 @@ export const usePokerStore = defineStore('poker', () => {
 		nextBlinds,
 		blindLevelsPreview,
 		prizeAmounts,
-		chipRates,
+		chipRate,
 		gameDurationSeconds,
 		remainingGameSeconds,
 		rebuyPeriodSeconds,

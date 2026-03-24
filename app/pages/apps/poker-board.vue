@@ -125,7 +125,7 @@ const restoreMessage = computed(() => {
 	return `Обнаружена незавершённая игра «${name}» (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
 })
 
-// Проверка localStorage при загрузке страницы
+// Проверка localStorage при загрузке страницы!
 onMounted(() => {
 	const storage = usePokerStorage()
 	const data = storage.load()
@@ -204,16 +204,23 @@ const onNewGame = () => {
 	--poker-radius: 12px;
 	--poker-radius-sm: 8px;
 	--poker-font-mono: 'Courier New', monospace;
+	--overlay-gradient: linear-gradient(45deg, hsl(315deg 94% 42%) 0%, hsl(310deg 64% 48%) 5%, hsl(300deg 51% 51%) 10%, hsl(288deg 59% 58%) 14%, hsl(275deg 68% 63%) 19%, hsl(262deg 79% 69%) 24%, hsl(249deg 93% 73%) 29%, hsl(234deg 100% 74%) 33%, hsl(222deg 100% 70%) 38%, hsl(213deg 100% 65%) 43%, hsl(204deg 100% 57%) 48%, hsl(199deg 100% 50%) 52%, hsl(196deg 100% 50%) 57%, hsl(195deg 100% 50%) 62%, hsl(193deg 100% 50%) 67%, hsl(191deg 100% 50%) 71%, hsl(189deg 100% 50%) 76%, hsl(188deg 100% 50%) 81%, hsl(186deg 100% 50%) 86%, hsl(185deg 100% 50%) 90%, hsl(183deg 100% 50%) 95%, hsl(183deg 100% 63%) 100%);
 }
 
 /* Переливающийся overlay для покерных модалок */
+
 @keyframes poker-shimmer {
-	0% { background-position: 0% 50%; }
-	25% { background-position: 50% 100%; }
-	50% { background-position: 100% 50%; }
-	75% { background-position: 50% 0%; }
-	100% { background-position: 0% 50%; }
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
 }
+
 
 .poker-shimmer-overlay {
 	background:
@@ -231,7 +238,7 @@ const onNewGame = () => {
 			rgb(56 189 248 / 18%) 80%,
 			#070c12 100%
 		);
-	background-size: 300% 300%;
+	background-size: 400% 400%;
 	animation: poker-shimmer 12s ease infinite;
 }
 </style>

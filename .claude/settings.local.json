@@ -22,7 +22,8 @@
       "Bash(ls E:/projects/zuyanov-fe/node_modules/.bin/nuxt*)",
       "Bash(npm search:*)",
       "Bash(npm view:*)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

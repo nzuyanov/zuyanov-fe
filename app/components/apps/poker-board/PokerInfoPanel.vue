@@ -66,10 +66,15 @@
 		<section class="info-section">
 			<h3 class="info-section__label">Курс фишки</h3>
 			<div class="info-chips">
-				<span v-for="rate in store.chipRates" :key="rate.denomination" class="info-chip">
-					<span class="info-chip__denom">{{ rate.denomination }}</span>
+				<span class="info-chip">
+					<span class="info-chip__denom">1 фишка</span>
 					<span class="info-chip__eq">=</span>
-					<span class="info-chip__rate">{{ rate.rateInRubles }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+					<span class="info-chip__rate">{{ store.chipRate.rubPerChip }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+				</span>
+				<span class="info-chip">
+					<span class="info-chip__denom">1 <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+					<span class="info-chip__eq">=</span>
+					<span class="info-chip__rate">{{ store.chipRate.chipsPerRub }} фишек</span>
 				</span>
 			</div>
 		</section>

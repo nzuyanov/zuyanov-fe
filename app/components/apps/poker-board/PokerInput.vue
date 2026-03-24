@@ -5,10 +5,11 @@
 			'poker-input--focused': isFocused,
 			'poker-input--error': error,
 			'poker-input--small': small,
+			'poker-input--disabled': disabled,
 		}"
 	>
 		<button
-			v-if="type === 'number'"
+			v-if="type === 'number' && !hideSteps"
 			class="poker-input__step poker-input__step--minus"
 			tabindex="-1"
 			@mousedown.prevent="startDecrement"
@@ -26,6 +27,7 @@
 			:class="{ 'poker-input__native--center': type === 'number' }"
 			:value="displayValue"
 			:placeholder="placeholder"
+			:disabled="disabled"
 			@input="onInput"
 			@focus="isFocused = true"
 			@blur="onBlur"
@@ -44,7 +46,7 @@
 		</button>
 
 		<button
-			v-if="type === 'number'"
+			v-if="type === 'number' && !hideSteps"
 			class="poker-input__step poker-input__step--plus"
 			tabindex="-1"
 			@mousedown.prevent="startIncrement"
@@ -68,6 +70,8 @@ const props = withDefaults(defineProps<{
 	small?: boolean
 	allowDecimals?: boolean
 	suffix?: string
+	disabled?: boolean
+	hideSteps?: boolean
 }>(), {
 	type: 'text',
 	placeholder: '',
@@ -78,6 +82,8 @@ const props = withDefaults(defineProps<{
 	small: false,
 	allowDecimals: false,
 	suffix: '',
+	disabled: false,
+	hideSteps: false,
 })
 
 const emit = defineEmits<{
@@ -334,5 +340,10 @@ onUnmounted(() => {
 .poker-input--small .poker-input__clear {
 	width: 22px;
 	font-size: 0.6rem;
+}
+
+.poker-input--disabled {
+	opacity: 0.5;
+	pointer-events: none;
 }
 </style>

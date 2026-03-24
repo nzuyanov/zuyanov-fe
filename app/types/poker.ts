@@ -5,20 +5,15 @@ export interface PokerBlindsConfig {
 	multiplier: number
 }
 
-export interface PokerChipConfig {
-	denomination: number
-	totalCount: number
-}
-
 export interface PokerConfig {
 	name: string
 	buyIn: number
+	buyInChips: number
 	maxRebuys: number
 	rebuyPeriodMinutes: number
 	gameDurationMinutes: number
 	prizes: [number, number, number]
 	blinds: PokerBlindsConfig
-	chips: PokerChipConfig[]
 }
 
 export interface PokerPlayer {
