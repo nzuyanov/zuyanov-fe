@@ -4,6 +4,7 @@
 			<div class="setup-modal">
 				<header class="setup-header">
 					<h1 class="setup-header__title"><img :src="imgPokerCards" alt="" class="section-icon"> Настройки турнира</h1>
+<!--					<PokerChip />-->
 					<button class="setup-header__close" @click="emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
@@ -418,6 +419,7 @@ import { generateBlindLevels } from '~/composables/useBlindStructure'
 import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
+import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
 import trophyGold from '~/assets/images/trophy-gold.png'
 import trophySilver from '~/assets/images/trophy-silver.png'
 import trophyBronze from '~/assets/images/trophy-bronze.png'
