@@ -1,5 +1,5 @@
 // --- Скорость игры ---
-export type GameSpeed = 'slow' | 'standard' | 'fast'
+export type GameSpeed = 'slow' | 'normal' | 'fast'
 
 // --- Стадия турнира ---
 export type TournamentStage = 'early' | 'middle' | 'bubble' | 'in-prizes' | 'final-table' | 'heads-up'

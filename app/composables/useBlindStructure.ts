@@ -7,7 +7,7 @@ interface SpeedParams {
 
 const SPEED_PARAMS: Record<GameSpeed, SpeedParams> = {
 	slow: { levelMinutes: 20, startingBBRatio: 100 },
-	standard: { levelMinutes: 15, startingBBRatio: 50 },
+	normal: { levelMinutes: 15, startingBBRatio: 50 },
 	fast: { levelMinutes: 10, startingBBRatio: 25 },
 }
 

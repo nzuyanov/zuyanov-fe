@@ -25,7 +25,7 @@ const createDefaultConfig = (): PokerConfig => ({
 		multiplier: 2,
 	},
 	buyInChips: 2000,
-	gameSpeed: 'standard',
+	gameSpeed: 'normal',
 	chipCase: [],
 })
 

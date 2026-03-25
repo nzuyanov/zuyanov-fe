@@ -72,7 +72,7 @@
 
 					<!-- Секция 2: Призовые места -->
 					<section class="setup-section" data-section="prizes">
-						<h2 class="setup-section__title"><img :src="imgGold" alt="" class="section-icon"> Призовые места</h2>
+						<h2 class="setup-section__title"><img :src="moneyCase" alt="" class="section-icon"> Призовые места</h2>
 						<div class="prizes">
 							<div class="prizes__rows">
 								<div
@@ -110,25 +110,24 @@
 								}"
 							>
 								<span class="prizes__summary-value">{{ prizesSum }}%</span>
-								<span class="prizes__summary-label">{{ isPrizesValid ? '✓ Сумма ок' : '✗ Должно быть 100%' }}</span>
+								<span class="prizes__summary-label">{{ isPrizesValid ? 'Сумма ок' : 'Должно быть 100%' }}</span>
 							</div>
 						</div>
 					</section>
 
 					<!-- Секция 3: Блайнды -->
 					<section class="setup-section" data-section="blinds">
-						<h2 class="setup-section__title"><img :src="imgBandit" alt="" class="section-icon"> Блайнды</h2>
+						<h2 class="setup-section__title"><img :src="imgBandit" alt="" class="section-icon"> Скорость игры и блайнды</h2>
 						<div class="blinds-layout-v2">
 							<div class="speed-selector">
 								<button
 									v-for="opt in speedOptions"
 									:key="opt.value"
-									class="speed-btn"
-									:class="{ 'speed-btn--active': gameSpeed === opt.value }"
+									:class="getSpeedButtonClass(opt, gameSpeed === opt.value)"
 									@click="gameSpeed = opt.value"
 								>
-									<span class="speed-btn__icon">{{ opt.icon }}</span>
-									<span class="speed-btn__label">{{ opt.label }}</span>
+									<img :src="opt.image" alt="" class="section-speed-icon">
+									<span class="speed-button__label">{{ opt.label }}</span>
 								</button>
 							</div>
 
@@ -426,8 +425,11 @@ import imgPokerCards from '~/assets/images/poker-cards.png'
 import imgBandit from '~/assets/images/bandit.png'
 import imgPokerChip from '~/assets/images/poker-chip.png'
 import imgHelmet from '~/assets/images/helmet.png'
-import imgGold from '~/assets/images/gold.png'
+import moneyCase from '~/assets/images/money-case.png'
 import imgSetting from '~/assets/images/setting.png'
+import pickupCar from '~/assets/images/pickup-car.png'
+import schoolBus from '~/assets/images/school-bus.png'
+import speedCar from '~/assets/images/speed-car.png'
 
 const emit = defineEmits<{
 	start: [config: PokerConfig, players: PokerPlayer[]]
@@ -460,13 +462,27 @@ const prizeAmountsPreview = computed(() =>
 )
 
 // --- Секция 3: Блайнды (автогенерация по скорости) ---
-const gameSpeed = ref<GameSpeed>('standard')
+const gameSpeed = ref<GameSpeed>('normal')
 
-const speedOptions: { value: GameSpeed; icon: string; label: string }[] = [
-	{ value: 'slow', icon: '🐢', label: 'Медленная' },
-	{ value: 'standard', icon: '⚡', label: 'Стандартная' },
-	{ value: 'fast', icon: '🚀', label: 'Быстрая' },
+type SpeedOption = {
+	value: GameSpeed,
+	image: string,
+	label: string,
+}
+
+const speedOptions: SpeedOption[] = [
+	{ value: 'slow', image: schoolBus, label: 'Медленная' },
+	{ value: 'normal', image: pickupCar, label: 'Стандартная' },
+	{ value: 'fast', image: speedCar, label: 'Быстрая' },
 ]
+
+const getSpeedButtonClass = (option: SpeedOption, isSelected: boolean) => {
+	return {
+		[`speed-button`]: true,
+		[`speed-button-${option.value}`]: true,
+		[`speed-button-${option.value}-active`]: isSelected,
+	}
+}
 
 const blindLevelsPreview = computed<BlindLevel[]>(() =>
 	generateBlindLevels({
@@ -485,7 +501,7 @@ const startingDepthBB = computed(() => {
 })
 
 const expectedFinalLevel = computed(() => {
-	const speedParams = { slow: 20, standard: 15, fast: 10 }
+	const speedParams = { slow: 20, normal: 15, fast: 10 }
 	const levelMinutes = speedParams[gameSpeed.value]
 	return Math.ceil(gameDurationMinutes.value / levelMinutes)
 })
@@ -596,6 +612,7 @@ const FUN_NAMES = [
 	'Катала-Ебала', 'Bubble Бой', 'Рыба-пила', 'Хитрожопый Лис', 'Шортстек Саня',
 	'Монстр-хуёт', 'Трефовый Хрен', 'Lady Дрюк', 'Блайнд Спот', 'Турнирный Волк',
 	'Fish & Tits', 'Бубновый Хуб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
+	'Paul Fector', 'Сл@вянин', 'Индус', 'Mister BIG', 'ПалСаныч'
 ]
 
 const getRandomName = (usedNames: string[]): string => {
@@ -924,6 +941,11 @@ const startTournament = () => {
 	vertical-align: middle;
 }
 
+.section-speed-icon {
+	width: 48px;
+	height: 48px;
+}
+
 /* --- Grid --- */
 .setup-grid {
 	display: grid;
@@ -1090,14 +1112,14 @@ const startTournament = () => {
 	gap: 10px;
 }
 
-.speed-btn {
+.speed-button {
 	flex: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
 	padding: 12px 16px;
-	border: 2px solid var(--poker-border);
+	border: 2px solid transparent;
 	border-radius: var(--poker-radius-sm, 8px);
 	background: var(--poker-bg-input, #2D333B);
 	color: var(--poker-text-secondary);
@@ -1108,22 +1130,44 @@ const startTournament = () => {
 	transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 
-.speed-btn:hover {
-	border-color: var(--poker-green);
+.speed-button {
 	color: var(--poker-text);
 }
 
-.speed-btn--active {
-	border-color: var(--poker-green);
+.speed-button-slow-active {
+	color: var(--poker-green-hover);
 	background: rgb(16 185 129 / 12%);
-	color: var(--poker-green);
+	border-color: var(--poker-green);
 }
 
-.speed-btn__icon {
-	font-size: 1.25rem;
+.speed-button-slow:hover {
+	color: var(--poker-green-hover);
+	background: rgb(16 185 129 / 12%);
 }
 
-.speed-btn__label {
+.speed-button-normal-active {
+	border-color: var(--poker-blue);
+	background: var(--poker-blue-bg);
+	color: var(--poker-blue);
+}
+
+.speed-button-normal:hover {
+	color: var(--poker-blue-hover);
+	background: var(--poker-blue-bg);
+}
+
+.speed-button-fast-active {
+	border-color: var(--poker-red);
+	background: var(--poker-red-dim);
+	color: var(--poker-red);
+}
+
+.speed-button-fast:hover {
+	background: var(--poker-red-dim);
+	color: var(--poker-red-hover);
+}
+
+.speed-button__label {
 	font-size: 0.9375rem;
 }
 
