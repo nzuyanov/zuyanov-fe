@@ -43,7 +43,10 @@ export const generateBlindLevels = (params: GenerateBlindLevelsParams): BlindLev
 	const levelsWithBuffer = totalLevels + 2
 
 	// Шаг 3: начальный и конечный BB
-	const startBB = roundToChip(startingStack / startingBBRatio, chipDenominations)
+	const sortedDenoms = [...chipDenominations].sort((a, b) => a - b)
+	const minChip = sortedDenoms[0] ?? 1
+	// BB должен быть минимум 2× минимального номинала, чтобы SB < BB после округления
+	const startBB = Math.max(roundToChip(startingStack / startingBBRatio, chipDenominations), minChip * 2)
 	const totalChips = startingStack * playerCount
 	const finalBB = roundToChip(totalChips * 0.05, chipDenominations)
 
