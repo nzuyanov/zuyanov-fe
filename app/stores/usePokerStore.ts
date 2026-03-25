@@ -3,10 +3,10 @@ import type {
 	PokerConfig,
 	PokerGameState,
 	PokerPlayer,
-	PokerBlindLevel,
 	BlindLevel,
 	TournamentStage,
 } from '~/types/poker'
+import { generateBlindLevels } from '~/composables/useBlindStructure'
 
 const createDefaultConfig = (): PokerConfig => ({
 	name: '',
@@ -55,32 +55,45 @@ export const usePokerStore = defineStore('poker', () => {
 			.filter(i => i !== -1),
 	)
 
-	const roundBlindToChip = (value: number): number => Math.max(Math.round(value), 1)
+	// --- Блайнды: автогенерация по скорости игры (фаза 11) ---
 
-	const getBlindLevelValues = (level: number): { sb: number; bb: number } => {
-		const { startSB, startBB, multiplier } = config.value.blinds
-		const rawSB = startSB * (multiplier ** level)
-		const rawBB = startBB * (multiplier ** level)
-		return {
-			sb: roundBlindToChip(rawSB),
-			bb: roundBlindToChip(rawBB),
-		}
-	}
-
-	const currentBlinds = computed(() => getBlindLevelValues(gameState.value.currentBlindLevel))
-
-	const nextBlinds = computed(() => getBlindLevelValues(gameState.value.currentBlindLevel + 1))
-
-	const blindLevelsPreview = computed<PokerBlindLevel[]>(() => {
-		const levels: PokerBlindLevel[] = []
-		for (let i = 0; i < 8; i++) {
-			const { sb, bb } = getBlindLevelValues(i)
-			levels.push({ level: i, sb, bb })
-		}
-		return levels
+	const chipDenominations = computed(() => {
+		const caseDenoms = config.value.chipCase.map(c => c.denomination)
+		// Если чемодан пустой — используем стандартные номиналы для округления
+		return caseDenoms.length > 0 ? caseDenoms : [25]
 	})
 
-	// --- Новые геттеры (фаза 10) ---
+	const allBlindLevels = computed<BlindLevel[]>(() =>
+		generateBlindLevels({
+			startingStack: config.value.buyInChips,
+			playerCount: gameState.value.players.length || 6,
+			gameDurationMinutes: config.value.gameDurationMinutes,
+			speed: config.value.gameSpeed,
+			chipDenominations: chipDenominations.value,
+		}),
+	)
+
+	const currentBlinds = computed(() => {
+		const level = allBlindLevels.value[gameState.value.currentBlindLevel]
+		if (!level) {
+			// За пределами таблицы — вернуть последний уровень
+			const last = allBlindLevels.value[allBlindLevels.value.length - 1]
+			return last ? { sb: last.smallBlind, bb: last.bigBlind } : { sb: 25, bb: 50 }
+		}
+		return { sb: level.smallBlind, bb: level.bigBlind }
+	})
+
+	const nextBlinds = computed(() => {
+		const nextIdx = gameState.value.currentBlindLevel + 1
+		const level = allBlindLevels.value[nextIdx]
+		if (!level) {
+			const last = allBlindLevels.value[allBlindLevels.value.length - 1]
+			return last ? { sb: last.smallBlind, bb: last.bigBlind } : { sb: 50, bb: 100 }
+		}
+		return { sb: level.smallBlind, bb: level.bigBlind }
+	})
+
+	// --- Геттеры ---
 
 	const minBet = computed(() => currentBlinds.value.bb)
 
@@ -108,23 +121,6 @@ export const usePokerStore = defineStore('poker', () => {
 		if (active === prizeCount + 1) return 'bubble'
 		if (total > 0 && active / total > 0.7) return 'early'
 		return 'middle'
-	})
-
-	// Заглушка — будет заменена в фазе 11 на generateBlindLevels()
-	const allBlindLevels = computed<BlindLevel[]>(() => {
-		const levels: BlindLevel[] = []
-		const intervalMinutes = config.value.blinds.intervalMinutes
-		const totalLevels = Math.ceil(config.value.gameDurationMinutes / intervalMinutes) + 2
-		for (let i = 0; i < totalLevels; i++) {
-			const { sb, bb } = getBlindLevelValues(i)
-			levels.push({
-				level: i + 1,
-				smallBlind: sb,
-				bigBlind: bb,
-				durationMinutes: intervalMinutes,
-			})
-		}
-		return levels
 	})
 
 	const prizeAmounts = computed<[number, number, number]>(() => {
@@ -213,11 +209,24 @@ export const usePokerStore = defineStore('poker', () => {
 
 	const initGame = (newConfig: PokerConfig, players: PokerPlayer[]) => {
 		config.value = newConfig
+		// Генерируем уровни для определения длительности первого уровня
+		const chipDenoms = newConfig.chipCase.length > 0
+			? newConfig.chipCase.map(c => c.denomination)
+			: [25]
+		const levels = generateBlindLevels({
+			startingStack: newConfig.buyInChips,
+			playerCount: players.length,
+			gameDurationMinutes: newConfig.gameDurationMinutes,
+			speed: newConfig.gameSpeed,
+			chipDenominations: chipDenoms,
+		})
+		const firstLevelDuration = levels[0]?.durationMinutes ?? 15
+
 		gameState.value = {
 			status: 'playing',
 			elapsedSeconds: 0,
 			currentBlindLevel: 0,
-			blindTimerSeconds: newConfig.blinds.intervalMinutes * 60,
+			blindTimerSeconds: firstLevelDuration * 60,
 			dealerIndex: 0,
 			players,
 			totalPot: players.length * newConfig.buyIn,
@@ -294,7 +303,9 @@ export const usePokerStore = defineStore('poker', () => {
 
 	const advanceBlinds = () => {
 		gameState.value.currentBlindLevel++
-		gameState.value.blindTimerSeconds = config.value.blinds.intervalMinutes * 60
+		const nextLevel = allBlindLevels.value[gameState.value.currentBlindLevel]
+		const duration = nextLevel ? nextLevel.durationMinutes : allBlindLevels.value[0]?.durationMinutes ?? 15
+		gameState.value.blindTimerSeconds = duration * 60
 	}
 
 	const tick = () => {
@@ -368,7 +379,6 @@ export const usePokerStore = defineStore('poker', () => {
 		activePlayers,
 		currentBlinds,
 		nextBlinds,
-		blindLevelsPreview,
 		prizeAmounts,
 		chipRate,
 		gameDurationSeconds,

@@ -118,70 +118,55 @@
 					<!-- Секция 3: Блайнды -->
 					<section class="setup-section" data-section="blinds">
 						<h2 class="setup-section__title"><img :src="imgBandit" alt="" class="section-icon"> Блайнды</h2>
-						<div class="blinds-layout">
-							<div class="blinds-fields">
-								<div class="field">
-									<label class="field__label">Начальный SB</label>
-									<PokerInput
-										v-model="startSB"
-										type="number"
-										:min="1"
-										:step="5"
-									/>
-								</div>
-								<div class="field">
-									<label class="field__label">Начальный BB (= SB × 2)</label>
-									<PokerInput
-										:model-value="startBB"
-										type="number"
-										disabled
-										hide-steps
-									/>
-								</div>
-								<div class="field">
-									<label class="field__label">Интервал роста</label>
-									<PokerTimeInput
-										v-model="blindInterval"
-										:min="1"
-										:max="1440"
-										:step="5"
-									/>
-								</div>
-								<div class="field">
-									<label class="field__label">Множитель роста</label>
-									<PokerInput
-										v-model="blindMultiplier"
-										type="number"
-										:min="1.1"
-										:step="0.1"
-										allow-decimals
-									/>
-								</div>
+						<div class="blinds-layout-v2">
+							<div class="speed-selector">
+								<button
+									v-for="opt in speedOptions"
+									:key="opt.value"
+									class="speed-btn"
+									:class="{ 'speed-btn--active': gameSpeed === opt.value }"
+									@click="gameSpeed = opt.value"
+								>
+									<span class="speed-btn__icon">{{ opt.icon }}</span>
+									<span class="speed-btn__label">{{ opt.label }}</span>
+								</button>
 							</div>
 
-							<div class="blinds-preview">
-								<h3 class="blinds-preview__title">Превью уровней</h3>
+							<div class="blinds-info">
+								<span class="blinds-info__item">Стартовая глубина: <strong>{{ startingDepthBB }} BB</strong></span>
+								<span class="blinds-info__sep">•</span>
+								<span class="blinds-info__item">Ожидаемое завершение: уровень <strong>{{ expectedFinalLevel }}</strong></span>
+							</div>
+
+							<div class="blinds-table-wrap">
 								<table class="blinds-table">
 									<colgroup>
-										<col style="width: 20%">
-										<col style="width: 40%">
-										<col style="width: 40%">
+										<col style="width: 12%">
+										<col style="width: 22%">
+										<col style="width: 22%">
+										<col style="width: 22%">
+										<col style="width: 22%">
 									</colgroup>
 									<thead>
 										<tr>
 											<th>Ур.</th>
 											<th>SB</th>
 											<th>BB</th>
+											<th>Мин. рейз</th>
+											<th>Длит.</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr
 											v-for="level in blindLevelsPreview"
 											:key="level.level"
+											:class="{ 'blinds-table__spare': level.level > expectedFinalLevel }"
 										>
 											<td class="blinds-table__level">{{ level.level }}</td>
-											<td>{{ level.sb }}</td>
-											<td>{{ level.bb }}</td>
+											<td>{{ level.smallBlind.toLocaleString('ru-RU') }}</td>
+											<td>{{ level.bigBlind.toLocaleString('ru-RU') }}</td>
+											<td>{{ (level.bigBlind * 2).toLocaleString('ru-RU') }}</td>
+											<td>{{ level.durationMinutes }} мин</td>
 										</tr>
 									</tbody>
 								</table>
@@ -330,7 +315,8 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerConfig, PokerPlayer } from '~/types/poker'
+import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel } from '~/types/poker'
+import { generateBlindLevels } from '~/composables/useBlindStructure'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import trophyGold from '~/assets/images/trophy-gold.png'
@@ -373,22 +359,35 @@ const prizeAmountsPreview = computed(() =>
 	prizes.value.map(p => Math.round(totalPotPreview.value * p / 100)),
 )
 
-// --- Секция 3: Блайнды ---
-const startSB = ref(25)
-const startBB = computed(() => startSB.value * 2)
-const blindInterval = ref(15)
-const blindMultiplier = ref(2)
+// --- Секция 3: Блайнды (автогенерация по скорости) ---
+const gameSpeed = ref<GameSpeed>('standard')
 
-const blindLevelsPreview = computed(() => {
-	const levels: { level: number; sb: number; bb: number }[] = []
-	for (let i = 0; i < 8; i++) {
-		const rawSB = startSB.value * (blindMultiplier.value ** i)
-		const rawBB = startBB.value * (blindMultiplier.value ** i)
-		const sb = Math.max(Math.round(rawSB), 1)
-		const bb = Math.max(Math.round(rawBB), 1)
-		levels.push({ level: i + 1, sb, bb })
-	}
-	return levels
+const speedOptions: { value: GameSpeed; icon: string; label: string }[] = [
+	{ value: 'slow', icon: '🐢', label: 'Медленная' },
+	{ value: 'standard', icon: '⚡', label: 'Стандартная' },
+	{ value: 'fast', icon: '🚀', label: 'Быстрая' },
+]
+
+const blindLevelsPreview = computed<BlindLevel[]>(() =>
+	generateBlindLevels({
+		startingStack: buyInChips.value,
+		playerCount: playerCount.value,
+		gameDurationMinutes: gameDurationMinutes.value,
+		speed: gameSpeed.value,
+		chipDenominations: [25],
+	}),
+)
+
+const startingDepthBB = computed(() => {
+	const firstLevel = blindLevelsPreview.value[0]
+	if (!firstLevel || firstLevel.bigBlind === 0) return 0
+	return Math.round(buyInChips.value / firstLevel.bigBlind)
+})
+
+const expectedFinalLevel = computed(() => {
+	const speedParams = { slow: 20, standard: 15, fast: 10 }
+	const levelMinutes = speedParams[gameSpeed.value]
+	return Math.ceil(gameDurationMinutes.value / levelMinutes)
 })
 
 // --- Секция 4: Фишки ---
@@ -574,18 +573,6 @@ const validationErrors = computed<ValidationError[]>(() => {
 	if (!isPrizesValid.value) {
 		errors.push({ message: 'Сумма призовых должна быть 100%', section: 'prizes' })
 	}
-	if (startSB.value <= 0) {
-		errors.push({ message: 'Начальный SB должен быть больше 0', section: 'blinds' })
-	}
-	if (startBB.value <= 0) {
-		errors.push({ message: 'Начальный BB должен быть больше 0', section: 'blinds' })
-	}
-	if (blindInterval.value <= 0) {
-		errors.push({ message: 'Интервал роста блайндов должен быть больше 0', section: 'blinds' })
-	}
-	if (blindMultiplier.value <= 1) {
-		errors.push({ message: 'Множитель роста должен быть больше 1', section: 'blinds' })
-	}
 	if (buyInChips.value <= 0) {
 		errors.push({ message: 'Закуп в фишках должен быть больше 0', section: 'chips' })
 	}
@@ -635,13 +622,13 @@ const startTournament = () => {
 		gameDurationMinutes: gameDurationMinutes.value,
 		prizes: [...prizes.value],
 		blinds: {
-			startSB: startSB.value,
-			startBB: startBB.value,
-			intervalMinutes: blindInterval.value,
-			multiplier: blindMultiplier.value,
+			startSB: 0,
+			startBB: 0,
+			intervalMinutes: 15,
+			multiplier: 2,
 		},
 		buyInChips: buyInChips.value,
-		gameSpeed: 'standard',
+		gameSpeed: gameSpeed.value,
 		chipCase: [],
 	}
 
@@ -913,35 +900,96 @@ const startTournament = () => {
 	color: var(--poker-red, #EF4444);
 }
 
-/* --- Blinds layout --- */
-.blinds-layout {
-	display: flex;
-	gap: 28px;
-	align-items: stretch;
-}
-
-.blinds-fields {
+/* --- Blinds layout v2 --- */
+.blinds-layout-v2 {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	flex-shrink: 0;
-	width: 220px;
 }
 
-/* --- Blinds preview --- */
-.blinds-preview {
-	flex: 1;
-	min-width: 0;
+.speed-selector {
 	display: flex;
-	flex-direction: column;
+	gap: 10px;
 }
 
-.blinds-preview__title {
+.speed-btn {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border: 2px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm, 8px);
+	background: var(--poker-bg-input, #2D333B);
+	color: var(--poker-text-secondary);
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.speed-btn:hover {
+	border-color: var(--poker-green);
+	color: var(--poker-text);
+}
+
+.speed-btn--active {
+	border-color: var(--poker-green);
+	background: rgb(16 185 129 / 12%);
+	color: var(--poker-green);
+}
+
+.speed-btn__icon {
+	font-size: 1.25rem;
+}
+
+.speed-btn__label {
+	font-size: 0.9375rem;
+}
+
+.blinds-info {
+	display: flex;
+	align-items: center;
+	gap: 12px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.8125rem;
-	font-weight: 500;
 	color: var(--poker-text-muted);
-	margin-bottom: 6px;
+}
+
+.blinds-info__item strong {
+	color: var(--poker-text-secondary);
+	font-weight: 700;
+}
+
+.blinds-info__sep {
+	color: var(--poker-text-muted);
+	opacity: 0.5;
+}
+
+.blinds-table-wrap {
+	max-height: 300px;
+	overflow-y: auto;
+	border-radius: var(--poker-radius-sm);
+	border: 1px solid var(--poker-border);
+}
+
+.blinds-table-wrap::-webkit-scrollbar {
+	width: 5px;
+}
+
+.blinds-table-wrap::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.blinds-table-wrap::-webkit-scrollbar-thumb {
+	background: rgb(255 255 255 / 15%);
+	border-radius: 3px;
+}
+
+.blinds-table__spare td {
+	opacity: 0.4;
 }
 
 .blinds-table {
