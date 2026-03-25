@@ -9,14 +9,25 @@
 					<span class="info-blinds__sep">/</span>
 					<span class="info-blinds__value">{{ store.currentBlinds.bb }}</span>
 				</span>
+				<span class="info-blinds__min-raise">Мин. рейз: {{ store.minRaise }}</span>
 				<span class="info-blinds__next">
 					След.: {{ store.nextBlinds.sb }} / {{ store.nextBlinds.bb }}
+				</span>
+				<span
+					v-for="preview in nextLevelsPreviews"
+					:key="preview.level"
+					class="info-blinds__preview"
+				>
+					→ {{ preview.sb }} / {{ preview.bb }}
 				</span>
 			</div>
 			<div class="info-timer info-timer--blinds" :class="{ 'info-timer--warning': isBlindTimerLow }">
 				<Icon name="ph:clock-bold" class="info-timer__icon" />
 				<span class="info-timer__value">{{ formatBlindTimer }}</span>
 			</div>
+			<button class="info-blinds-all" @click="$emit('showBlindsModal')">
+				📋 Все уровни
+			</button>
 		</section>
 
 		<!-- Таймер игры -->
@@ -38,6 +49,14 @@
 		<section class="info-section">
 			<h3 class="info-section__label">Банк</h3>
 			<span class="info-pot">{{ formatMoney(store.gameState.totalPot) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+			<div class="info-stats">
+				<span class="info-stats__item">
+					Игроков: {{ store.activePlayers.length }} / {{ store.gameState.players.length }}
+				</span>
+				<span class="info-stats__item">
+					Ср. стек: <span class="info-stats__avg" :class="avgStackClass">~{{ store.averageStackBB }} BB</span>
+				</span>
+			</div>
 		</section>
 
 		<!-- Призовые -->
@@ -101,6 +120,7 @@ const store = usePokerStore()
 defineEmits<{
 	nextDeal: []
 	finish: []
+	showBlindsModal: []
 }>()
 
 // Форматирование таймера игры (ЧЧ:ММ:СС)
@@ -167,6 +187,29 @@ const isBlindTimerLow = computed(() => store.gameState.blindTimerSeconds <= 60 &
 
 onUnmounted(() => {
 	if (blindsPulseTimeout) clearTimeout(blindsPulseTimeout)
+})
+
+// Превью следующих 2–3 уровней (после nextBlinds)
+const nextLevelsPreviews = computed(() => {
+	const startIdx = store.gameState.currentBlindLevel + 2
+	const levels = store.allBlindLevels
+	const result: { level: number; sb: number; bb: number }[] = []
+	for (let i = startIdx; i < Math.min(startIdx + 2, levels.length); i++) {
+		const lvl = levels[i]
+		if (lvl) {
+			result.push({ level: lvl.level, sb: lvl.smallBlind, bb: lvl.bigBlind })
+		}
+	}
+	return result
+})
+
+// Цвет среднего стека по диапазону
+const avgStackClass = computed(() => {
+	const avg = store.averageStackBB
+	if (avg > 40) return 'info-stats__avg--green'
+	if (avg > 20) return 'info-stats__avg--gold'
+	if (avg > 10) return 'info-stats__avg--orange'
+	return 'info-stats__avg--red'
 })
 
 const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
@@ -238,9 +281,41 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	color: var(--poker-green);
 }
 
+.info-blinds__min-raise {
+	font-family: var(--poker-font-mono);
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--poker-text-secondary);
+}
+
 .info-blinds__next {
 	font-size: 1rem;
 	color: var(--poker-text-muted);
+}
+
+.info-blinds__preview {
+	font-size: 0.85rem;
+	color: var(--poker-text-muted);
+	opacity: 0.7;
+}
+
+.info-blinds-all {
+	margin-top: 4px;
+	padding: 6px 10px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--poker-text-secondary);
+	background: var(--poker-bg-card);
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm);
+	cursor: pointer;
+	transition: color 0.2s, border-color 0.2s;
+	align-self: flex-start;
+}
+
+.info-blinds-all:hover {
+	color: var(--poker-text);
+	border-color: var(--poker-border-hover);
 }
 
 /* Таймеры */
@@ -331,6 +406,40 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 .info-rebuy-status--done {
 	background: var(--poker-bg-card);
 	color: var(--poker-text-muted);
+}
+
+/* Статистика (игроки, средний стек) */
+.info-stats {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 4px;
+}
+
+.info-stats__item {
+	font-size: 0.85rem;
+	color: var(--poker-text-muted);
+}
+
+.info-stats__avg {
+	font-family: var(--poker-font-mono);
+	font-weight: 700;
+}
+
+.info-stats__avg--green {
+	color: var(--poker-green);
+}
+
+.info-stats__avg--gold {
+	color: var(--poker-gold);
+}
+
+.info-stats__avg--orange {
+	color: #ef9f27;
+}
+
+.info-stats__avg--red {
+	color: var(--poker-red);
 }
 
 /* Банк */

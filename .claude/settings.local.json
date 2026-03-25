@@ -36,7 +36,8 @@
       "Bash(ls -la Neoneon.*)",
       "Bash(grep -E '\\\\.\\(ts|vue\\)$')",
       "Bash(find /e/projects/zuyanov-fe -type f -name *poker*)",
-      "Bash(wc -l /e/projects/zuyanov-fe/app/components/apps/poker-board/*.vue)"
+      "Bash(wc -l /e/projects/zuyanov-fe/app/components/apps/poker-board/*.vue)",
+      "Bash(npm ls:*)"
     ]
   }
 }

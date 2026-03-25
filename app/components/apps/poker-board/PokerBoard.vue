@@ -4,6 +4,7 @@
 			:title="store.config.name || 'Poker Tournament'"
 			:is-paused="store.gameState.status === 'paused'"
 			:is-muted="sound.muted.value"
+			:hand-number="store.gameState.handNumber"
 			@back="requestBack"
 			@toggle-pause="store.togglePause()"
 			@toggle-sound="sound.toggleMute()"
@@ -21,6 +22,7 @@
 				class="board__info"
 				@next-deal="handleNextDeal"
 				@finish="requestFinish"
+				@show-blinds-modal="showBlindsModal = true"
 			/>
 		</div>
 
@@ -92,6 +94,12 @@
 				<button class="board__toast-close" @click="timeUpNotice = false">✕</button>
 			</div>
 		</Transition>
+
+		<!-- Модалка уровней блайндов -->
+		<PokerBlindsModal
+			v-if="showBlindsModal"
+			@close="showBlindsModal = false"
+		/>
 	</div>
 </template>
 
@@ -102,6 +110,7 @@ import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
 import PokerPositionsBar from './PokerPositionsBar.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
+import PokerBlindsModal from './PokerBlindsModal.vue'
 
 const emit = defineEmits<{
 	back: []
@@ -120,6 +129,9 @@ onMounted(() => {
 onUnmounted(() => {
 	storage.cleanupAutoSaveListeners()
 })
+
+// --- Модалка уровней блайндов ---
+const showBlindsModal = ref(false)
 
 // --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)

@@ -7,6 +7,9 @@
 
 		<h1 class="poker-header__title">
 			<span class="poker-header__title-text">{{ title }}</span>
+			<span v-if="handNumber > 0" class="poker-header__hand">
+				•&nbsp;&nbsp;Раздача #{{ handNumber }}
+			</span>
 		</h1>
 
 		<div class="poker-header__controls">
@@ -33,6 +36,7 @@ defineProps<{
 	title: string
 	isPaused: boolean
 	isMuted: boolean
+	handNumber: number
 }>()
 
 defineEmits<{
@@ -112,6 +116,17 @@ defineEmits<{
 			0 0 55px var(--poker-green);
 		opacity: 0.92;
 	}
+}
+
+.poker-header__hand {
+	font-family: var(--poker-font-mono);
+	font-size: 0.85rem;
+	font-weight: normal;
+	color: var(--poker-text-muted);
+	letter-spacing: 0;
+	text-transform: none;
+	text-shadow: none;
+	animation: none;
 }
 
 .poker-header__controls {
