@@ -4,13 +4,6 @@
 			<div class="setup-modal">
 				<header class="setup-header">
 					<h1 class="setup-header__title"><img :src="imgPokerCards" alt="" class="section-icon"> Настройки турнира</h1>
-					<!--					<PokerChip :size="50" color="#10B981"/>-->
-					<!--					<PokerChip :size="50" color="#EC4899" value="5" />-->
-					<!--					<PokerChip :size="50" color="#F97316" value="10" />-->
-					<!--					<PokerChip :size="50" color="#10B981" value="25" />-->
-					<!--					<PokerChip :size="50" color="#8B5CF6" value="50" />-->
-					<!--					<PokerChip :size="50" color="#06B6D4" value="100" />-->
-					<!--					<PokerChip :size="50" color="#6B7280" value="500" />-->
 					<button class="setup-header__close" @click="emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
@@ -277,13 +270,15 @@
 							<div v-if="chipCase.length > 0 && buyInChips > 0" class="chip-dist">
 								<label class="field__label">👤 Раздача на игрока</label>
 								<div v-if="chipDistPreview.perPlayer.length > 0" class="chip-dist__list">
-									<span
+									<div
 										v-for="entry in chipDistPreview.perPlayer"
 										:key="entry.denomination"
 										class="chip-dist__item"
 									>
-										{{ entry.count }}&times;{{ entry.denomination.toLocaleString('ru-RU') }}
-									</span>
+										<PokerChip :value="entry.denomination" :color="entry.color" :size="60" />
+										<div>&times;</div>
+										<div>{{ entry.count }}</div>
+									</div>
 								</div>
 								<div class="chip-dist__summary">
 									<span class="chip-dist__total">
@@ -423,6 +418,7 @@
 import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel, ChipCaseEntry } from '~/types/poker'
 import { generateBlindLevels } from '~/composables/useBlindStructure'
 import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
+import { CHIP_COLORS, type ChipColor } from '~/constants/poker'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
@@ -517,21 +513,22 @@ const buyInChips = ref(2000)
 
 interface ChipCaseRow {
 	denomination: number
-	color: string
+	color: ChipColor
 	totalCount: number
 }
 
 const chipCase = ref<ChipCaseRow[]>([
-	{ denomination: 25, color: 'Белый', totalCount: 200 },
-	{ denomination: 50, color: 'Красный', totalCount: 200 },
-	{ denomination: 100, color: 'Зелёный', totalCount: 100 },
-	{ denomination: 500, color: 'Чёрный', totalCount: 50 },
+	{ denomination: 5, color: CHIP_COLORS.RED, totalCount: 75 },
+	{ denomination: 25, color: CHIP_COLORS.GREEN, totalCount: 75 },
+	{ denomination: 50, color: CHIP_COLORS.BLUE, totalCount: 50 },
+	{ denomination: 100, color: CHIP_COLORS.SILVER, totalCount: 75 },
+	{ denomination: 500, color: CHIP_COLORS.VIOLET, totalCount: 25 },
 ])
 
 const addChipDenom = () => {
 	const denoms = chipCase.value.map(c => c.denomination)
 	const maxDenom = denoms.length > 0 ? Math.max(...denoms) : 0
-	chipCase.value.push({ denomination: maxDenom * 2 || 1000, color: '', totalCount: 50 })
+	chipCase.value.push({ denomination: maxDenom * 2 || 1000, color: CHIP_COLORS.SILVER, totalCount: 50 })
 }
 
 const removeChipDenom = (index: number) => {
@@ -1393,7 +1390,7 @@ const startTournament = () => {
 }
 
 .chip-dist__item {
-	padding: 4px 10px;
+	padding: 10px;
 	border-radius: var(--poker-radius-sm, 8px);
 	background: var(--poker-bg-card, #21252D);
 	border: 1px solid var(--poker-border);
@@ -1402,6 +1399,9 @@ const startTournament = () => {
 	font-weight: 600;
 	color: var(--poker-text-secondary);
 	font-variant-numeric: tabular-nums;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .chip-dist__summary {

@@ -1,4 +1,5 @@
 import type { ChipCaseEntry, ChipDistribution, ChipAvailability } from '~/types/poker'
+import type { ChipColor } from '~/constants/poker'
 
 /**
  * Рассчитать раздачу фишек на одного игрока из чемодана.
@@ -27,11 +28,12 @@ export const calculateChipDistribution = (
 		denomination: chip.denomination,
 		totalCount: chip.totalCount,
 		maxPerPlayer: Math.floor(chip.totalCount / Math.max(totalDistributions, 1)),
+		color: chip.color as ChipColor,
 	}))
 
 	// Шаг 3: Жадный алгоритм — набираем стек от крупных к мелким
 	let remaining = startingStack
-	const distribution: { denomination: number; count: number }[] = []
+	const distribution: { denomination: number; count: number; color: ChipColor }[] = []
 
 	for (let i = sorted.length - 1; i >= 0; i--) {
 		const chip = availablePerDistribution[i]!
@@ -41,7 +43,11 @@ export const calculateChipDistribution = (
 			// Самый мелкий номинал — забирает весь остаток
 			const count = Math.ceil(remaining / chip.denomination)
 			if (count > 0) {
-				distribution.unshift({ denomination: chip.denomination, count })
+				distribution.unshift({
+					color: chip.color,
+					denomination: chip.denomination,
+					count }
+				)
 				remaining -= count * chip.denomination
 			}
 		}
@@ -54,7 +60,11 @@ export const calculateChipDistribution = (
 				Math.ceil(chip.maxPerPlayer * 0.25),
 				maxByValue,
 			))
-			distribution.unshift({ denomination: chip.denomination, count: moderate })
+			distribution.unshift({
+				denomination: chip.denomination,
+				count: moderate,
+				color: chip.color,
+			})
 			remaining -= moderate * chip.denomination
 		}
 	}

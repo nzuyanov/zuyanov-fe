@@ -97,7 +97,7 @@
 		<div
 			v-if="value"
 			class="label"
-			:style="`font-size: ${size / 5}px`"
+			:style="`font-size: ${size / 5}px; color: ${secondaryColor}`"
 		>
 			{{ value }}
 		</div>
@@ -105,13 +105,15 @@
 </template>
 
 <script setup lang="ts">
+import { CHIP_COLORS } from '~/constants/poker'
+
 const props = withDefaults(defineProps<{
 	color?: string,
 	secondaryColor?: string,
 	size?: number,
 	value?: number | string,
 }>(), {
-	color: '#2563EB',
+	color: CHIP_COLORS.RED,
 	secondaryColor: '#FFFCED',
 	size: 24,
 	value: '',
@@ -182,7 +184,7 @@ const placeholderColor = computed<string>(() => {
 
 <style scoped>
 	.wrapper {
-		display: flex;
+		display: inline-flex;
 		position: relative;
 	}
 

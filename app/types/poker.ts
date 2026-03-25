@@ -1,4 +1,6 @@
 // --- Скорость игры ---
+import type { ChipColor } from '~/constants/poker'
+
 export type GameSpeed = 'slow' | 'normal' | 'fast'
 
 // --- Стадия турнира ---
@@ -7,13 +9,17 @@ export type TournamentStage = 'early' | 'middle' | 'bubble' | 'in-prizes' | 'fin
 // --- Чемодан фишек ---
 export interface ChipCaseEntry {
 	denomination: number
-	color?: string
+	color: string
 	totalCount: number
 }
 
 // --- Раздача фишек на игрока ---
 export interface ChipDistribution {
-	perPlayer: { denomination: number; count: number }[]
+	perPlayer: {
+		denomination: number
+		count: number
+		color: ChipColor
+	}[]
 	totalValue: number
 	totalChips: number
 	isValid: boolean
