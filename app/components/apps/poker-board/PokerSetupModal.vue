@@ -177,32 +177,131 @@
 					<!-- Секция 4: Фишки -->
 					<section class="setup-section" data-section="chips">
 						<h2 class="setup-section__title"><img :src="imgPokerChip" alt="" class="section-icon"> Фишки</h2>
-						<div class="chips-layout">
-							<div class="field">
-								<label class="field__label">Закуп в фишках</label>
-								<PokerInput
-									v-model="buyInChips"
-									type="number"
-									:min="1"
-									:step="100"
-								/>
+						<div class="chips-layout-v2">
+							<!-- Чемодан фишек -->
+							<div class="chip-case">
+								<label class="field__label">📦 Содержимое чемодана</label>
+								<div class="chip-case__table-wrap">
+									<table class="chip-case__table">
+										<thead>
+											<tr>
+												<th>Номинал</th>
+												<th>Цвет</th>
+												<th>Кол-во</th>
+												<th />
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(chip, i) in chipCase" :key="i">
+												<td>
+													<PokerInput
+														:model-value="chip.denomination"
+														type="number"
+														:min="1"
+														small
+														@update:model-value="chip.denomination = Number($event)"
+													/>
+												</td>
+												<td>
+													<PokerInput
+														v-model="chip.color"
+														placeholder="—"
+														small
+													/>
+												</td>
+												<td>
+													<PokerInput
+														:model-value="chip.totalCount"
+														type="number"
+														:min="0"
+														small
+														@update:model-value="chip.totalCount = Number($event)"
+													/>
+												</td>
+												<td>
+													<button
+														v-if="chipCase.length > 1"
+														class="chip-case__remove"
+														@click="removeChipDenom(i)"
+													>
+														<Icon name="ph:trash-bold" />
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<button class="chip-case__add" @click="addChipDenom">
+									<Icon name="ph:plus-bold" /> Добавить номинал
+								</button>
 							</div>
-							<div v-if="buyInChips > 0" class="chip-rate-card">
-								<div class="chip-rate-card__row">
-									<span class="chip-rate-card__label">1 фишка</span>
-									<span class="chip-rate-card__eq">=</span>
-									<span class="chip-rate-card__value">
-										{{ rubPerChipDisplay }}
-										<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+
+							<!-- Стартовый стек -->
+							<div class="chip-stack-row">
+								<div class="field">
+									<label class="field__label">Стартовый стек (в фишках)</label>
+									<PokerInput
+										v-model="buyInChips"
+										type="number"
+										:min="1"
+										:step="100"
+									/>
+								</div>
+								<div v-if="buyInChips > 0" class="chip-rate-card">
+									<div class="chip-rate-card__row">
+										<span class="chip-rate-card__label">1 фишка</span>
+										<span class="chip-rate-card__eq">=</span>
+										<span class="chip-rate-card__value">
+											{{ rubPerChipDisplay }}
+											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+										</span>
+									</div>
+									<div class="chip-rate-card__divider">/</div>
+									<div class="chip-rate-card__row">
+										<span class="chip-rate-card__label">1
+											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+										</span>
+										<span class="chip-rate-card__eq">=</span>
+										<span class="chip-rate-card__value">{{ chipsPerRubDisplay }} {{ chipsPerRubUnit }}</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Раздача на игрока -->
+							<div v-if="chipCase.length > 0 && buyInChips > 0" class="chip-dist">
+								<label class="field__label">👤 Раздача на игрока</label>
+								<div v-if="chipDistPreview.perPlayer.length > 0" class="chip-dist__list">
+									<span
+										v-for="entry in chipDistPreview.perPlayer"
+										:key="entry.denomination"
+										class="chip-dist__item"
+									>
+										{{ entry.count }}&times;{{ entry.denomination.toLocaleString('ru-RU') }}
 									</span>
 								</div>
-								<div class="chip-rate-card__divider">/</div>
-								<div class="chip-rate-card__row">
-									<span class="chip-rate-card__label">1
-										<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+								<div class="chip-dist__summary">
+									<span class="chip-dist__total">
+										Итого: {{ chipDistPreview.totalChips }} фишек = {{ chipDistPreview.totalValue.toLocaleString('ru-RU') }}
 									</span>
-									<span class="chip-rate-card__eq">=</span>
-									<span class="chip-rate-card__value">{{ chipsPerRubDisplay }} {{ chipsPerRubUnit }}</span>
+									<span v-if="!chipDistPreview.isValid && chipDistPreview.totalValue > 0" class="chip-dist__warn chip-dist__warn--yellow">
+										⚠️ Ближайшее значение: {{ chipDistPreview.totalValue.toLocaleString('ru-RU') }} (+{{ (chipDistPreview.totalValue - buyInChips).toLocaleString('ru-RU') }})
+									</span>
+									<span v-if="chipDistPreview.totalValue === 0" class="chip-dist__warn chip-dist__warn--red">
+										❌ Невозможно собрать стек
+									</span>
+								</div>
+
+								<!-- Статус доступности -->
+								<div class="chip-avail">
+									<span
+										class="chip-avail__badge"
+										:class="chipAvailBadgeClass"
+									>
+										{{ chipAvailBadgeText }}
+									</span>
+									<span v-if="chipAvailPreview.bottleneck" class="chip-avail__hint">
+										{{ chipAvailPreview.bottleneck }}
+									</span>
 								</div>
 							</div>
 						</div>
@@ -315,8 +414,9 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel } from '~/types/poker'
+import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel, ChipCaseEntry } from '~/types/poker'
 import { generateBlindLevels } from '~/composables/useBlindStructure'
+import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import trophyGold from '~/assets/images/trophy-gold.png'
@@ -374,7 +474,7 @@ const blindLevelsPreview = computed<BlindLevel[]>(() =>
 		playerCount: playerCount.value,
 		gameDurationMinutes: gameDurationMinutes.value,
 		speed: gameSpeed.value,
-		chipDenominations: [25],
+		chipDenominations: chipDenominationsFromCase.value,
 	}),
 )
 
@@ -392,6 +492,78 @@ const expectedFinalLevel = computed(() => {
 
 // --- Секция 4: Фишки ---
 const buyInChips = ref(2000)
+
+interface ChipCaseRow {
+	denomination: number
+	color: string
+	totalCount: number
+}
+
+const chipCase = ref<ChipCaseRow[]>([
+	{ denomination: 25, color: 'Белый', totalCount: 200 },
+	{ denomination: 50, color: 'Красный', totalCount: 200 },
+	{ denomination: 100, color: 'Зелёный', totalCount: 100 },
+	{ denomination: 500, color: 'Чёрный', totalCount: 50 },
+])
+
+const addChipDenom = () => {
+	const denoms = chipCase.value.map(c => c.denomination)
+	const maxDenom = denoms.length > 0 ? Math.max(...denoms) : 0
+	chipCase.value.push({ denomination: maxDenom * 2 || 1000, color: '', totalCount: 50 })
+}
+
+const removeChipDenom = (index: number) => {
+	if (chipCase.value.length <= 1) return
+	chipCase.value.splice(index, 1)
+}
+
+const chipCaseEntries = computed<ChipCaseEntry[]>(() =>
+	chipCase.value
+		.filter(c => c.denomination > 0 && c.totalCount > 0)
+		.map(c => ({
+			denomination: c.denomination,
+			color: c.color || undefined,
+			totalCount: c.totalCount,
+		})),
+)
+
+const chipDenominationsFromCase = computed(() => {
+	const denoms = chipCaseEntries.value.map(c => c.denomination)
+	return denoms.length > 0 ? denoms : [25]
+})
+
+const chipDistPreview = computed(() =>
+	calculateChipDistribution(
+		chipCaseEntries.value,
+		playerCount.value,
+		buyInChips.value,
+		maxRebuys.value,
+		true,
+	),
+)
+
+const chipAvailPreview = computed(() =>
+	calculateChipAvailability(
+		chipCaseEntries.value,
+		playerCount.value,
+		buyInChips.value,
+		maxRebuys.value,
+		true,
+	),
+)
+
+const chipAvailBadgeClass = computed(() => {
+	if (!chipAvailPreview.value.enoughForStart) return 'chip-avail__badge--red'
+	if (!chipAvailPreview.value.enoughForRebuys) return 'chip-avail__badge--yellow'
+	return 'chip-avail__badge--green'
+})
+
+const chipAvailBadgeText = computed(() => {
+	if (!chipAvailPreview.value.enoughForStart) return '❌ Не хватает на старт'
+	if (!chipAvailPreview.value.enoughForRebuys) return '⚠️ Не хватит на все ребаи'
+	if (!chipAvailPreview.value.enoughForAddOns) return '⚠️ Не хватит на все аддоны'
+	return '✅ Фишек достаточно'
+})
 
 const rubPerChipDisplay = computed(() => {
 	if (buyInChips.value === 0) return '0'
@@ -574,7 +746,13 @@ const validationErrors = computed<ValidationError[]>(() => {
 		errors.push({ message: 'Сумма призовых должна быть 100%', section: 'prizes' })
 	}
 	if (buyInChips.value <= 0) {
-		errors.push({ message: 'Закуп в фишках должен быть больше 0', section: 'chips' })
+		errors.push({ message: 'Стартовый стек должен быть больше 0', section: 'chips' })
+	}
+	if (chipCaseEntries.value.length === 0) {
+		errors.push({ message: 'Добавьте хотя бы один номинал фишек', section: 'chips' })
+	}
+	if (!chipAvailPreview.value.enoughForStart) {
+		errors.push({ message: 'Не хватает фишек на стартовую раздачу', section: 'chips' })
 	}
 	if (hasEmptyNames.value) {
 		errors.push({ message: 'Имена игроков не могут быть пустыми', section: 'players' })
@@ -629,7 +807,7 @@ const startTournament = () => {
 		},
 		buyInChips: buyInChips.value,
 		gameSpeed: gameSpeed.value,
-		chipCase: [],
+		chipCase: chipCaseEntries.value,
 	}
 
 	const gamePlayers: PokerPlayer[] = players.value.map(p => ({
@@ -1044,14 +1222,103 @@ const startTournament = () => {
 	color: var(--poker-text-muted);
 }
 
-/* --- Chips --- */
-.chips-layout {
+/* --- Chips v2 --- */
+.chips-layout-v2 {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.chip-case__table-wrap {
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm, 8px);
+	overflow: hidden;
+}
+
+.chip-case__table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.875rem;
+}
+
+.chip-case__table th {
+	text-align: left;
+	padding: 8px 12px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--poker-text-muted);
+	background: var(--poker-bg-input, #2D333B);
+	border-bottom: 1px solid var(--poker-border);
+}
+
+.chip-case__table th:last-child {
+	width: 40px;
+}
+
+.chip-case__table td {
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--poker-border);
+	vertical-align: middle;
+}
+
+.chip-case__table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.chip-case__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: none;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
+	color: var(--poker-text-muted);
+	cursor: pointer;
+	transition: color 0.2s, background 0.2s;
+}
+
+.chip-case__remove:hover {
+	color: var(--poker-red);
+	background: var(--poker-red-dim);
+}
+
+.chip-case__add {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 8px;
+	padding: 8px 16px;
+	border: 1px dashed var(--poker-border);
+	border-radius: var(--poker-radius-sm, 8px);
+	background: transparent;
+	color: var(--poker-text-muted);
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.chip-case__add:hover {
+	border-color: var(--poker-green);
+	color: var(--poker-green);
+	background: rgb(16 185 129 / 8%);
+}
+
+.chip-stack-row {
 	display: flex;
 	gap: 24px;
 	align-items: flex-start;
 }
 
-.chips-layout .field {
+.chip-stack-row .field {
 	max-width: 220px;
 }
 
@@ -1062,6 +1329,100 @@ const startTournament = () => {
 	gap: 16px;
 	padding: 6px 20px;
 	border-radius: var(--poker-radius-sm, 8px);
+}
+
+/* Раздача на игрока */
+.chip-dist {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 14px 16px;
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm, 8px);
+	background: var(--poker-bg-input, #2D333B);
+}
+
+.chip-dist__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.chip-dist__item {
+	padding: 4px 10px;
+	border-radius: var(--poker-radius-sm, 8px);
+	background: var(--poker-bg-card, #21252D);
+	border: 1px solid var(--poker-border);
+	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--poker-text-secondary);
+	font-variant-numeric: tabular-nums;
+}
+
+.chip-dist__summary {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.chip-dist__total {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--poker-text-secondary);
+	font-variant-numeric: tabular-nums;
+}
+
+.chip-dist__warn {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 500;
+}
+
+.chip-dist__warn--yellow {
+	color: var(--poker-gold);
+}
+
+.chip-dist__warn--red {
+	color: var(--poker-red);
+}
+
+/* Статус доступности */
+.chip-avail {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 4px;
+}
+
+.chip-avail__badge {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	font-weight: 700;
+	padding: 4px 10px;
+	border-radius: var(--poker-radius-sm, 8px);
+}
+
+.chip-avail__badge--green {
+	color: var(--poker-green);
+	background: rgb(16 185 129 / 12%);
+}
+
+.chip-avail__badge--yellow {
+	color: var(--poker-gold);
+	background: rgb(245 158 11 / 12%);
+}
+
+.chip-avail__badge--red {
+	color: var(--poker-red);
+	background: rgb(239 68 68 / 12%);
+}
+
+.chip-avail__hint {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.75rem;
+	color: var(--poker-text-muted);
 }
 
 .chip-rate-card__row {

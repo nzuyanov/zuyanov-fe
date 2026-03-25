@@ -31,14 +31,18 @@
 		</div>
 
 		<div v-if="!player.isEliminated" class="player-card__actions">
-			<button
-				v-if="canRebuy"
-				class="player-card__btn player-card__btn--rebuy"
-				:class="{ 'player-card__btn--addon': isAddOn }"
-				@click="$emit('rebuy', player.id)"
-			>
-				{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
-			</button>
+			<div v-if="canRebuy" class="player-card__rebuy-wrap">
+				<button
+					class="player-card__btn player-card__btn--rebuy"
+					:class="{ 'player-card__btn--addon': isAddOn }"
+					@click="$emit('rebuy', player.id)"
+				>
+					{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
+				</button>
+				<span v-if="chipDistribution && chipDistribution.perPlayer.length > 0" class="player-card__chip-hint">
+					Выдать: {{ chipDistribution.perPlayer.map(e => `${e.count}×${e.denomination}`).join(', ') }}
+				</span>
+			</div>
 			<button
 				class="player-card__btn player-card__btn--eliminate"
 				@click="$emit('eliminate', player.id)"
@@ -54,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerPlayer } from '~/types/poker'
+import type { PokerPlayer, ChipDistribution } from '~/types/poker'
 
 const props = defineProps<{
 	player: PokerPlayer
@@ -62,6 +66,7 @@ const props = defineProps<{
 	canRebuy: boolean
 	isAddOn: boolean
 	maxRebuys: number
+	chipDistribution?: ChipDistribution
 }>()
 
 defineEmits<{
@@ -176,6 +181,28 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 .player-card__actions {
 	display: flex;
 	gap: 6px;
+	align-items: flex-start;
+}
+
+.player-card__rebuy-wrap {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.player-card__rebuy-wrap .player-card__btn {
+	width: 100%;
+}
+
+.player-card__chip-hint {
+	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
+	font-size: 0.6rem;
+	color: var(--poker-text-muted);
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .player-card__btn {

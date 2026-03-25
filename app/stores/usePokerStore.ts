@@ -5,8 +5,11 @@ import type {
 	PokerPlayer,
 	BlindLevel,
 	TournamentStage,
+	ChipDistribution,
+	ChipAvailability,
 } from '~/types/poker'
 import { generateBlindLevels } from '~/composables/useBlindStructure'
+import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
 
 const createDefaultConfig = (): PokerConfig => ({
 	name: '',
@@ -127,6 +130,28 @@ export const usePokerStore = defineStore('poker', () => {
 		const pot = gameState.value.totalPot
 		return config.value.prizes.map(p => Math.round(pot * p / 100)) as [number, number, number]
 	})
+
+	// --- Раздача фишек из чемодана (фаза 12) ---
+
+	const chipDistribution = computed<ChipDistribution>(() =>
+		calculateChipDistribution(
+			config.value.chipCase,
+			gameState.value.players.length || 6,
+			config.value.buyInChips,
+			config.value.maxRebuys,
+			true,
+		),
+	)
+
+	const chipAvailability = computed<ChipAvailability>(() =>
+		calculateChipAvailability(
+			config.value.chipCase,
+			gameState.value.players.length || 6,
+			config.value.buyInChips,
+			config.value.maxRebuys,
+			true,
+		),
+	)
 
 	// Курс: сколько рублей стоит 1 фишка
 	const chipRate = computed(() => {
@@ -381,6 +406,8 @@ export const usePokerStore = defineStore('poker', () => {
 		nextBlinds,
 		prizeAmounts,
 		chipRate,
+		chipDistribution,
+		chipAvailability,
 		gameDurationSeconds,
 		remainingGameSeconds,
 		rebuyPeriodSeconds,
