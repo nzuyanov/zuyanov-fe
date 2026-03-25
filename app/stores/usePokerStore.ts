@@ -14,17 +14,11 @@ import { calculateChipDistribution, calculateChipAvailability } from '~/composab
 const createDefaultConfig = (): PokerConfig => ({
 	name: '',
 	buyIn: 500,
+	buyInChips: 2000,
 	maxRebuys: 3,
 	rebuyPeriodMinutes: 60,
 	gameDurationMinutes: 180,
 	prizes: [50, 30, 20],
-	blinds: {
-		startSB: 25,
-		startBB: 50,
-		intervalMinutes: 15,
-		multiplier: 2,
-	},
-	buyInChips: 2000,
 	gameSpeed: 'normal',
 	chipCase: [],
 })

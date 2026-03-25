@@ -2,7 +2,7 @@ import { usePokerStore } from '~/stores/usePokerStore'
 import type { PokerSaveData } from '~/types/poker'
 
 const STORAGE_KEY = 'poker-board-state'
-const SAVE_VERSION = 1
+const SAVE_VERSION = 2
 const AUTOSAVE_INTERVAL = 60_000
 
 export const usePokerStorage = () => {
@@ -32,12 +32,24 @@ export const usePokerStorage = () => {
 			const raw = localStorage.getItem(STORAGE_KEY)
 			if (!raw) return null
 
-			const data = JSON.parse(raw) as PokerSaveData
-			if (data.version !== SAVE_VERSION) return null
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const data = JSON.parse(raw) as Record<string, any>
 			if (!data.config || !data.gameState) return null
 			if (data.gameState.status === 'finished' || data.gameState.status === 'idle') return null
 
-			return data
+			// Миграция v1 → v2: удаляем старое поле blinds, добавляем новые
+			if (data.version === 1) {
+				delete data.config.blinds
+				data.config.gameSpeed = data.config.gameSpeed ?? 'normal'
+				data.config.chipCase = data.config.chipCase ?? []
+				data.gameState.handNumber = data.gameState.handNumber ?? 1
+				data.gameState.totalAddOns = data.gameState.totalAddOns ?? 0
+				data.version = 2
+			}
+
+			if (data.version !== SAVE_VERSION) return null
+
+			return data as PokerSaveData
 		}
 		catch {
 			return null
@@ -54,18 +66,7 @@ export const usePokerStorage = () => {
 	}
 
 	const restore = (data: PokerSaveData) => {
-		// Обратная совместимость: подставляем дефолты для новых полей
-		const gameState = {
-			...data.gameState,
-			handNumber: data.gameState.handNumber ?? 1,
-			totalAddOns: data.gameState.totalAddOns ?? 0,
-		}
-		const config = {
-			...data.config,
-			gameSpeed: data.config.gameSpeed ?? 'standard' as const,
-			chipCase: data.config.chipCase ?? [],
-		}
-		store.restoreState(config, gameState)
+		store.restoreState(data.config, data.gameState)
 	}
 
 	const startAutosave = () => {

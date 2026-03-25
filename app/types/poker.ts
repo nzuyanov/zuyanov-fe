@@ -37,14 +37,6 @@ export interface BlindLevel {
 	durationMinutes: number
 }
 
-// --- Старые блайнды (будет удалено в фазе 11) ---
-export interface PokerBlindsConfig {
-	startSB: number
-	startBB: number
-	intervalMinutes: number
-	multiplier: number
-}
-
 export interface PokerConfig {
 	name: string
 	buyIn: number
@@ -53,8 +45,6 @@ export interface PokerConfig {
 	rebuyPeriodMinutes: number
 	gameDurationMinutes: number
 	prizes: [number, number, number]
-	blinds: PokerBlindsConfig
-	// Новые поля (фаза 10) — параллельно со старыми до фазы 11
 	gameSpeed: GameSpeed
 	chipCase: ChipCaseEntry[]
 }
@@ -81,7 +71,6 @@ export interface PokerGameState {
 	players: PokerPlayer[]
 	totalPot: number
 	eliminationCounter: number
-	// Новые поля (фаза 10)
 	handNumber: number
 	totalAddOns: number
 }
@@ -91,10 +80,4 @@ export interface PokerSaveData {
 	savedAt: number
 	config: PokerConfig
 	gameState: PokerGameState
-}
-
-export interface PokerBlindLevel {
-	level: number
-	sb: number
-	bb: number
 }
