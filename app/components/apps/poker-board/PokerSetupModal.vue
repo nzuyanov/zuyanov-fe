@@ -4,7 +4,13 @@
 			<div class="setup-modal">
 				<header class="setup-header">
 					<h1 class="setup-header__title"><img :src="imgPokerCards" alt="" class="section-icon"> Настройки турнира</h1>
-<!--					<PokerChip />-->
+<!--					<PokerChip :size="50" color="#10B981"/>-->
+<!--					<PokerChip :size="50" color="#EC4899" value="5" />-->
+<!--					<PokerChip :size="50" color="#F97316" value="10" />-->
+<!--					<PokerChip :size="50" color="#10B981" value="25" />-->
+<!--					<PokerChip :size="50" color="#8B5CF6" value="50" />-->
+<!--					<PokerChip :size="50" color="#06B6D4" value="100" />-->
+<!--					<PokerChip :size="50" color="#6B7280" value="500" />-->
 					<button class="setup-header__close" @click="emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
