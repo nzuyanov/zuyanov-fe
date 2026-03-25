@@ -54,7 +54,18 @@ export const usePokerStorage = () => {
 	}
 
 	const restore = (data: PokerSaveData) => {
-		store.restoreState(data.config, data.gameState)
+		// Обратная совместимость: подставляем дефолты для новых полей
+		const gameState = {
+			...data.gameState,
+			handNumber: data.gameState.handNumber ?? 1,
+			totalAddOns: data.gameState.totalAddOns ?? 0,
+		}
+		const config = {
+			...data.config,
+			gameSpeed: data.config.gameSpeed ?? 'standard' as const,
+			chipCase: data.config.chipCase ?? [],
+		}
+		store.restoreState(config, gameState)
 	}
 
 	const startAutosave = () => {

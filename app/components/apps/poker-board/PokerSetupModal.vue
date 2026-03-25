@@ -641,6 +641,8 @@ const startTournament = () => {
 			multiplier: blindMultiplier.value,
 		},
 		buyInChips: buyInChips.value,
+		gameSpeed: 'standard',
+		chipCase: [],
 	}
 
 	const gamePlayers: PokerPlayer[] = players.value.map(p => ({

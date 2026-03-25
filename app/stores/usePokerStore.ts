@@ -4,6 +4,8 @@ import type {
 	PokerGameState,
 	PokerPlayer,
 	PokerBlindLevel,
+	BlindLevel,
+	TournamentStage,
 } from '~/types/poker'
 
 const createDefaultConfig = (): PokerConfig => ({
@@ -20,6 +22,8 @@ const createDefaultConfig = (): PokerConfig => ({
 		multiplier: 2,
 	},
 	buyInChips: 2000,
+	gameSpeed: 'standard',
+	chipCase: [],
 })
 
 const createDefaultGameState = (): PokerGameState => ({
@@ -31,6 +35,8 @@ const createDefaultGameState = (): PokerGameState => ({
 	players: [],
 	totalPot: 0,
 	eliminationCounter: 0,
+	handNumber: 1,
+	totalAddOns: 0,
 })
 
 export const usePokerStore = defineStore('poker', () => {
@@ -70,6 +76,53 @@ export const usePokerStore = defineStore('poker', () => {
 		for (let i = 0; i < 8; i++) {
 			const { sb, bb } = getBlindLevelValues(i)
 			levels.push({ level: i, sb, bb })
+		}
+		return levels
+	})
+
+	// --- Новые геттеры (фаза 10) ---
+
+	const minBet = computed(() => currentBlinds.value.bb)
+
+	const minRaise = computed(() => currentBlinds.value.bb * 2)
+
+	const averageStackBB = computed(() => {
+		const totalRebuys = gameState.value.players.reduce((sum, p) => sum + p.rebuysUsed, 0)
+		const totalChips = config.value.buyInChips * gameState.value.players.length
+			+ totalRebuys * config.value.buyInChips
+			+ gameState.value.totalAddOns * config.value.buyInChips
+		const active = activePlayers.value.length
+		const bb = currentBlinds.value.bb
+		if (active === 0 || bb === 0) return 0
+		return Math.round(totalChips / active / bb)
+	})
+
+	const tournamentStage = computed((): TournamentStage => {
+		const active = activePlayers.value.length
+		const total = gameState.value.players.length
+		const prizeCount = config.value.prizes.length
+
+		if (active <= 2) return 'heads-up'
+		if (active <= 3) return 'final-table'
+		if (active <= prizeCount) return 'in-prizes'
+		if (active === prizeCount + 1) return 'bubble'
+		if (total > 0 && active / total > 0.7) return 'early'
+		return 'middle'
+	})
+
+	// Заглушка — будет заменена в фазе 11 на generateBlindLevels()
+	const allBlindLevels = computed<BlindLevel[]>(() => {
+		const levels: BlindLevel[] = []
+		const intervalMinutes = config.value.blinds.intervalMinutes
+		const totalLevels = Math.ceil(config.value.gameDurationMinutes / intervalMinutes) + 2
+		for (let i = 0; i < totalLevels; i++) {
+			const { sb, bb } = getBlindLevelValues(i)
+			levels.push({
+				level: i + 1,
+				smallBlind: sb,
+				bigBlind: bb,
+				durationMinutes: intervalMinutes,
+			})
 		}
 		return levels
 	})
@@ -169,6 +222,8 @@ export const usePokerStore = defineStore('poker', () => {
 			players,
 			totalPot: players.length * newConfig.buyIn,
 			eliminationCounter: 0,
+			handNumber: 1,
+			totalAddOns: 0,
 		}
 	}
 
@@ -183,6 +238,7 @@ export const usePokerStore = defineStore('poker', () => {
 		else if (isAddOnAvailable.value) {
 			if (player.addOnUsed) return
 			player.addOnUsed = true
+			gameState.value.totalAddOns++
 		}
 		else {
 			return
@@ -233,6 +289,7 @@ export const usePokerStore = defineStore('poker', () => {
 		if (active.length < 2) return
 
 		gameState.value.dealerIndex = getNextActiveIndex(gameState.value.dealerIndex)
+		gameState.value.handNumber++
 	}
 
 	const advanceBlinds = () => {
@@ -323,6 +380,11 @@ export const usePokerStore = defineStore('poker', () => {
 		sbPlayer,
 		bbPlayer,
 		getResults,
+		minBet,
+		minRaise,
+		averageStackBB,
+		tournamentStage,
+		allBlindLevels,
 
 		// Actions
 		initGame,
