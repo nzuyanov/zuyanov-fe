@@ -1,12 +1,12 @@
 export const CHIP_COLORS = {
-	GREEN: '#10B981',
-	PINK: '#EC4899',
+	RED: '#EF4444',
 	ORANGE: '#F97316',
-	VIOLET: '#8B5CF6',
+	GOLD: '#F59E0B',
+	GREEN: '#10B981',
 	CYAN: '#06B6D4',
 	SILVER: '#6B7280',
-	RED: '#EF4444',
-	GOLD: '#F59E0B',
+	VIOLET: '#8B5CF6',
+	PINK: '#EC4899',
 	BLUE: '#3B82F6',
 } as const
 
