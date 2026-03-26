@@ -201,13 +201,12 @@
 														@update:model-value="chip.denomination = Number($event)"
 													/>
 												</td>
-												<td class="color-cell">
-													<PokerInput
-														v-model="chip.color"
-														placeholder="—"
-														small
+												<td>
+													<PokerChipColorPicker
+														:model-value="chip.color"
+														:value="chip.denomination"
+														@update:model-value="chip.color = $event"
 													/>
-													<PokerChip :value="chip.denomination" :color="chip.color" :size="46" />
 												</td>
 												<td>
 													<PokerInput
@@ -423,6 +422,7 @@ import { CHIP_COLORS, type ChipColor } from '~/constants/poker'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
+import PokerChipColorPicker from '~/components/apps/poker-board/PokerChipColorPicker.vue'
 import trophyGold from '~/assets/images/trophy-gold.png'
 import trophySilver from '~/assets/images/trophy-silver.png'
 import trophyBronze from '~/assets/images/trophy-bronze.png'
@@ -536,6 +536,7 @@ const removeChipDenom = (index: number) => {
 	if (chipCase.value.length <= 1) return
 	chipCase.value.splice(index, 1)
 }
+
 
 const chipCaseEntries = computed<ChipCaseEntry[]>(() =>
 	chipCase.value
@@ -1799,9 +1800,4 @@ const startTournament = () => {
 	transform: translateY(4px);
 }
 
-.color-cell {
-	display: flex;
-	align-items: center;
-	gap: 16px;
-}
 </style>
