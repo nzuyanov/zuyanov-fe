@@ -115,7 +115,7 @@ const props = withDefaults(defineProps<{
 }>(), {
 	color: CHIP_COLORS.RED,
 	secondaryColor: '#FFFCED',
-	size: 24,
+	size: 30,
 	value: '',
 })
 
@@ -208,5 +208,6 @@ const placeholderColor = computed<string>(() => {
 		align-items: center;
 		font-family: 'Montserrat Variable';
 		font-weight: 800;
+		line-height: 100%;
 	}
 </style>

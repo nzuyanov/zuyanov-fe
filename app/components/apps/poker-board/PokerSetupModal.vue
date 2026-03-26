@@ -186,7 +186,7 @@
 											<tr>
 												<th>Номинал</th>
 												<th>Цвет</th>
-												<th>Кол-во</th>
+												<th>Количество</th>
 												<th />
 											</tr>
 										</thead>
@@ -201,12 +201,13 @@
 														@update:model-value="chip.denomination = Number($event)"
 													/>
 												</td>
-												<td>
+												<td class="color-cell">
 													<PokerInput
 														v-model="chip.color"
 														placeholder="—"
 														small
 													/>
+													<PokerChip :value="chip.denomination" :color="chip.color" :size="46" />
 												</td>
 												<td>
 													<PokerInput
@@ -1796,5 +1797,11 @@ const startTournament = () => {
 .tooltip-fade-leave-to {
 	opacity: 0;
 	transform: translateY(4px);
+}
+
+.color-cell {
+	display: flex;
+	align-items: center;
+	gap: 16px;
 }
 </style>
