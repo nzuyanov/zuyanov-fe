@@ -3,73 +3,118 @@ import type { ChipColor } from '~/constants/poker'
 
 /**
  * Рассчитать раздачу фишек на одного игрока из чемодана.
- * Жадный алгоритм: набираем стек, приоритет мелким номиналам.
+ *
+ * Двухпроходный алгоритм:
+ *   1) Сверху вниз (от крупных к мелким): берём максимум крупных фишек,
+ *      оставляя резерв для меньших номиналов (минимум MIN_RESERVE_PER_DENOM штук каждого).
+ *   2) Снизу вверх: если мелких не хватило на остаток — добираем крупными.
+ *
+ * maxPerPlayer рассчитывается от playerCount (не от totalDistributions),
+ * чтобы не занижать крупные номиналы. Достаточность для ребаев/аддонов
+ * проверяется отдельно в calculateChipAvailability.
  */
 export const calculateChipDistribution = (
 	chipCase: ChipCaseEntry[],
 	playerCount: number,
 	startingStack: number,
-	maxRebuys: number,
-	addOnEnabled: boolean,
+	_maxRebuys: number,
+	_addOnEnabled: boolean,
 ): ChipDistribution => {
 	if (chipCase.length === 0 || playerCount <= 0 || startingStack <= 0) {
 		return { perPlayer: [], totalValue: 0, totalChips: 0, isValid: false, deficit: startingStack }
 	}
 
-	const sorted = [...chipCase].sort((a, b) => a.denomination - b.denomination)
+	// Желаемый минимум фишек каждого меньшего номинала при резервировании
+	const MIN_RESERVE_PER_DENOM = 3
+	// Максимальная доля стека, которую можно зарезервировать под мелкие номиналы.
+	// Без этого ограничения при большом количестве номиналов резерв может
+	// превысить половину стека и заблокировать крупные фишки целиком.
+	const MAX_RESERVE_RATIO = 0.4
 
-	// Шаг 1: Оценка количества раздач (старт + ребаи + аддоны)
-	const estimatedRebuys = Math.ceil(playerCount * maxRebuys * 0.6)
-	const estimatedAddOns = addOnEnabled ? playerCount : 0
-	const totalDistributions = playerCount + estimatedRebuys + estimatedAddOns
+	const sorted = [...chipCase]
+		.filter(c => c.denomination > 0 && c.totalCount > 0)
+		.sort((a, b) => a.denomination - b.denomination)
 
-	// Шаг 2: Доступное количество фишек каждого номинала на одну раздачу
-	const availablePerDistribution = sorted.map(chip => ({
+	if (sorted.length === 0) {
+		return { perPlayer: [], totalValue: 0, totalChips: 0, isValid: false, deficit: startingStack }
+	}
+
+	// Доступное количество каждого номинала на одного игрока
+	const chipsInfo = sorted.map(chip => ({
 		denomination: chip.denomination,
-		totalCount: chip.totalCount,
-		maxPerPlayer: Math.floor(chip.totalCount / Math.max(totalDistributions, 1)),
+		maxPerPlayer: Math.floor(chip.totalCount / playerCount),
 		color: chip.color as ChipColor,
 	}))
 
-	// Шаг 3: Жадный алгоритм — набираем стек от крупных к мелким
+	// --- Проход 1: сверху вниз ---
 	let remaining = startingStack
 	const distribution: { denomination: number; count: number; color: ChipColor }[] = []
 
 	for (let i = sorted.length - 1; i >= 0; i--) {
-		const chip = availablePerDistribution[i]!
+		const chip = chipsInfo[i]!
+
 		if (chip.denomination > remaining && i > 0) continue
 
 		if (i === 0) {
-			// Самый мелкий номинал — забирает весь остаток
+			// Самый мелкий номинал — забирает остаток
 			const count = Math.ceil(remaining / chip.denomination)
-			if (count > 0) {
-				distribution.unshift({
-					color: chip.color,
-					denomination: chip.denomination,
-					count }
-				)
-				remaining -= count * chip.denomination
+			const capped = Math.min(count, chip.maxPerPlayer)
+			if (capped > 0) {
+				distribution.push({ denomination: chip.denomination, count: capped, color: chip.color })
+				remaining -= capped * chip.denomination
 			}
 		}
 		else {
-			// Крупные фишки — берём умеренно (25% от доступного, минимум 1)
 			const maxByValue = Math.floor(remaining / chip.denomination)
 			if (maxByValue <= 0) continue
 
-			const moderate = Math.max(1, Math.min(
-				Math.ceil(chip.maxPerPlayer * 0.25),
-				maxByValue,
-			))
-			distribution.unshift({
-				denomination: chip.denomination,
-				count: moderate,
-				color: chip.color,
-			})
-			remaining -= moderate * chip.denomination
+			// Резерв: оставить место для нескольких фишек каждого меньшего номинала,
+			// но не более MAX_RESERVE_RATIO от текущего остатка.
+			// В оффлайн-игре мелкие фишки можно обменять на крупные в «банке»,
+			// поэтому нет смысла запасать слишком много мелких.
+			let rawReserve = 0
+			for (let j = 0; j < i; j++) {
+				rawReserve += chipsInfo[j]!.denomination * MIN_RESERVE_PER_DENOM
+			}
+			const reserve = Math.min(rawReserve, remaining * MAX_RESERVE_RATIO)
+
+			const maxByReserve = remaining > reserve
+				? Math.floor((remaining - reserve) / chip.denomination)
+				: 0
+
+			const count = Math.min(maxByValue, chip.maxPerPlayer, maxByReserve)
+			if (count > 0) {
+				distribution.push({ denomination: chip.denomination, count, color: chip.color })
+				remaining -= count * chip.denomination
+			}
 		}
 	}
 
-	// Сортируем по номиналу (от мелких к крупным)
+	// --- Проход 2: снизу вверх --- добираем дефицит, если мелких не хватило
+	if (remaining > 0) {
+		for (let i = 0; i < chipsInfo.length; i++) {
+			if (remaining <= 0) break
+			const chip = chipsInfo[i]!
+			const existing = distribution.find(d => d.denomination === chip.denomination)
+			const usedCount = existing?.count ?? 0
+			const availableMore = chip.maxPerPlayer - usedCount
+
+			if (availableMore <= 0) continue
+
+			const needed = Math.ceil(remaining / chip.denomination)
+			const extra = Math.min(needed, availableMore)
+			if (extra > 0) {
+				if (existing) {
+					existing.count += extra
+				}
+				else {
+					distribution.push({ denomination: chip.denomination, count: extra, color: chip.color })
+				}
+				remaining -= extra * chip.denomination
+			}
+		}
+	}
+
 	distribution.sort((a, b) => a.denomination - b.denomination)
 
 	const totalValue = distribution.reduce((s, d) => s + d.denomination * d.count, 0)
