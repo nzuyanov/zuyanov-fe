@@ -229,6 +229,11 @@ onUnmounted(() => {
 	outline: none;
 	text-align: center;
 	min-height: 46px;
+	transition: background-color 0.2s;
+}
+
+.time-input:hover .time-input__native {
+	background-color: var(--poker-bg-input-hover);
 }
 
 .time-input__step {

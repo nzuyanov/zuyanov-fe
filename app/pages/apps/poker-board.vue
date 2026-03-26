@@ -188,6 +188,7 @@ const onNewGame = () => {
 	--poker-bg-surface: #1A1D23;
 	--poker-bg-card: #21252D;
 	--poker-bg-input: #2D333B;
+	--poker-bg-input-hover: #242930;
 	--poker-green: #10B981;
 	--poker-green-hover: #059669;
 	--poker-green-dim: rgb(16 185 129 / 15%);
