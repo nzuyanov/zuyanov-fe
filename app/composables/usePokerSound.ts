@@ -1,4 +1,4 @@
-type SoundType = 'blindsUp' | 'rebuyEnd' | 'gameEnd' | 'warning5min' | 'warning1min'
+type SoundType = 'blindsUp' | 'rebuyEnd' | 'gameEnd' | 'warning5min' | 'warning1min' | 'bubbleReached' | 'bubbleBurst'
 
 interface ToneConfig {
 	frequency: number
@@ -32,6 +32,19 @@ const SOUND_CONFIGS: Record<SoundType, ToneConfig[]> = {
 	],
 	warning1min: [
 		{ frequency: 500, duration: 0.1, type: 'triangle' },
+	],
+	// Тройной тон при наступлении баббла
+	bubbleReached: [
+		{ frequency: 440, duration: 0.15, type: 'sine' },
+		{ frequency: 440, duration: 0.15, type: 'sine' },
+		{ frequency: 440, duration: 0.3, type: 'sine' },
+	],
+	// Победный аккорд при лопании баббла (все в призах)
+	bubbleBurst: [
+		{ frequency: 523, duration: 0.15, type: 'sine' },
+		{ frequency: 659, duration: 0.15, type: 'sine' },
+		{ frequency: 784, duration: 0.15, type: 'sine' },
+		{ frequency: 1047, duration: 0.4, type: 'sine' },
 	],
 }
 

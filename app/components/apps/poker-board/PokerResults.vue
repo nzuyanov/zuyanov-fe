@@ -10,7 +10,7 @@
 				class="results__podium-item"
 				:class="`results__podium-item--place-${i + 1}`"
 			>
-				<span class="results__place-icon">{{ placeIcons[i] }}</span>
+				<img :src="placeIcons[i]" alt="" class="results__place-icon">
 				<img
 					:src="getAvatarDataUri(entry.player.avatarId)"
 					alt=""
@@ -65,14 +65,17 @@
 </template>
 
 <script setup lang="ts">
+import trophyGold from '~/assets/images/trophy-gold.png'
+import trophySilver from '~/assets/images/trophy-silver.png'
+import trophyBronze from '~/assets/images/trophy-bronze.png'
+
 defineEmits<{
 	newGame: []
 }>()
 
 const store = usePokerStore()
 const { getAvatarDataUri } = usePokerAvatars()
-
-const placeIcons = ['🥇', '🥈', '🥉']
+const placeIcons = [trophyGold, trophySilver, trophyBronze]
 
 const results = computed(() => store.getResults)
 const prizeAmounts = computed(() => store.prizeAmounts)
@@ -153,7 +156,8 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .results__place-icon {
-	font-size: 2rem;
+	width: 48px;
+	height: 48px;
 }
 
 .results__avatar {

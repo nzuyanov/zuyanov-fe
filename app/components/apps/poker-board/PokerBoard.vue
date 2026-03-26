@@ -4,6 +4,8 @@
 			:title="store.config.name || 'Poker Tournament'"
 			:is-paused="store.gameState.status === 'paused'"
 			:is-muted="sound.muted.value"
+			:hand-number="store.gameState.handNumber"
+			:stage="isGameRunning ? store.tournamentStage : null"
 			@back="requestBack"
 			@toggle-pause="store.togglePause()"
 			@toggle-sound="sound.toggleMute()"
@@ -21,6 +23,7 @@
 				class="board__info"
 				@next-deal="handleNextDeal"
 				@finish="requestFinish"
+				@show-blinds-modal="showBlindsModal = true"
 			/>
 		</div>
 
@@ -92,6 +95,24 @@
 				<button class="board__toast-close" @click="timeUpNotice = false">✕</button>
 			</div>
 		</Transition>
+
+		<Transition name="toast">
+			<div v-if="bubbleNotice" class="board__toast board__toast--bubble">
+				🔴 БАББЛ!
+			</div>
+		</Transition>
+
+		<Transition name="toast">
+			<div v-if="inPrizesNotice" class="board__toast board__toast--in-prizes">
+				🎉 ВСЕ В ПРИЗАХ!
+			</div>
+		</Transition>
+
+		<!-- Модалка уровней блайндов -->
+		<PokerBlindsModal
+			v-if="showBlindsModal"
+			@close="showBlindsModal = false"
+		/>
 	</div>
 </template>
 
@@ -102,6 +123,7 @@ import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
 import PokerPositionsBar from './PokerPositionsBar.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
+import PokerBlindsModal from './PokerBlindsModal.vue'
 
 const emit = defineEmits<{
 	back: []
@@ -119,6 +141,37 @@ onMounted(() => {
 
 onUnmounted(() => {
 	storage.cleanupAutoSaveListeners()
+})
+
+// --- Модалка уровней блайндов ---
+const showBlindsModal = ref(false)
+
+const isGameRunning = computed(
+	() => store.gameState.status === 'playing' || store.gameState.status === 'paused',
+)
+
+// --- Стадия турнира: звуки и тосты ---
+const bubbleNotice = ref(false)
+const inPrizesNotice = ref(false)
+let bubbleNoticeTimeout: ReturnType<typeof setTimeout> | null = null
+let inPrizesNoticeTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(() => store.tournamentStage, (newStage, oldStage) => {
+	if (!isGameRunning.value) return
+
+	if (newStage === 'bubble') {
+		sound.play('bubbleReached')
+		bubbleNotice.value = true
+		if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
+		bubbleNoticeTimeout = setTimeout(() => { bubbleNotice.value = false }, 4000)
+	}
+
+	if (oldStage === 'bubble' && (newStage === 'in-prizes' || newStage === 'final-table')) {
+		sound.play('bubbleBurst')
+		inPrizesNotice.value = true
+		if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
+		inPrizesNoticeTimeout = setTimeout(() => { inPrizesNotice.value = false }, 4000)
+	}
 })
 
 // --- Таймеры и уведомления ---
@@ -169,6 +222,8 @@ usePokerTimer({
 onUnmounted(() => {
 	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
 	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
+	if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
+	if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
 })
 
 // --- Ребай ---
@@ -258,6 +313,10 @@ watch(() => store.gameState.status, (status) => {
 	width: 100%;
 	height: 100%;
 	position: relative;
+	background:
+		url('/patterns/poker-felt.svg') repeat center center,
+		var(--poker-bg);
+	background-size: 450px 450px, auto;
 }
 
 .board__body {
@@ -408,6 +467,28 @@ watch(() => store.gameState.status, (status) => {
 
 @keyframes toast-glow-green {
 	0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 60%); }
+	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
+}
+
+.board__toast--bubble {
+	background: var(--poker-red);
+	color: #fff;
+	animation: toast-glow-red 0.6s ease-out;
+}
+
+.board__toast--in-prizes {
+	background: #85b7eb;
+	color: #000;
+	animation: toast-glow-blue 0.6s ease-out;
+}
+
+@keyframes toast-glow-red {
+	0% { box-shadow: 0 0 0 0 rgb(239 68 68 / 60%); }
+	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
+}
+
+@keyframes toast-glow-blue {
+	0% { box-shadow: 0 0 0 0 rgb(133 183 235 / 60%); }
 	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
 }
 

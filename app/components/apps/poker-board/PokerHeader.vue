@@ -5,7 +5,16 @@
 			<span>Назад</span>
 		</button>
 
-		<h1 class="poker-header__title">🃏 {{ title }}</h1>
+		<h1 class="poker-header__title">
+			<span class="poker-header__title-text">{{ title }}</span>
+			<span v-if="handNumber > 0" class="poker-header__hand">
+				•&nbsp;&nbsp;Раздача #{{ handNumber }}
+			</span>
+		</h1>
+
+		<span v-if="stage" class="poker-header__stage" :class="`poker-header__stage--${stage}`">
+			{{ stageLabel }}
+		</span>
 
 		<div class="poker-header__controls">
 			<button
@@ -27,10 +36,14 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import type { TournamentStage } from '~/types/poker'
+
+const props = defineProps<{
 	title: string
 	isPaused: boolean
 	isMuted: boolean
+	handNumber: number
+	stage: TournamentStage | null
 }>()
 
 defineEmits<{
@@ -38,6 +51,17 @@ defineEmits<{
 	togglePause: []
 	toggleSound: []
 }>()
+
+const STAGE_LABELS: Record<TournamentStage, string> = {
+	'early': 'Ранняя стадия',
+	'middle': 'Средняя стадия',
+	'bubble': '🔴 Баббл!',
+	'in-prizes': 'В призах',
+	'final-table': '🏆 Финальный стол',
+	'heads-up': 'Хедз-ап',
+}
+
+const stageLabel = computed(() => props.stage ? STAGE_LABELS[props.stage] : '')
 </script>
 
 <style scoped>
@@ -72,12 +96,102 @@ defineEmits<{
 }
 
 .poker-header__title {
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.5rem;
-	font-weight: 800;
-	letter-spacing: 0.04em;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.poker-header__title-text {
+	font-family: Neoneon, var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 2rem;
+	font-weight: normal;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--poker-green);
+	text-shadow:
+		0 0 7px var(--poker-green),
+		0 0 20px var(--poker-green),
+		0 0 40px var(--poker-green),
+		0 0 80px var(--poker-green);
+	animation: neon-flicker 4s ease-in-out infinite;
+}
+
+@keyframes neon-flicker {
+	0%, 100% {
+		text-shadow:
+			0 0 7px var(--poker-green),
+			0 0 20px var(--poker-green),
+			0 0 40px var(--poker-green),
+			0 0 80px var(--poker-green);
+		opacity: 1;
+	}
+
+	50% {
+		text-shadow:
+			0 0 4px var(--poker-green),
+			0 0 12px var(--poker-green),
+			0 0 28px var(--poker-green),
+			0 0 55px var(--poker-green);
+		opacity: 0.92;
+	}
+}
+
+.poker-header__hand {
+	font-family: var(--poker-font-mono);
+	font-size: 0.85rem;
+	font-weight: normal;
+	color: var(--poker-text-muted);
+	letter-spacing: 0;
+	text-transform: none;
+	text-shadow: none;
+	animation: none;
+}
+
+/* Бейдж стадии турнира */
+.poker-header__stage {
+	padding: 6px 14px;
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-radius: var(--poker-radius-sm);
+	white-space: nowrap;
+}
+
+.poker-header__stage--early {
+	background: var(--poker-green-dim);
+	color: var(--poker-green);
+}
+
+.poker-header__stage--middle {
+	background: var(--poker-gold-dim);
+	color: var(--poker-gold);
+}
+
+.poker-header__stage--bubble {
+	background: var(--poker-red-dim);
+	color: var(--poker-red);
+	animation: bubble-pulse 1s ease-in-out infinite;
+}
+
+.poker-header__stage--in-prizes {
+	background: rgb(133 183 235 / 15%);
+	color: #85b7eb;
+}
+
+.poker-header__stage--final-table {
+	background: var(--poker-gold-dim);
+	color: var(--poker-gold);
+}
+
+.poker-header__stage--heads-up {
+	background: var(--poker-red-dim);
+	color: var(--poker-red);
+}
+
+@keyframes bubble-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
 }
 
 .poker-header__controls {

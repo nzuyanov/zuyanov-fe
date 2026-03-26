@@ -8,10 +8,10 @@
 			'player-card--bb': role === 'BB',
 		}"
 	>
-		<!-- Бейдж роли -->
-		<span v-if="role" class="player-card__badge" :class="`player-card__badge--${role.toLowerCase()}`">
-			{{ role }}
-		</span>
+		<!-- Бейдж роли (фишка) -->
+		<img v-if="role === 'D'" src="~/assets/icons/poker/chip-dealer.svg" alt="D" class="player-card__role-chip">
+		<img v-else-if="role === 'SB'" src="~/assets/icons/poker/chip-sb.svg" alt="SB" class="player-card__role-chip">
+		<img v-else-if="role === 'BB'" src="~/assets/icons/poker/chip-bb.svg" alt="BB" class="player-card__role-chip">
 
 		<div class="player-card__top">
 			<img
@@ -31,14 +31,18 @@
 		</div>
 
 		<div v-if="!player.isEliminated" class="player-card__actions">
-			<button
-				v-if="canRebuy"
-				class="player-card__btn player-card__btn--rebuy"
-				:class="{ 'player-card__btn--addon': isAddOn }"
-				@click="$emit('rebuy', player.id)"
-			>
-				{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
-			</button>
+			<div v-if="canRebuy" class="player-card__rebuy-wrap">
+				<button
+					class="player-card__btn player-card__btn--rebuy"
+					:class="{ 'player-card__btn--addon': isAddOn }"
+					@click="$emit('rebuy', player.id)"
+				>
+					{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
+				</button>
+				<span v-if="chipDistribution && chipDistribution.perPlayer.length > 0" class="player-card__chip-hint">
+					Выдать: {{ chipDistribution.perPlayer.map(e => `${e.count}×${e.denomination}`).join(', ') }}
+				</span>
+			</div>
 			<button
 				class="player-card__btn player-card__btn--eliminate"
 				@click="$emit('eliminate', player.id)"
@@ -54,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerPlayer } from '~/types/poker'
+import type { PokerPlayer, ChipDistribution } from '~/types/poker'
 
 const props = defineProps<{
 	player: PokerPlayer
@@ -62,6 +66,7 @@ const props = defineProps<{
 	canRebuy: boolean
 	isAddOn: boolean
 	maxRebuys: number
+	chipDistribution?: ChipDistribution
 }>()
 
 defineEmits<{
@@ -108,45 +113,36 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .player-card--dealer {
-	border-color: var(--poker-gold);
-	box-shadow: 0 0 12px rgb(245 158 11 / 15%);
+	border-color: rgb(255 255 255 / 70%);
+	box-shadow:
+		0 0 8px rgb(255 255 255 / 25%),
+		0 0 20px rgb(255 255 255 / 15%),
+		inset 0 0 8px rgb(255 255 255 / 5%);
 }
 
 .player-card--sb {
-	border-color: var(--poker-green);
-	box-shadow: 0 0 12px rgb(16 185 129 / 10%);
+	border-color: #4a8fd4;
+	box-shadow:
+		0 0 8px rgb(74 143 212 / 35%),
+		0 0 20px rgb(37 99 168 / 25%),
+		inset 0 0 8px rgb(74 143 212 / 8%);
 }
 
 .player-card--bb {
-	border-color: var(--poker-red);
-	box-shadow: 0 0 12px rgb(239 68 68 / 10%);
+	border-color: #d4a020;
+	box-shadow:
+		0 0 8px rgb(212 160 32 / 35%),
+		0 0 20px rgb(212 160 32 / 25%),
+		inset 0 0 8px rgb(240 200 96 / 8%);
 }
 
-.player-card__badge {
+.player-card__role-chip {
 	position: absolute;
-	top: -8px;
-	right: 10px;
-	padding: 2px 8px;
-	font-size: 0.7rem;
-	font-weight: 800;
-	letter-spacing: 0.05em;
-	border-radius: 4px;
-	text-transform: uppercase;
-}
-
-.player-card__badge--d {
-	background: var(--poker-gold);
-	color: #000;
-}
-
-.player-card__badge--sb {
-	background: var(--poker-green);
-	color: #000;
-}
-
-.player-card__badge--bb {
-	background: var(--poker-red);
-	color: #fff;
+	top: -14px;
+	right: 8px;
+	width: 28px;
+	height: 28px;
+	filter: drop-shadow(0 2px 4px rgb(0 0 0 / 50%));
 }
 
 .player-card__top {
@@ -185,6 +181,28 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 .player-card__actions {
 	display: flex;
 	gap: 6px;
+	align-items: flex-start;
+}
+
+.player-card__rebuy-wrap {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.player-card__rebuy-wrap .player-card__btn {
+	width: 100%;
+}
+
+.player-card__chip-hint {
+	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
+	font-size: 0.6rem;
+	color: var(--poker-text-muted);
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .player-card__btn {

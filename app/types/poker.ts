@@ -1,8 +1,46 @@
-export interface PokerBlindsConfig {
-	startSB: number
-	startBB: number
-	intervalMinutes: number
-	multiplier: number
+// --- Скорость игры ---
+import type { ChipColor } from '~/constants/poker'
+
+export type GameSpeed = 'slow' | 'normal' | 'fast'
+
+// --- Стадия турнира ---
+export type TournamentStage = 'early' | 'middle' | 'bubble' | 'in-prizes' | 'final-table' | 'heads-up'
+
+// --- Чемодан фишек ---
+export interface ChipCaseEntry {
+	denomination: number
+	color: string
+	totalCount: number
+}
+
+// --- Раздача фишек на игрока ---
+export interface ChipDistribution {
+	perPlayer: {
+		denomination: number
+		count: number
+		color: ChipColor
+	}[]
+	totalValue: number
+	totalChips: number
+	isValid: boolean
+	deficit: number
+}
+
+// --- Доступность фишек ---
+export interface ChipAvailability {
+	totalDistributions: number
+	enoughForStart: boolean
+	enoughForRebuys: boolean
+	enoughForAddOns: boolean
+	bottleneck?: string
+}
+
+// --- Уровень блайндов (расширенный) ---
+export interface BlindLevel {
+	level: number
+	smallBlind: number
+	bigBlind: number
+	durationMinutes: number
 }
 
 export interface PokerConfig {
@@ -13,7 +51,8 @@ export interface PokerConfig {
 	rebuyPeriodMinutes: number
 	gameDurationMinutes: number
 	prizes: [number, number, number]
-	blinds: PokerBlindsConfig
+	gameSpeed: GameSpeed
+	chipCase: ChipCaseEntry[]
 }
 
 export interface PokerPlayer {
@@ -38,6 +77,8 @@ export interface PokerGameState {
 	players: PokerPlayer[]
 	totalPot: number
 	eliminationCounter: number
+	handNumber: number
+	totalAddOns: number
 }
 
 export interface PokerSaveData {
@@ -45,10 +86,4 @@ export interface PokerSaveData {
 	savedAt: number
 	config: PokerConfig
 	gameState: PokerGameState
-}
-
-export interface PokerBlindLevel {
-	level: number
-	sb: number
-	bb: number
 }

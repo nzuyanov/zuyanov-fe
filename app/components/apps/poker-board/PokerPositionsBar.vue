@@ -1,20 +1,20 @@
 <template>
 	<footer class="positions-bar">
 		<Transition name="position-swap" mode="out-in">
-			<div v-if="store.dealerPlayer" :key="store.dealerPlayer.id" class="positions-bar__item positions-bar__item--dealer">
-				<span class="positions-bar__badge">D</span>
+			<div v-if="store.dealerPlayer" :key="store.dealerPlayer.id" class="positions-bar__item">
+				<img src="~/assets/icons/poker/chip-dealer.svg" alt="D" class="positions-bar__chip">
 				<span class="positions-bar__name">{{ store.dealerPlayer.name }}</span>
 			</div>
 		</Transition>
 		<Transition name="position-swap" mode="out-in">
-			<div v-if="store.sbPlayer" :key="store.sbPlayer.id" class="positions-bar__item positions-bar__item--sb">
-				<span class="positions-bar__badge">SB</span>
+			<div v-if="store.sbPlayer" :key="store.sbPlayer.id" class="positions-bar__item">
+				<img src="~/assets/icons/poker/chip-sb.svg" alt="SB" class="positions-bar__chip">
 				<span class="positions-bar__name">{{ store.sbPlayer.name }}</span>
 			</div>
 		</Transition>
 		<Transition name="position-swap" mode="out-in">
-			<div v-if="store.bbPlayer" :key="store.bbPlayer.id" class="positions-bar__item positions-bar__item--bb">
-				<span class="positions-bar__badge">BB</span>
+			<div v-if="store.bbPlayer" :key="store.bbPlayer.id" class="positions-bar__item">
+				<img src="~/assets/icons/poker/chip-bb.svg" alt="BB" class="positions-bar__chip">
 				<span class="positions-bar__name">{{ store.bbPlayer.name }}</span>
 			</div>
 		</Transition>
@@ -39,36 +39,14 @@ const store = usePokerStore()
 .positions-bar__item {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 10px;
 }
 
-.positions-bar__badge {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 28px;
-	height: 22px;
-	padding: 0 6px;
-	font-size: 0.7rem;
-	font-weight: 800;
-	letter-spacing: 0.05em;
-	border-radius: 4px;
-	text-transform: uppercase;
-}
-
-.positions-bar__item--dealer .positions-bar__badge {
-	background: var(--poker-gold);
-	color: #000;
-}
-
-.positions-bar__item--sb .positions-bar__badge {
-	background: var(--poker-green);
-	color: #000;
-}
-
-.positions-bar__item--bb .positions-bar__badge {
-	background: var(--poker-red);
-	color: #fff;
+.positions-bar__chip {
+	width: 32px;
+	height: 32px;
+	flex-shrink: 0;
+	filter: drop-shadow(0 1px 3px rgb(0 0 0 / 40%));
 }
 
 .positions-bar__name {

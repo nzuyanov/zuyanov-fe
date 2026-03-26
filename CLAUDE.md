@@ -19,6 +19,7 @@
 ## Спецификации
 - Poker Board: @docs/POKER_BOARD_SPEC.md
 - Poker Board план: @docs/POKER_BOARD_PLAN.md
+- Poker Board аддон: @docs/POKER_BOARD_SPEC_ADDON.md
 
 ## Стиль кода
 

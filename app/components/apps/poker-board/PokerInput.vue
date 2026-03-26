@@ -247,10 +247,15 @@ onUnmounted(() => {
 	border: none;
 	outline: none;
 	min-height: 46px;
+	transition: background-color 0.2s;
 }
 
 .poker-input__native--center {
 	text-align: center;
+}
+
+.poker-input:hover .poker-input__native {
+	background-color: var(--poker-bg-input-hover);
 }
 
 .poker-input__native::placeholder {

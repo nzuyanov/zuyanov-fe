@@ -124,7 +124,7 @@
 					</UiTooltip>
 					<UiTooltip text="UI/UX">
 						<div class="skill">
-							<img src="/icons/figma.svg" alt="Figma" class="skill__img">
+							<img src="~/assets/icons/figma.svg" alt="Figma" class="skill__img">
 						</div>
 					</UiTooltip>
 				</div>
@@ -166,6 +166,40 @@
 					</h2>
 				</div>
 				<div class="talk">
+					<p class="talk__conference text-caption">
+						Evrone podcast
+					</p>
+					<p class="talk__name text-body">
+						OR: React vs Vue
+					</p>
+					<div class="talk__preview">
+						<iframe
+							src="https://vkvideo.ru/video_ext.php?oid=-117095393&id=456239595&hash=e88864409811ef04&hd=4"
+							allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+							allowfullscreen
+							frameborder="0"
+						/>
+					</div>
+					<div class="talk__links">
+						<a
+							href="https://vkvideo.ru/video-117095393_456239595?sh=4"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="talk-link text-inter"
+						>
+							<Icon name="ph:play-circle-fill" class="talk-link__icon talk-link__icon--vk"/>
+							VK Video
+						</a>
+						<a
+							href="https://youtu.be/wyakGgieWsg"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="talk-link text-inter"
+						>
+							<Icon name="ph:youtube-logo-fill" class="talk-link__icon talk-link__icon--yt"/>
+							YouTube
+						</a>
+					</div>
 					<p class="talk__conference text-caption">
 						HolyJS
 					</p>
@@ -593,6 +627,7 @@ useSeoMeta({
 
 /* Talk card */
 .talk__conference {
+	margin-top: 30px;
 	margin-bottom: 4px;
 }
 

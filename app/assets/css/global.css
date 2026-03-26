@@ -2,6 +2,16 @@
 @import url('@fontsource-variable/montserrat');
 @import url('./typography.css');
 
+@font-face {
+	font-family: Neoneon;
+	src:
+		url('/fonts/neoneon-rus.woff') format('woff'),
+		url('/fonts/neoneon-rus.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
 *,
 *::before,
 *::after {

@@ -188,9 +188,13 @@ const onNewGame = () => {
 	--poker-bg-surface: #1A1D23;
 	--poker-bg-card: #21252D;
 	--poker-bg-input: #2D333B;
+	--poker-bg-input-hover: #242930;
 	--poker-green: #10B981;
 	--poker-green-hover: #059669;
 	--poker-green-dim: rgb(16 185 129 / 15%);
+	--poker-blue: #3B82F6;
+	--poker-blue-hover: #2563EB;
+	--poker-blue-bg: rgba(59, 130, 246, 0.1);
 	--poker-gold: #F59E0B;
 	--poker-gold-hover: #D97706;
 	--poker-gold-dim: rgb(245 158 11 / 15%);
@@ -198,6 +202,7 @@ const onNewGame = () => {
 	--poker-text-secondary: #D1D5DB;
 	--poker-text-muted: #9CA3AF;
 	--poker-red: #EF4444;
+	--poker-red-hover: #DC2626;
 	--poker-red-dim: rgb(239 68 68 / 15%);
 	--poker-border: rgb(255 255 255 / 8%);
 	--poker-border-hover: rgb(255 255 255 / 16%);
