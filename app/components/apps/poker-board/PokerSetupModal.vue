@@ -17,53 +17,55 @@
 							<div class="field field--wide">
 								<label class="field__label">Название турнира</label>
 								<PokerInput
-									v-model="tournamentName"
+									v-model="store.config.name"
 									placeholder="Турнир 23.03.2026"
-									:error="tournamentName.trim() === ''"
+									:error="store.config.name.trim() === ''"
 								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Количество игроков</label>
 								<PokerInput
-									v-model="playerCount"
+									v-model="store.config.playerCount"
 									type="number"
-									:min="3"
-									:max="9"
+									:min="PLAYERS_MIN"
+									:max="PLAYERS_MAX"
 								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Размер закупа (buy-in)</label>
 								<PokerInput
-									v-model="buyIn"
+									v-model="store.config.buyIn"
 									type="number"
-									:min="1"
+									:min="0"
 									:step="100"
 									suffix="₽"
+									:error="store.config.buyIn <= 0"
 								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Длительность игры</label>
 								<PokerTimeInput
-									v-model="gameDurationMinutes"
-									:min="15"
-									:max="1440"
+									v-model="store.config.gameDurationMinutes"
+									:min="GAME_DURATION_MIN"
+									:max="GAME_DURATION_MAX"
 									:step="15"
 								/>
 							</div>
 							<div class="field">
-								<label class="field__label">Макс. ребаев на игрока</label>
+								<label class="field__label">Максимум ребаев на игрока</label>
 								<PokerInput
-									v-model="maxRebuys"
+									v-model="store.config.maxRebuys"
 									type="number"
 									:min="0"
+									:error="store.config.maxRebuys < 0"
 								/>
 							</div>
 							<div class="field">
 								<label class="field__label">Период ребаев</label>
 								<PokerTimeInput
-									v-model="rebuyPeriodMinutes"
+									v-model="store.config.rebuyPeriodMinutes"
 									:min="0"
-									:max="1440"
+									:max="store.config.gameDurationMinutes"
 									:step="5"
 								/>
 							</div>
@@ -76,8 +78,8 @@
 						<div class="prizes">
 							<div class="prizes__rows">
 								<div
-									v-for="(place, i) in prizeLabels"
-									:key="i"
+									v-for="(place, i) in store.config.prizes"
+									:key="place"
 									class="prizes__row"
 								>
 									<span class="prizes__label">
@@ -86,18 +88,18 @@
 									</span>
 									<div class="prizes__input-wrap">
 										<PokerInput
-											:model-value="prizes[i] ?? 0"
+											:model-value="store.config.prizes[i] ?? 0"
 											type="number"
 											:min="0"
 											:max="100"
 											small
 											:step="5"
 											suffix="%"
-											@update:model-value="prizes[i] = Number($event)"
+											@update:model-value="store.config.prizes[i] = Number($event)"
 										/>
 									</div>
 									<span class="prizes__amount">
-										{{ (prizeAmountsPreview[i] ?? 0).toLocaleString('ru-RU') }}
+										{{ (store.prizeInCash[i] ?? 0).toLocaleString('ru-RU') }}
 										<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
 									</span>
 								</div>
@@ -105,12 +107,12 @@
 							<div
 								class="prizes__summary"
 								:class="{
-									'prizes__summary--valid': isPrizesValid,
-									'prizes__summary--error': !isPrizesValid,
+									'prizes__summary--valid': store.isPrizesValid,
+									'prizes__summary--error': !store.isPrizesValid,
 								}"
 							>
-								<span class="prizes__summary-value">{{ prizesSum }}%</span>
-								<span class="prizes__summary-label">{{ isPrizesValid ? 'Сумма ок' : 'Должно быть 100%' }}</span>
+								<span class="prizes__summary-value">{{ store.prizesSum }}%</span>
+								<span class="prizes__summary-label">{{ store.isPrizesValid ? 'Сумма ок' : 'Должно быть 100%' }}</span>
 							</div>
 						</div>
 					</section>
@@ -121,20 +123,20 @@
 						<div class="blinds-layout-v2">
 							<div class="speed-selector">
 								<button
-									v-for="opt in speedOptions"
-									:key="opt.value"
-									:class="getSpeedButtonClass(opt, gameSpeed === opt.value)"
-									@click="gameSpeed = opt.value"
+									v-for="speed in speedOptions"
+									:key="speed.value"
+									:class="getSpeedButtonClass(speed, store.config.gameSpeed === speed.value)"
+									@click="store.config.gameSpeed = speed.value"
 								>
-									<img :src="opt.image" alt="" class="section-speed-icon">
-									<span class="speed-button__label">{{ opt.label }}</span>
+									<img :src="speed.image" alt="" class="section-speed-icon">
+									<span class="speed-button__label">{{ speed.label }}</span>
 								</button>
 							</div>
 
 							<div class="blinds-info">
-								<span class="blinds-info__item">Стартовая глубина: <strong>{{ startingDepthBB }} BB</strong></span>
+								<span class="blinds-info__item">Стартовая глубина: <strong>{{ store.gameSetup.startingDepthBB }} BB</strong></span>
 								<span class="blinds-info__sep">•</span>
-								<span class="blinds-info__item">Ожидаемое завершение: уровень <strong>{{ expectedFinalLevel }}</strong></span>
+								<span class="blinds-info__item">Ожидаемое завершение: уровень <strong>{{ store.gameSetup.expectedEndLevel }}</strong></span>
 							</div>
 
 							<div class="blinds-table-wrap">
@@ -148,18 +150,18 @@
 									</colgroup>
 									<thead>
 										<tr>
-											<th>Ур.</th>
+											<th>Уровень</th>
 											<th>SB</th>
 											<th>BB</th>
-											<th>Мин. рейз</th>
-											<th>Длит.</th>
+											<th>MIN рейз</th>
+											<th>Длительность</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr
-											v-for="level in blindLevelsPreview"
+											v-for="level in store.gameSetup.blindLevels"
 											:key="level.level"
-											:class="{ 'blinds-table__spare': level.level > expectedFinalLevel }"
+											:class="{ 'blinds-table__spare': level.level > store.gameSetup.expectedEndLevel }"
 										>
 											<td class="blinds-table__level">{{ level.level }}</td>
 											<td>{{ level.smallBlind.toLocaleString('ru-RU') }}</td>
@@ -179,7 +181,7 @@
 						<div class="chips-layout-v2">
 							<!-- Чемодан фишек -->
 							<div class="chip-case">
-								<label class="field__label">📦 Содержимое чемодана</label>
+								<label class="field__label">Содержимое чемодана</label>
 								<div class="chip-case__table-wrap">
 									<table class="chip-case__table">
 										<thead>
@@ -191,7 +193,7 @@
 											</tr>
 										</thead>
 										<tbody>
-											<tr v-for="(chip, i) in chipCase" :key="i">
+											<tr v-for="(chip, i) in store.config.chipCase" :key="i">
 												<td>
 													<PokerInput
 														:model-value="chip.denomination"
@@ -219,9 +221,9 @@
 												</td>
 												<td>
 													<button
-														v-if="chipCase.length > 1"
+														v-if="store.config.chipCase.length > 1"
 														class="chip-case__remove"
-														@click="removeChipDenom(i)"
+														@click="store.removeChipDenom(i)"
 													>
 														<Icon name="ph:trash-bold" />
 													</button>
@@ -230,7 +232,7 @@
 										</tbody>
 									</table>
 								</div>
-								<button class="chip-case__add" @click="addChipDenom">
+								<button class="chip-case__add" @click="store.addChipDenom">
 									<Icon name="ph:plus-bold" /> Добавить номинал
 								</button>
 							</div>
@@ -238,20 +240,15 @@
 							<!-- Стартовый стек -->
 							<div class="chip-stack-row">
 								<div class="field">
-									<label class="field__label">Стартовый стек (в фишках)</label>
-									<PokerInput
-										v-model="buyInChips"
-										type="number"
-										:min="1"
-										:step="100"
-									/>
+									<!-- Сделать красивую карточку -->
+									<label class="field__label">Стартовый стек (в фишках) = {{ store.gameSetup.startingStack }}</label>
 								</div>
-								<div v-if="buyInChips > 0" class="chip-rate-card">
+								<div class="chip-rate-card">
 									<div class="chip-rate-card__row">
 										<span class="chip-rate-card__label">1 фишка</span>
 										<span class="chip-rate-card__eq">=</span>
 										<span class="chip-rate-card__value">
-											{{ rubPerChipDisplay }}
+											{{ store.rubInChip }}
 											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
 										</span>
 									</div>
@@ -261,17 +258,17 @@
 											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
 										</span>
 										<span class="chip-rate-card__eq">=</span>
-										<span class="chip-rate-card__value">{{ chipsPerRubDisplay }} {{ chipsPerRubUnit }}</span>
+										<span class="chip-rate-card__value">{{ store.chipInRub }} {{ store.chipInRubUnit }}</span>
 									</div>
 								</div>
 							</div>
 
 							<!-- Раздача на игрока -->
-							<div v-if="chipCase.length > 0 && buyInChips > 0" class="chip-dist">
+							<div v-if="store.gameSetup.chipDistributionPerPlayer.length > 0" class="chip-dist">
 								<label class="field__label">👤 Раздача на игрока</label>
-								<div v-if="chipDistPreview.perPlayer.length > 0" class="chip-dist__list">
+								<div class="chip-dist__list">
 									<div
-										v-for="entry in chipDistPreview.perPlayer"
+										v-for="entry in store.gameSetup.chipDistributionPerPlayer"
 										:key="entry.denomination"
 										class="chip-dist__item"
 									>
@@ -279,17 +276,9 @@
 										<div>&times;</div>
 										<div>{{ entry.count }}</div>
 									</div>
-								</div>
-								<div class="chip-dist__summary">
-									<span class="chip-dist__total">
-										Итого: {{ chipDistPreview.totalChips }} фишек = {{ chipDistPreview.totalValue.toLocaleString('ru-RU') }}
-									</span>
-									<span v-if="!chipDistPreview.isValid && chipDistPreview.totalValue > 0" class="chip-dist__warn chip-dist__warn--yellow">
-										⚠️ Ближайшее значение: {{ chipDistPreview.totalValue.toLocaleString('ru-RU') }} (+{{ (chipDistPreview.totalValue - buyInChips).toLocaleString('ru-RU') }})
-									</span>
-									<span v-if="chipDistPreview.totalValue === 0" class="chip-dist__warn chip-dist__warn--red">
-										❌ Невозможно собрать стек
-									</span>
+									<span>=</span>
+									<!-- TODO: add plural -->
+									<div>{{ store.gameSetup.startingChipCount }} фишек</div>
 								</div>
 
 								<!-- Статус доступности -->
@@ -300,8 +289,8 @@
 									>
 										{{ chipAvailBadgeText }}
 									</span>
-									<span v-if="chipAvailPreview.bottleneck" class="chip-avail__hint">
-										{{ chipAvailPreview.bottleneck }}
+									<span v-if="store.gameSetup.warnings.length > 0" class="chip-avail__hint">
+										{{ store.gameSetup.warnings.join(',') }}
 									</span>
 								</div>
 							</div>
@@ -415,10 +404,15 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel, ChipCaseEntry } from '~/types/poker'
-import { generateBlindLevels } from '~/composables/useBlindStructure'
-import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
-import { CHIP_COLORS, type ChipColor } from '~/constants/poker'
+import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel, ChipCaseEntry, ChipColor } from '~/types/poker'
+import {
+	CHIP_COLORS,
+	PLAYERS_MAX,
+	PLAYERS_MIN,
+	GAME_DURATION_MAX,
+	GAME_DURATION_MIN,
+	FUN_NAMES,
+} from '~/constants/poker'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
@@ -437,38 +431,17 @@ import schoolBus from '~/assets/images/school-bus.png'
 import speedCar from '~/assets/images/speed-car.png'
 
 const emit = defineEmits<{
-	start: [config: PokerConfig, players: PokerPlayer[]]
+	start: [players: PokerPlayer[]]
 	close: []
 }>()
 
+const store = usePokerStore()
 const { getAvatarSvg, getRandomSeed, getNextSeed } = usePokerAvatars()
 
-// --- Название турнира ---
-const defaultTournamentName = `Турнир ${new Date().toLocaleDateString('ru-RU')}`
-const tournamentName = ref(defaultTournamentName)
 
-// --- Секция 1: Основные параметры ---
-const playerCount = ref(6)
-const buyIn = ref(1000)
-const gameDurationMinutes = ref(180)
-const maxRebuys = ref(2)
-const rebuyPeriodMinutes = ref(60)
-
-// --- Секция 2: Призовые ---
-const prizes = ref<[number, number, number]>([50, 30, 20])
-const prizeLabels = ['1 место', '2 место', '3 место']
 const trophyIcons = [trophyGold, trophySilver, trophyBronze]
-const prizesSum = computed(() => prizes.value[0] + prizes.value[1] + prizes.value[2])
-const isPrizesValid = computed(() => prizesSum.value === 100)
-
-const totalPotPreview = computed(() => playerCount.value * buyIn.value)
-const prizeAmountsPreview = computed(() =>
-	prizes.value.map(p => Math.round(totalPotPreview.value * p / 100)),
-)
 
 // --- Секция 3: Блайнды (автогенерация по скорости) ---
-const gameSpeed = ref<GameSpeed>('normal')
-
 type SpeedOption = {
 	value: GameSpeed,
 	image: string,
@@ -487,138 +460,22 @@ const getSpeedButtonClass = (option: SpeedOption, isSelected: boolean) => ({
 	[`speed-button-${option.value}-active`]: isSelected,
 })
 
-const blindLevelsPreview = computed<BlindLevel[]>(() =>
-	generateBlindLevels({
-		startingStack: buyInChips.value,
-		playerCount: playerCount.value,
-		gameDurationMinutes: gameDurationMinutes.value,
-		speed: gameSpeed.value,
-		chipDenominations: chipDenominationsFromCase.value,
-	}),
-)
-
-const startingDepthBB = computed(() => {
-	const firstLevel = blindLevelsPreview.value[0]
-	if (!firstLevel || firstLevel.bigBlind === 0) return 0
-	return Math.round(buyInChips.value / firstLevel.bigBlind)
-})
-
-const expectedFinalLevel = computed(() => {
-	const speedParams = { slow: 20, normal: 15, fast: 10 }
-	const levelMinutes = speedParams[gameSpeed.value]
-	return Math.ceil(gameDurationMinutes.value / levelMinutes)
-})
-
-// --- Секция 4: Фишки ---
-const buyInChips = ref(2000)
-
-interface ChipCaseRow {
-	denomination: number
-	color: ChipColor
-	totalCount: number
-}
-
-const chipCase = ref<ChipCaseRow[]>([
-	{ denomination: 5, color: CHIP_COLORS.RED, totalCount: 75 },
-	{ denomination: 25, color: CHIP_COLORS.GREEN, totalCount: 75 },
-	{ denomination: 50, color: CHIP_COLORS.BLUE, totalCount: 50 },
-	{ denomination: 100, color: CHIP_COLORS.SILVER, totalCount: 75 },
-	{ denomination: 500, color: CHIP_COLORS.VIOLET, totalCount: 25 },
-])
-
-const addChipDenom = () => {
-	const denoms = chipCase.value.map(c => c.denomination)
-	const maxDenom = denoms.length > 0 ? Math.max(...denoms) : 0
-	chipCase.value.push({ denomination: maxDenom * 2 || 1000, color: CHIP_COLORS.SILVER, totalCount: 50 })
-}
-
-const removeChipDenom = (index: number) => {
-	if (chipCase.value.length <= 1) return
-	chipCase.value.splice(index, 1)
-}
-
-
-const chipCaseEntries = computed<ChipCaseEntry[]>(() =>
-	chipCase.value
-		.filter(c => c.denomination > 0 && c.totalCount > 0)
-		.map(c => ({
-			denomination: c.denomination,
-			color: c.color || undefined,
-			totalCount: c.totalCount,
-		})),
-)
-
-const chipDenominationsFromCase = computed(() => {
-	const denoms = chipCaseEntries.value.map(c => c.denomination)
-	return denoms.length > 0 ? denoms : [25]
-})
-
-const chipDistPreview = computed(() =>
-	calculateChipDistribution(
-		chipCaseEntries.value,
-		playerCount.value,
-		buyInChips.value,
-		maxRebuys.value,
-		true,
-	),
-)
-
-const chipAvailPreview = computed(() =>
-	calculateChipAvailability(
-		chipCaseEntries.value,
-		playerCount.value,
-		buyInChips.value,
-		maxRebuys.value,
-		true,
-	),
-)
-
 const chipAvailBadgeClass = computed(() => {
-	if (!chipAvailPreview.value.enoughForStart) return 'chip-avail__badge--red'
-	if (!chipAvailPreview.value.enoughForRebuys) return 'chip-avail__badge--yellow'
+	if (!store.gameSetup.chipAvailability.enoughForStart) return 'chip-avail__badge--red'
+	if (!store.gameSetup.chipAvailability.enoughForRebuys) return 'chip-avail__badge--yellow'
+	if (!store.gameSetup.chipAvailability.enoughForAddOns) return 'chip-avail__badge--yellow'
 	return 'chip-avail__badge--green'
 })
 
 const chipAvailBadgeText = computed(() => {
-	if (!chipAvailPreview.value.enoughForStart) return '❌ Не хватает на старт'
-	if (!chipAvailPreview.value.enoughForRebuys) return '⚠️ Не хватит на все ребаи'
-	if (!chipAvailPreview.value.enoughForAddOns) return '⚠️ Не хватит на все аддоны'
+	if (!store.gameSetup.chipAvailability.enoughForStart) return '❌ Не хватает на старт'
+	if (!store.gameSetup.chipAvailability.enoughForRebuys) return '⚠️ Не хватит на все ребаи'
+	if (!store.gameSetup.chipAvailability.enoughForAddOns) return '⚠️ Не хватит на все аддоны'
 	return '✅ Фишек достаточно'
 })
 
-const rubPerChipDisplay = computed(() => {
-	if (buyInChips.value === 0) return '0'
-	const raw = buyIn.value / buyInChips.value
-	return parseFloat(raw.toFixed(4)).toLocaleString('ru-RU', { maximumFractionDigits: 4 })
-})
-
-const chipsPerRubRaw = computed(() => {
-	if (buyIn.value === 0) return 0
-	return parseFloat((buyInChips.value / buyIn.value).toFixed(4))
-})
-
-const chipsPerRubDisplay = computed(() => chipsPerRubRaw.value.toLocaleString('ru-RU', { maximumFractionDigits: 4 }))
-
-// pluralizeChip — auto-imported из utils/pluralize.ts
-
-const chipsPerRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
 
 // --- Секция 5: Игроки ---
-const FUN_NAMES = [
-	'Дама ДикПик', 'Блефмастер', 'Покерфейс', 'Ва-банк Ёбанк', 'Туз в жопе',
-	'Шулер-хуюлер', 'BigDick Stack', 'Картёжник', 'All-in Алкаш', 'Фишкожор',
-	'Хуяльный Флеш', 'Royal Хуяль', 'Чипоед', 'Ебать-колл', 'Кинг-Хуинг',
-	'Full Хаус', 'Дилер Хуилер', 'PokerМамка', 'Тузик-Пузик', 'River Крыса',
-	'Казиноёб', 'Флопзилла', 'Мистер Фолд', 'Бет-мен', 'Ривер Кинг',
-	'Чек-Хуек', 'Донк Ёбт', 'Nuts Мэн', 'Колл-машина', 'Тильт Тоха',
-	'Слоу Ролл Бл*', 'Фишка Судьбы', 'Крупье Хуюпье', 'Мёртвый Хенд', 'Стрит Боец',
-	'Барон Блайнд', 'Pocket Ракета', 'Мадам Ребай', 'Флеш Гордон', 'Дядя Фолд',
-	'Ас Хуяс', 'Пиковый Хер', 'Chip Licker', 'Раздатчик Зла', 'The Гриндер',
-	'Катала-Ебала', 'Bubble Бой', 'Рыба-пила', 'Хитрожопый Лис', 'Шортстек Саня',
-	'Монстр-хуёт', 'Трефовый Хрен', 'Lady Дрюк', 'Блайнд Спот', 'Турнирный Волк',
-	'Fish & Tits', 'Бубновый Хуб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
-	'Paul Fector', 'Сл@вянин', 'Индус', 'Mister BIG', 'ПалСаныч'
-]
 
 const getRandomName = (usedNames: string[]): string => {
 	const available = FUN_NAMES.filter(n => !usedNames.includes(n))
@@ -661,11 +518,12 @@ const generatePlayers = (count: number) => {
 	players.value = newPlayers
 }
 
-// Инициализация списка игроков
-generatePlayers(playerCount.value)
+onMounted(() => {
+	generatePlayers(store.config.playerCount)
+})
 
 // Обновляем список при изменении количества игроков
-watch(playerCount, (count) => {
+watch(() => store.config.playerCount, (count) => {
 	const clamped = Math.max(3, Math.min(9, count || 3))
 	generatePlayers(clamped)
 })
@@ -684,7 +542,7 @@ const addPlayer = () => {
 		name,
 		avatarId: seed,
 	})
-	playerCount.value = players.value.length
+	store.config.playerCount = players.value.length
 	nextTick(() => {
 		addBtnRef.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 	})
@@ -693,7 +551,7 @@ const addPlayer = () => {
 const removePlayer = (index: number) => {
 	if (players.value.length <= 3) return
 	players.value.splice(index, 1)
-	playerCount.value = players.value.length
+	store.config.playerCount = players.value.length
 }
 
 const cycleAvatar = (index: number) => {
@@ -746,34 +604,31 @@ interface ValidationError {
 const validationErrors = computed<ValidationError[]>(() => {
 	const errors: ValidationError[] = []
 
-	if (tournamentName.value.trim() === '') {
+	if (store.config.name.trim() === '') {
 		errors.push({ message: 'Название турнира не задано', section: 'basic' })
 	}
-	if (playerCount.value < 3 || playerCount.value > 9) {
+	if (store.config.playerCount < 3 || store.config.playerCount > 9) {
 		errors.push({ message: 'Количество игроков: от 3 до 9', section: 'basic' })
 	}
-	if (buyIn.value <= 0) {
+	if (store.config.buyIn <= 0) {
 		errors.push({ message: 'Размер закупа должен быть больше 0', section: 'basic' })
 	}
-	if (gameDurationMinutes.value < 15) {
-		errors.push({ message: 'Длительность игры — минимум 15 минут', section: 'basic' })
+	if (store.config.gameDurationMinutes < GAME_DURATION_MIN) {
+		errors.push({ message: `Длительность игры — минимум ${GAME_DURATION_MIN} мин`, section: 'basic' })
 	}
-	if (maxRebuys.value < 0) {
+	if (store.config.maxRebuys < 0) {
 		errors.push({ message: 'Количество ребаев не может быть отрицательным', section: 'basic' })
 	}
-	if (rebuyPeriodMinutes.value < 0) {
+	if (store.config.rebuyPeriodMinutes < 0) {
 		errors.push({ message: 'Период ребаев не может быть отрицательным', section: 'basic' })
 	}
-	if (!isPrizesValid.value) {
+	if (!store.isPrizesValid) {
 		errors.push({ message: 'Сумма призовых должна быть 100%', section: 'prizes' })
 	}
-	if (buyInChips.value <= 0) {
-		errors.push({ message: 'Стартовый стек должен быть больше 0', section: 'chips' })
-	}
-	if (chipCaseEntries.value.length === 0) {
+	if (store.config.chipCase.length === 0) {
 		errors.push({ message: 'Добавьте хотя бы один номинал фишек', section: 'chips' })
 	}
-	if (!chipAvailPreview.value.enoughForStart) {
+	if (!store.gameSetup.chipAvailability.enoughForStart) {
 		errors.push({ message: 'Не хватает фишек на стартовую раздачу', section: 'chips' })
 	}
 	if (hasEmptyNames.value) {
@@ -814,30 +669,18 @@ const scrollToSection = (sectionId: string) => {
 const startTournament = () => {
 	if (!isFormValid.value) return
 
-	const config: PokerConfig = {
-		name: tournamentName.value.trim() || defaultTournamentName,
-		buyIn: buyIn.value,
-		maxRebuys: maxRebuys.value,
-		rebuyPeriodMinutes: rebuyPeriodMinutes.value,
-		gameDurationMinutes: gameDurationMinutes.value,
-		prizes: [...prizes.value],
-		buyInChips: buyInChips.value,
-		gameSpeed: gameSpeed.value,
-		chipCase: chipCaseEntries.value,
-	}
-
 	const gamePlayers: PokerPlayer[] = players.value.map(p => ({
 		id: p.id,
 		name: p.name.trim(),
 		avatarId: p.avatarId,
-		totalContributed: buyIn.value,
+		totalContributed: store.config.buyIn,
 		rebuysUsed: 0,
 		addOnUsed: false,
 		isEliminated: false,
 		eliminationOrder: null,
 	}))
 
-	emit('start', config, gamePlayers)
+	emit('start', gamePlayers)
 }
 
 </script>

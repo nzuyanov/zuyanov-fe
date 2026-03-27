@@ -53,9 +53,6 @@
 				<span class="info-stats__item">
 					Игроков: {{ store.activePlayers.length }} / {{ store.gameState.players.length }}
 				</span>
-				<span class="info-stats__item">
-					Ср. стек: <span class="info-stats__avg" :class="avgStackClass">~{{ store.averageStackBB }} BB</span>
-				</span>
 			</div>
 		</section>
 
@@ -88,12 +85,12 @@
 				<span class="info-chip">
 					<span class="info-chip__denom">1 фишка</span>
 					<span class="info-chip__eq">=</span>
-					<span class="info-chip__rate">{{ store.chipRate.rubPerChip }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+					<span class="info-chip__rate">{{ store.rubInChip }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 				</span>
 				<span class="info-chip">
 					<span class="info-chip__denom">1 <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
 					<span class="info-chip__eq">=</span>
-					<span class="info-chip__rate">{{ store.chipRate.chipsPerRub }} {{ pluralizeChip(store.chipRate.chipsPerRub) }}</span>
+					<span class="info-chip__rate">{{ store.chipInRub }} {{ store.chipInRubUnit }}</span>
 				</span>
 			</div>
 		</section>
@@ -201,15 +198,6 @@ const nextLevelsPreviews = computed(() => {
 		}
 	}
 	return result
-})
-
-// Цвет среднего стека по диапазону
-const avgStackClass = computed(() => {
-	const avg = store.averageStackBB
-	if (avg > 40) return 'info-stats__avg--green'
-	if (avg > 20) return 'info-stats__avg--gold'
-	if (avg > 10) return 'info-stats__avg--orange'
-	return 'info-stats__avg--red'
 })
 
 const formatMoney = (value: number): string => value.toLocaleString('ru-RU')

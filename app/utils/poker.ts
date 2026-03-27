@@ -1,104 +1,14 @@
-// ============================================================
-// Утилиты для расчёта покерного турнира
-// Входные данные: чемодан фишек, количество игроков, настройки
-// Выходные данные: стартовый стек, раздача фишек, структура блайндов
-// ============================================================
-
-// ─────────────────────────────────────────────
-// Типы
-// ─────────────────────────────────────────────
-
-export type GameSpeed = 'slow' | 'standard' | 'fast'
-
-/** Одна запись в чемодане: номинал + количество физических фишек */
-export interface ChipCaseEntry {
-	denomination: number
-	totalCount: number
-}
-
-/** Одна строка раздачи: сколько фишек данного номинала даётся игроку */
-export interface ChipDistributionEntry {
-	denomination: number
-	count: number
-	totalValue: number
-}
-
-/** Один уровень блайндов */
-export interface BlindLevel {
-	level: number
-	smallBlind: number
-	bigBlind: number
-	durationMinutes: number
-	/** true — запасной уровень за пределами запланированного времени */
-	isBuffer: boolean
-}
-
-/** Доступность фишек для всего турнира */
-export interface ChipAvailability {
-	/** Сколько полных раздач (стартовых стеков) поддерживает чемодан */
-	totalDistributions: number
-	/** Хватает на стартовые стеки всем игрокам */
-	enoughForStart: boolean
-	/** Хватает на все возможные ребаи */
-	enoughForRebuys: boolean
-	/** Хватает на аддон каждому игроку */
-	enoughForAddOns: boolean
-	/** Номинал-узкое место (первым иссякает) */
-	bottleneck?: string
-}
-
-/** Входные параметры турнира */
-export interface TournamentParams {
-	/** Содержимое чемодана с фишками */
-	chipCase: ChipCaseEntry[]
-	/** Количество игроков */
-	playerCount: number
-	/** Максимальное количество ребаев на одного игрока */
-	maxRebuys: number
-	/** Общая длительность турнира, минуты */
-	gameDurationMinutes: number
-	/** Скорость игры — определяет длину уровней и стартовую глубину */
-	gameSpeed: GameSpeed
-	/** Время, в течение которого доступны ребаи (от старта), минуты */
-	rebuyPeriodMinutes: number
-}
-
-/** Результат расчёта турнира */
-export interface TournamentSetup {
-	/** Стартовый стек одного игрока (в фишечных единицах) */
-	startingStack: number
-	/** Набор фишек, который выдаётся каждому игроку */
-	chipDistributionPerPlayer: ChipDistributionEntry[]
-	/** Анализ хватает ли фишек */
-	chipAvailability: ChipAvailability
-	/** Таблица уровней блайндов */
-	blindLevels: BlindLevel[]
-	/** Уровень, на котором ожидается завершение турнира */
-	expectedEndLevel: number
-	/** Стартовая глубина игры в BB */
-	startingDepthBB: number
-	/** Предупреждения и замечания */
-	warnings: string[]
-}
-
-// ─────────────────────────────────────────────
-// Константы
-// ─────────────────────────────────────────────
-
-/**
- * Параметры скорости:
- * - levelMinutes     — продолжительность одного уровня блайндов
- * - startingBBRatio  — стартовый стек / стартовый BB (глубина на старте в BB)
- */
-const SPEED_PARAMS: Record<GameSpeed, { levelMinutes: number; startingBBRatio: number }> = {
-	slow:     { levelMinutes: 20, startingBBRatio: 100 },
-	standard: { levelMinutes: 15, startingBBRatio: 50 },
-	fast:     { levelMinutes: 10, startingBBRatio: 25 },
-}
-
-// ─────────────────────────────────────────────
-// Вспомогательные функции
-// ─────────────────────────────────────────────
+import { SPEED_PARAMS } from '~/constants/poker'
+import type {
+	ChipCaseEntry,
+	ChipDistribution,
+	ChipDistributionEntry,
+	ChipAvailability,
+	GameSpeed,
+	PokerConfig,
+	TournamentSetup,
+	BlindLevel,
+} from '~/types/poker'
 
 /**
  * Округляет значение ВВЕРХ до ближайшего кратного минимальному номиналу.
@@ -123,11 +33,12 @@ export const getMinDenomination = (chipCase: ChipCaseEntry[]): number => {
  * чтобы чемодан гарантированно хватил на все раздачи.
  * Стартовый стек = сумма (номинал × количество на раздачу).
  */
-export const calculateChipDistribution = (
-	chipCase: ChipCaseEntry[],
-	totalDistributions: number,
-): { distribution: ChipDistributionEntry[]; startingStack: number } => {
-	if (totalDistributions <= 0) return { distribution: [], startingStack: 0 }
+export const calculateChipDistribution = (chipCase: ChipCaseEntry[], totalDistributions: number,): ChipDistribution => {
+	if (totalDistributions <= 0) return {
+		distribution: [],
+		startingStack: 0,
+		totalChipCount: 0,
+	}
 
 	const distribution: ChipDistributionEntry[] = chipCase
 		.map(entry => {
@@ -136,14 +47,20 @@ export const calculateChipDistribution = (
 				denomination: entry.denomination,
 				count,
 				totalValue: entry.denomination * count,
+				color: entry.color,
 			}
 		})
 		.filter(entry => entry.count > 0)
 		.sort((a, b) => a.denomination - b.denomination)
 
 	const startingStack = distribution.reduce((sum, d) => sum + d.totalValue, 0)
+	const totalChipCount = distribution.reduce((sum, d) => sum + d.count, 0)
 
-	return { distribution, startingStack }
+	return {
+		distribution,
+		startingStack,
+		totalChipCount,
+	}
 }
 
 /**
@@ -295,7 +212,7 @@ export const findExpectedEndLevel = (
  *
  * @returns TournamentSetup с раздачей фишек, таблицей блайндов и предупреждениями
  */
-export const calculateTournament = (params: TournamentParams): TournamentSetup => {
+export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 	const {
 		chipCase,
 		playerCount,
@@ -306,70 +223,40 @@ export const calculateTournament = (params: TournamentParams): TournamentSetup =
 
 	const warnings: string[] = []
 
+	const emptyResult: TournamentSetup = {
+		startingStack: 0,
+		startingChipCount: 0,
+		chipDistributionPerPlayer: [],
+		chipAvailability: {
+			totalDistributions: 0,
+			enoughForStart: false,
+			enoughForRebuys: false,
+			enoughForAddOns: false,
+		},
+		blindLevels: [],
+		expectedEndLevel: 0,
+		startingDepthBB: 0,
+		warnings: [],
+	}
+
 	// ── Базовая валидация ────────────────────────────────────────
 	if (chipCase.length === 0) {
-		return {
-			startingStack: 0,
-			chipDistributionPerPlayer: [],
-			chipAvailability: {
-				totalDistributions: 0,
-				enoughForStart: false,
-				enoughForRebuys: false,
-				enoughForAddOns: false,
-			},
-			blindLevels: [],
-			expectedEndLevel: 0,
-			startingDepthBB: 0,
-			warnings: ['Чемодан с фишками не задан'],
-		}
-	}
-
-	if (playerCount < 2) {
-		return {
-			startingStack: 0,
-			chipDistributionPerPlayer: [],
-			chipAvailability: {
-				totalDistributions: 0,
-				enoughForStart: false,
-				enoughForRebuys: false,
-				enoughForAddOns: false,
-			},
-			blindLevels: [],
-			expectedEndLevel: 0,
-			startingDepthBB: 0,
-			warnings: ['Количество игроков должно быть не менее 2'],
-		}
-	}
-
-	if (gameDurationMinutes < 10) {
-		warnings.push('Слишком короткое время игры — рекомендуется не менее 10 минут')
+		return emptyResult
 	}
 
 	// ── Раздача фишек ────────────────────────────────────────────
 	// Суммарных раздач одного стека: старт + все ребаи + аддон на каждого игрока
 	const totalDistributions = playerCount * (1 + maxRebuys + 1)
 
-	const { distribution, startingStack } = calculateChipDistribution(chipCase, totalDistributions)
+	const { distribution, startingStack, totalChipCount } = calculateChipDistribution(chipCase, totalDistributions)
 
 	if (startingStack === 0) {
 		warnings.push(
 			`Фишек недостаточно для раздачи при ${maxRebuys} ребаях на игрока. ` +
 			'Уменьши количество ребаев или добавь фишки в чемодан.',
 		)
-		return {
-			startingStack: 0,
-			chipDistributionPerPlayer: [],
-			chipAvailability: {
-				totalDistributions: 0,
-				enoughForStart: false,
-				enoughForRebuys: false,
-				enoughForAddOns: false,
-			},
-			blindLevels: [],
-			expectedEndLevel: 0,
-			startingDepthBB: 0,
-			warnings,
-		}
+		emptyResult.warnings = warnings
+		return emptyResult
 	}
 
 	// ── Анализ доступности фишек ─────────────────────────────────
@@ -406,19 +293,10 @@ export const calculateTournament = (params: TournamentParams): TournamentSetup =
 	const startBB = blindLevels[0]?.bigBlind ?? minDenom * 2
 	const startingDepthBB = startBB > 0 ? Math.round(startingStack / startBB) : 0
 
-	if (startingDepthBB < 20) {
-		warnings.push(
-			`Стартовая глубина слишком маленькая (${startingDepthBB} BB) — игра будет очень короткой. ` +
-			'Попробуй уменьшить количество ребаев или выбрать скорость помедленнее.',
-		)
-	} else if (startingDepthBB > 200) {
-		warnings.push(
-			`Стартовая глубина очень большая (${startingDepthBB} BB) — турнир может затянуться дольше запланированного.`,
-		)
-	}
 
 	return {
 		startingStack,
+		startingChipCount: totalChipCount,
 		chipDistributionPerPlayer: distribution,
 		chipAvailability,
 		blindLevels,
@@ -427,70 +305,3 @@ export const calculateTournament = (params: TournamentParams): TournamentSetup =
 		warnings,
 	}
 }
-
-// ─────────────────────────────────────────────
-// Пример использования
-// ─────────────────────────────────────────────
-
-/*
-const result = calculateTournament({
-	// Чемодан: 200 белых по 25, 150 красных по 50, 100 синих по 100, 40 чёрных по 500
-	chipCase: [
-		{ denomination: 25,  totalCount: 200 },
-		{ denomination: 50,  totalCount: 150 },
-		{ denomination: 100, totalCount: 100 },
-		{ denomination: 500, totalCount: 40  },
-	],
-	playerCount:          6,    // 6 игроков
-	maxRebuys:            2,    // до 2 ребаев на игрока
-	gameDurationMinutes:  120,  // 2 часа
-	gameSpeed:            'standard',
-	rebuyPeriodMinutes:   40,   // ребаи доступны первые 40 минут
-})
-
-// Стартовый стек и раздача фишек каждому игроку:
-// totalDistributions = 6 × (1 + 2 + 1) = 24 раздачи
-// перДистрибуция: {25: 8, 50: 6, 100: 4, 500: 1}
-// startingStack = 200 + 300 + 400 + 500 = 1400
-
-console.log(result.startingStack)
-// → 1400
-
-console.log(result.chipDistributionPerPlayer)
-// → [
-//     { denomination: 25,  count: 8, totalValue: 200 },
-//     { denomination: 50,  count: 6, totalValue: 300 },
-//     { denomination: 100, count: 4, totalValue: 400 },
-//     { denomination: 500, count: 1, totalValue: 500 },
-//   ]
-
-// Анализ фишек:
-console.log(result.chipAvailability)
-// → { totalDistributions: 24, enoughForStart: true, enoughForRebuys: true, enoughForAddOns: true }
-
-// Стартовая глубина (standard → startingBBRatio = 50):
-// startBB = roundUp(1400 / 50 / 2 = 14, 25) * 2 = 25 * 2 = 50
-// startingDepthBB = 1400 / 50 = 28 BB
-console.log(result.startingDepthBB)
-// → 28
-
-// Таблица блайндов (15 мин/уровень, 8 уровней + 2 запасных):
-// Финальный BB = 1400 * 6 * 0.05 = 420 → SB = roundUp(210, 25) = 225 → BB = 450
-console.log(result.blindLevels)
-// → [
-//     { level: 1, smallBlind:  25, bigBlind:   50, durationMinutes: 15, isBuffer: false },
-//     { level: 2, smallBlind:  50, bigBlind:  100, durationMinutes: 15, isBuffer: false },
-//     { level: 3, smallBlind:  75, bigBlind:  150, durationMinutes: 15, isBuffer: false },
-//     { level: 4, smallBlind: 100, bigBlind:  200, durationMinutes: 15, isBuffer: false },
-//     { level: 5, smallBlind: 125, bigBlind:  250, durationMinutes: 15, isBuffer: false },
-//     { level: 6, smallBlind: 175, bigBlind:  350, durationMinutes: 15, isBuffer: false },
-//     { level: 7, smallBlind: 225, bigBlind:  450, durationMinutes: 15, isBuffer: false },
-//     { level: 8, smallBlind: 325, bigBlind:  650, durationMinutes: 15, isBuffer: true  },
-//     { level: 9, smallBlind: 425, bigBlind:  850, durationMinutes: 15, isBuffer: true  },
-//   ]
-
-// Ожидаемый уровень завершения:
-// threshold = 1400 * 6 * 0.05 = 420 → первый уровень с BB >= 420 → уровень 7 (BB = 450)
-console.log(result.expectedEndLevel)
-// → 7
-*/

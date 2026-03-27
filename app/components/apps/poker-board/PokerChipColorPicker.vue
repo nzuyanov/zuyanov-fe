@@ -32,7 +32,8 @@
 import { useFloating, offset, flip, shift, arrow, autoUpdate } from '@floating-ui/vue'
 import type { Placement } from '@floating-ui/vue'
 import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
-import { CHIP_COLORS, type ChipColor } from '~/constants/poker'
+import { CHIP_COLORS } from '~/constants/poker'
+import type { ChipColor } from '~/types/poker'
 
 interface ChipColorPickerProps {
 	modelValue: ChipColor

@@ -8,7 +8,6 @@
 			:can-rebuy="store.canRebuy(player.id)"
 			:is-add-on="store.isPlayerAddOn(player.id)"
 			:max-rebuys="store.config.maxRebuys"
-			:chip-distribution="store.chipDistribution"
 			@rebuy="$emit('rebuy', $event)"
 			@eliminate="$emit('eliminate', $event)"
 		/>

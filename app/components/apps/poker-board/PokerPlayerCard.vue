@@ -39,9 +39,6 @@
 				>
 					{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
 				</button>
-				<span v-if="chipDistribution && chipDistribution.perPlayer.length > 0" class="player-card__chip-hint">
-					Выдать: {{ chipDistribution.perPlayer.map(e => `${e.count}×${e.denomination}`).join(', ') }}
-				</span>
 			</div>
 			<button
 				class="player-card__btn player-card__btn--eliminate"
@@ -66,7 +63,6 @@ const props = defineProps<{
 	canRebuy: boolean
 	isAddOn: boolean
 	maxRebuys: number
-	chipDistribution?: ChipDistribution
 }>()
 
 defineEmits<{

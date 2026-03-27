@@ -155,8 +155,8 @@ const onDeclineRestore = () => {
 	showSetup.value = true
 }
 
-const onTournamentStart = (config: PokerConfig, players: PokerPlayer[]) => {
-	store.initGame(config, players)
+const onTournamentStart = (players: PokerPlayer[]) => {
+	store.initGame(players)
 	showSetup.value = false
 }
 

@@ -6,24 +6,12 @@ import type {
 	BlindLevel,
 	TournamentStage,
 	ChipDistribution,
-	ChipAvailability,
+	ChipAvailability, TournamentSetup,
 } from '~/types/poker'
-import { generateBlindLevels } from '~/composables/useBlindStructure'
-import { calculateChipDistribution, calculateChipAvailability } from '~/composables/useChipDistribution'
+import { POKER_CONFIG_DEFAULT, NEW_CHIP_COLOR_DEFAULT, NEW_CHIP_COUNT_DEFAULT } from '~/constants/poker'
+import { calculateTournament } from '~/utils/poker'
 
-const createDefaultConfig = (): PokerConfig => ({
-	name: '',
-	buyIn: 500,
-	buyInChips: 2000,
-	maxRebuys: 3,
-	rebuyPeriodMinutes: 60,
-	gameDurationMinutes: 180,
-	prizes: [50, 30, 20],
-	gameSpeed: 'normal',
-	chipCase: [],
-})
-
-const createDefaultGameState = (): PokerGameState => ({
+const initGameState: PokerGameState = {
 	status: 'idle',
 	elapsedSeconds: 0,
 	currentBlindLevel: 0,
@@ -34,40 +22,72 @@ const createDefaultGameState = (): PokerGameState => ({
 	eliminationCounter: 0,
 	handNumber: 1,
 	totalAddOns: 0,
-})
+}
 
 export const usePokerStore = defineStore('poker', () => {
-	const config = ref<PokerConfig>(createDefaultConfig())
-	const gameState = ref<PokerGameState>(createDefaultGameState())
+	const config = ref<PokerConfig>(POKER_CONFIG_DEFAULT)
+	const gameState = ref<PokerGameState>(initGameState)
 
-	// --- Getters ---
+	const gameSetup = computed<TournamentSetup>(() => calculateTournament(config.value))
 
-	const activePlayers = computed<PokerPlayer[]>(
-		() => gameState.value.players.filter(p => !p.isEliminated),
+	// TODO: прикрутить
+	// if (startingDepthBB < 20) {
+	// 	warnings.push(
+	// 		`Стартовая глубина слишком маленькая (${startingDepthBB} BB) — игра будет очень короткой. ` +
+	// 		'Попробуй уменьшить количество ребаев или выбрать скорость помедленнее.',
+	// 	)
+	// } else if (startingDepthBB > 200) {
+	// 	warnings.push(
+	// 		`Стартовая глубина очень большая (${startingDepthBB} BB) — турнир может затянуться дольше запланированного.`,
+	// 	)
+	// }
+
+	const allBlindLevels = computed(() => gameSetup.value.blindLevels)
+
+	const totalPotInCash = computed(() => config.value.playerCount * config.value.buyIn)
+	const prizeInCash = computed(() =>
+		config.value.prizes.map(p => Math.round(totalPotInCash.value * p / 100)),
 	)
+
+	const addChipDenom = () => {
+		const denoms = config.value.chipCase.map(c => c.denomination)
+		const maxDenom = denoms.length > 0 ? Math.max(...denoms) : 0
+		config.value.chipCase.push({
+			denomination: maxDenom * 2,
+			color: NEW_CHIP_COLOR_DEFAULT,
+			totalCount: NEW_CHIP_COUNT_DEFAULT,
+		})
+	}
+
+	const removeChipDenom = (index: number) => {
+		if (config.value.chipCase.length <= 1) return
+		config.value.chipCase.splice(index, 1)
+	}
+
+	const rubInChip = computed(() => {
+		const raw = config.value.buyIn / gameSetup.value.startingStack
+		return parseFloat(raw.toFixed(4)).toLocaleString('ru-RU', { maximumFractionDigits: 4 })
+	})
+
+	const chipsPerRubRaw = computed(() => {
+		return parseFloat((gameSetup.value.startingStack / config.value.buyIn).toFixed(4))
+	})
+
+	const chipInRub = computed(() => {
+		if (config.value.buyIn === 0) return 0
+		return chipsPerRubRaw.value.toLocaleString('ru-RU', { maximumFractionDigits: 4 })
+	})
+
+	const chipInRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
+
+	const activePlayers = computed<PokerPlayer[]>(() => {
+		return gameState.value.players.filter(p => !p.isEliminated)
+	})
 
 	const activePlayerIndices = computed<number[]>(
 		() => gameState.value.players
 			.map((p, i) => p.isEliminated ? -1 : i)
 			.filter(i => i !== -1),
-	)
-
-	// --- Блайнды: автогенерация по скорости игры (фаза 11) ---
-
-	const chipDenominations = computed(() => {
-		const caseDenoms = config.value.chipCase.map(c => c.denomination)
-		// Если чемодан пустой — используем стандартные номиналы для округления
-		return caseDenoms.length > 0 ? caseDenoms : [25]
-	})
-
-	const allBlindLevels = computed<BlindLevel[]>(() =>
-		generateBlindLevels({
-			startingStack: config.value.buyInChips,
-			playerCount: gameState.value.players.length || 6,
-			gameDurationMinutes: config.value.gameDurationMinutes,
-			speed: config.value.gameSpeed,
-			chipDenominations: chipDenominations.value,
-		}),
 	)
 
 	const currentBlinds = computed(() => {
@@ -90,22 +110,10 @@ export const usePokerStore = defineStore('poker', () => {
 		return { sb: level.smallBlind, bb: level.bigBlind }
 	})
 
-	// --- Геттеры ---
 
 	const minBet = computed(() => currentBlinds.value.bb)
 
 	const minRaise = computed(() => currentBlinds.value.bb * 2)
-
-	const averageStackBB = computed(() => {
-		const totalRebuys = gameState.value.players.reduce((sum, p) => sum + p.rebuysUsed, 0)
-		const totalChips = config.value.buyInChips * gameState.value.players.length
-			+ totalRebuys * config.value.buyInChips
-			+ gameState.value.totalAddOns * config.value.buyInChips
-		const active = activePlayers.value.length
-		const bb = currentBlinds.value.bb
-		if (active === 0 || bb === 0) return 0
-		return Math.round(totalChips / active / bb)
-	})
 
 	const tournamentStage = computed((): TournamentStage => {
 		const active = activePlayers.value.length
@@ -125,56 +133,31 @@ export const usePokerStore = defineStore('poker', () => {
 		return config.value.prizes.map(p => Math.round(pot * p / 100)) as [number, number, number]
 	})
 
-	// --- Раздача фишек из чемодана (фаза 12) ---
+	const prizesSum = computed(() => config.value.prizes[0] + config.value.prizes[1] + config.value.prizes[2])
+	const isPrizesValid = computed(() => prizesSum.value === 100)
 
-	const chipDistribution = computed<ChipDistribution>(() =>
-		calculateChipDistribution(
-			config.value.chipCase,
-			gameState.value.players.length || 6,
-			config.value.buyInChips,
-			config.value.maxRebuys,
-			true,
-		),
-	)
-
-	const chipAvailability = computed<ChipAvailability>(() =>
-		calculateChipAvailability(
-			config.value.chipCase,
-			gameState.value.players.length || 6,
-			config.value.buyInChips,
-			config.value.maxRebuys,
-			true,
-		),
-	)
-
-	// Курс: сколько рублей стоит 1 фишка
-	const chipRate = computed(() => {
-		const { buyIn, buyInChips } = config.value
-		if (buyInChips === 0) return { rubPerChip: 0, chipsPerRub: 0 }
-		const rubPerChip = Math.round(buyIn / buyInChips * 100) / 100
-		const chipsPerRub = Math.round(buyInChips / buyIn * 100) / 100
-		return { rubPerChip, chipsPerRub }
-	})
+	// TODO: Курс сколько рублей стоит 1 фишка
+	// const chipRate = computed(() => {
+	// 	const { buyIn, buyInChips } = config.value
+	// 	if (buyInChips === 0) return { rubPerChip: 0, chipsPerRub: 0 }
+	// 	const rubPerChip = Math.round(buyIn / buyInChips * 100) / 100
+	// 	const chipsPerRub = Math.round(buyInChips / buyIn * 100) / 100
+	// 	return { rubPerChip, chipsPerRub }
+	// })
 
 	const gameDurationSeconds = computed(() => config.value.gameDurationMinutes * 60)
 
-	const remainingGameSeconds = computed(
-		() => Math.max(0, gameDurationSeconds.value - gameState.value.elapsedSeconds),
-	)
+	const remainingGameSeconds = computed(() => Math.max(0, gameDurationSeconds.value - gameState.value.elapsedSeconds))
 
 	const rebuyPeriodSeconds = computed(() => config.value.rebuyPeriodMinutes * 60)
 
-	const isRebuyPeriod = computed(
-		() => gameState.value.elapsedSeconds < rebuyPeriodSeconds.value
-			&& gameState.value.status !== 'idle'
-			&& gameState.value.status !== 'finished',
-	)
+	const isRebuyPeriod = computed(() => {
+		return gameState.value.elapsedSeconds < rebuyPeriodSeconds.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished'
+	})
 
-	const isAddOnAvailable = computed(
-		() => !isRebuyPeriod.value
-			&& gameState.value.status !== 'idle'
-			&& gameState.value.status !== 'finished',
-	)
+	const isAddOnAvailable = computed(() => {
+		return !isRebuyPeriod.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished'
+	})
 
 	const getNextActiveIndex = (fromIndex: number): number => {
 		const indices = activePlayerIndices.value
@@ -226,20 +209,9 @@ export const usePokerStore = defineStore('poker', () => {
 
 	// --- Actions ---
 
-	const initGame = (newConfig: PokerConfig, players: PokerPlayer[]) => {
-		config.value = newConfig
-		// Генерируем уровни для определения длительности первого уровня
-		const chipDenoms = newConfig.chipCase.length > 0
-			? newConfig.chipCase.map(c => c.denomination)
-			: [25]
-		const levels = generateBlindLevels({
-			startingStack: newConfig.buyInChips,
-			playerCount: players.length,
-			gameDurationMinutes: newConfig.gameDurationMinutes,
-			speed: newConfig.gameSpeed,
-			chipDenominations: chipDenoms,
-		})
-		const firstLevelDuration = levels[0]?.durationMinutes ?? 15
+	const initGame = (players: PokerPlayer[]) => {
+
+		const firstLevelDuration = gameSetup.value.blindLevels[0]?.durationMinutes ?? 10
 
 		gameState.value = {
 			status: 'playing',
@@ -248,7 +220,7 @@ export const usePokerStore = defineStore('poker', () => {
 			blindTimerSeconds: firstLevelDuration * 60,
 			dealerIndex: 0,
 			players,
-			totalPot: players.length * newConfig.buyIn,
+			totalPot: players.length * config.value.buyIn,
 			eliminationCounter: 0,
 			handNumber: 1,
 			totalAddOns: 0,
@@ -380,8 +352,8 @@ export const usePokerStore = defineStore('poker', () => {
 	})
 
 	const reset = () => {
-		config.value = createDefaultConfig()
-		gameState.value = createDefaultGameState()
+		config.value = POKER_CONFIG_DEFAULT
+		gameState.value = initGameState
 	}
 
 	const restoreState = (savedConfig: PokerConfig, savedGameState: PokerGameState) => {
@@ -399,9 +371,6 @@ export const usePokerStore = defineStore('poker', () => {
 		currentBlinds,
 		nextBlinds,
 		prizeAmounts,
-		chipRate,
-		chipDistribution,
-		chipAvailability,
 		gameDurationSeconds,
 		remainingGameSeconds,
 		rebuyPeriodSeconds,
@@ -413,9 +382,16 @@ export const usePokerStore = defineStore('poker', () => {
 		getResults,
 		minBet,
 		minRaise,
-		averageStackBB,
 		tournamentStage,
 		allBlindLevels,
+		totalPotInCash,
+		prizeInCash,
+		isPrizesValid,
+		prizesSum,
+		gameSetup,
+		rubInChip,
+		chipInRub,
+		chipInRubUnit,
 
 		// Actions
 		initGame,
@@ -432,5 +408,7 @@ export const usePokerStore = defineStore('poker', () => {
 		finishGame,
 		reset,
 		restoreState,
+		addChipDenom,
+		removeChipDenom,
 	}
 })
