@@ -189,15 +189,35 @@ export const generateBlindLevels = (
 		? Math.pow(finalBB / startBB, 1 / (totalLevels - 1))
 		: 1.5
 
+	const sortedDenoms = [...denominations].sort((a, b) => a - b)
 	const levels: BlindLevel[] = []
 	let prevBB = 0
+	// Наименьший номинал, кратный 10 — используется как minStep после SB ≥ 100,
+	// чтобы убрать значения, оканчивающиеся на 5 (например 105, 115)
+	const safeStep = sortedDenoms.find(d => d % 10 === 0) ?? sortedDenoms[0]!
 
 	for (let i = 0; i < levelsWithBuffer; i++) {
 		// Вычисляем SB через прогрессию, округляем со ступенчатым шагом
 		const rawSB = startSB * Math.pow(growthRate, i)
 		const rawBB = rawSB * 2
-		const step = getBlindRoundingStep(rawBB, denominations)
-		const sb = roundUpToChip(rawSB, step)
+
+		// Когда SB достигает 100+, повышаем минимальный шаг округления,
+		// чтобы убрать «некрасивые» значения (105, 95 и т.д.)
+		const minStep = rawSB >= 100 ? safeStep : 0
+
+		const step = Math.max(getBlindRoundingStep(rawBB, denominations), minStep)
+		let sb = roundUpToChip(rawSB, step)
+
+		// Притягивание к крупным номиналам (≥ safeStep × 2):
+		// если SB уже ≥ 80% номинала и до него ≤ safeStep, подтянуть вверх.
+		// Это превращает, например, SB=85 → 100 (safeStep=50, 100-85=15 ≤ 50, 85 ≥ 80)
+		for (const denom of sortedDenoms) {
+			if (denom >= safeStep * 2 && denom > sb && denom - sb <= safeStep && sb >= denom * 0.8) {
+				sb = denom
+				break
+			}
+		}
+
 		const bb = sb * 2
 
 		// Пропускаем дублирующийся уровень (округление дало тот же BB)
