@@ -31,12 +31,11 @@ const generateBlindLevels = (
 	gameDurationMinutes: number,
 	speed: string,
 	denominations: number[],
-	maxRebuys: number,
 ) => {
 	const { levelMinutes, startingBBRatio } = SPEED_PARAMS[speed]!
 	const minDenom = denominations.length > 0 ? Math.min(...denominations) : 1
 	const totalLevels = Math.max(1, Math.ceil(gameDurationMinutes / levelMinutes))
-	const levelsWithBuffer = totalLevels + 2
+	const maxIterations = totalLevels * 3
 
 	const rawStartSB = startingStack / (startingBBRatio * 2)
 	const startSB = roundUpToChip(rawStartSB, minDenom)
@@ -57,7 +56,7 @@ const generateBlindLevels = (
 	const levels: { level: number; sb: number; bb: number; isBuffer: boolean }[] = []
 	let prevBB = 0
 
-	for (let i = 0; i < levelsWithBuffer; i++) {
+	for (let i = 0; i < maxIterations; i++) {
 		const rawSB = startSB * Math.pow(growthRate, i)
 		const rawBB = rawSB * 2
 
@@ -80,18 +79,21 @@ const generateBlindLevels = (
 			level: levels.length + 1,
 			sb,
 			bb,
-			isBuffer: i >= totalLevels,
+			isBuffer: levels.length >= totalLevels,
 		})
+
+		if (levels.length >= totalLevels + 2) break
 	}
 
-	return levels
+	return { levels, totalLevels }
 }
 
 const denoms = [5, 25, 50, 100, 500]
 
 for (const speed of ['slow', 'normal', 'fast']) {
-	console.log(`=== ${speed.toUpperCase()} ===`)
-	const levels = generateBlindLevels(1375, 6, 180, speed, denoms, 2)
+	const { levels, totalLevels } = generateBlindLevels(1375, 6, 180, speed, denoms)
+	const mins = levels.length * SPEED_PARAMS[speed]!.levelMinutes
+	console.log(`=== ${speed.toUpperCase()} === (план: ${totalLevels} ур., факт: ${levels.length} ур., ${mins} мин)`)
 	for (const l of levels) {
 		const buf = l.isBuffer ? '  (запас)' : ''
 		console.log(`Ур.${String(l.level).padStart(2)}  SB=${String(l.sb).padStart(5)}  BB=${String(l.bb).padStart(5)}${buf}`)

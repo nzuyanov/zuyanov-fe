@@ -170,7 +170,9 @@ export const generateBlindLevels = (
 
 	// Количество уровней в рамках запланированного времени
 	const totalLevels = Math.max(1, Math.ceil(gameDurationMinutes / levelMinutes))
-	const levelsWithBuffer = totalLevels + 2
+	// Генерируем с запасом: дедупликация (округление даёт одинаковый BB)
+	// может «съесть» значительную часть кандидатов
+	const maxIterations = totalLevels * 3
 
 	// Стартовый SB → BB (стартовый уровень всегда округляется до minDenom)
 	const rawStartSB = startingStack / (startingBBRatio * 2)
@@ -196,7 +198,7 @@ export const generateBlindLevels = (
 	// чтобы убрать значения, оканчивающиеся на 5 (например 105, 115)
 	const safeStep = sortedDenoms.find(d => d % 10 === 0) ?? sortedDenoms[0]!
 
-	for (let i = 0; i < levelsWithBuffer; i++) {
+	for (let i = 0; i < maxIterations; i++) {
 		// Вычисляем SB через прогрессию, округляем со ступенчатым шагом
 		const rawSB = startSB * Math.pow(growthRate, i)
 		const rawBB = rawSB * 2
@@ -229,8 +231,12 @@ export const generateBlindLevels = (
 			smallBlind: sb,
 			bigBlind: bb,
 			durationMinutes: levelMinutes,
-			isBuffer: i >= totalLevels,
+			// Запасные уровни — сверх запланированного времени турнира (+2 на случай затяжки)
+			isBuffer: levels.length >= totalLevels,
 		})
+
+		// Набрали достаточно уровней (плановые + 2 запасных)
+		if (levels.length >= totalLevels + 2) break
 	}
 
 	return levels
