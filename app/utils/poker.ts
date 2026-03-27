@@ -11,13 +11,44 @@ import type {
 } from '~/types/poker'
 
 /**
- * Округляет значение ВВЕРХ до ближайшего кратного минимальному номиналу.
- * Гарантирует целочисленный результат не меньше minDenom.
+ * Округляет значение ВВЕРХ до ближайшего кратного заданному шагу.
+ * Гарантирует целочисленный результат не меньше step.
  */
-export const roundUpToChip = (value: number, minDenom: number): number => {
-	if (minDenom <= 0) return Math.max(1, Math.ceil(value))
-	if (value <= 0) return minDenom
-	return Math.ceil(value / minDenom) * minDenom
+export const roundUpToChip = (value: number, step: number): number => {
+	if (step <= 0) return Math.max(1, Math.ceil(value))
+	if (value <= 0) return step
+	return Math.ceil(value / step) * step
+}
+
+/**
+ * Определяет шаг округления блайнда в зависимости от его величины.
+ *
+ * Порог = номинал × 10. Пока блайнд ниже порога следующего номинала,
+ * округляем до текущего. Мелкая фишка перестаёт влиять на блайнд,
+ * когда составляет ~10% от ставки — логичный порог.
+ *
+ * Пример (номиналы [5, 25, 100, 500]):
+ *   value < 250  (25×10) → шаг 5
+ *   value < 1000 (100×10) → шаг 25
+ *   value < 5000 (500×10) → шаг 100
+ *   value >= 5000          → шаг 500
+ */
+export const getBlindRoundingStep = (value: number, denominations: number[]): number => {
+	if (denominations.length === 0) return 1
+	const sorted = [...denominations].sort((a, b) => a - b)
+
+	// Идём от мелких к крупным: пока value >= порог следующего номинала,
+	// поднимаем шаг округления
+	let step = sorted[0]!
+	for (let i = 1; i < sorted.length; i++) {
+		const nextDenom = sorted[i]!
+		if (value >= nextDenom * 10) {
+			step = nextDenom
+		} else {
+			break
+		}
+	}
+	return step
 }
 
 /** Возвращает минимальный номинал из чемодана */
@@ -25,6 +56,10 @@ export const getMinDenomination = (chipCase: ChipCaseEntry[]): number => {
 	if (chipCase.length === 0) return 1
 	return Math.min(...chipCase.map(c => c.denomination))
 }
+
+/** Возвращает отсортированный массив номиналов из чемодана */
+export const getDenominations = (chipCase: ChipCaseEntry[]): number[] =>
+	chipCase.map(c => c.denomination).sort((a, b) => a - b)
 
 /**
  * Рассчитывает набор фишек, выдаваемый за одну раздачу (старт / ребай / аддон).
@@ -115,32 +150,34 @@ export const calculateChipAvailability = (
  * 3. Целевой финальный BB = 5% от базовых фишек (startingStack × playerCount):
  *    на этом уровне у двух финалистов остаётся ~10 BB каждому
  * 4. Прогрессия: BB[i] = startBB × growthRate^i (через SB для округления)
- * 5. Соседние уровни с одинаковым BB удаляются
- * 6. Добавляется 2 запасных уровня сверх запланированных
+ * 5. Ступенчатое округление: когда блайнд >= номинал × 20,
+ *    шаг округления повышается до этого номинала (убирает «некрасивые» значения)
+ * 6. Соседние уровни с одинаковым BB удаляются
+ * 7. Добавляется 2 запасных уровня сверх запланированных
  */
 export const generateBlindLevels = (
 	startingStack: number,
 	playerCount: number,
 	gameDurationMinutes: number,
 	speed: GameSpeed,
-	minDenom: number,
+	denominations: number[],
 	maxRebuys: number,
 ): BlindLevel[] => {
 	const { levelMinutes, startingBBRatio } = SPEED_PARAMS[speed]
+	const minDenom = denominations.length > 0
+		? Math.min(...denominations)
+		: 1
 
 	// Количество уровней в рамках запланированного времени
 	const totalLevels = Math.max(1, Math.ceil(gameDurationMinutes / levelMinutes))
 	const levelsWithBuffer = totalLevels + 2
 
-	// Стартовый SB → BB
-	// rawStartSB = startingStack / startingBBRatio / 2
-	// startSB округляем вверх до minDenom, BB = startSB × 2
+	// Стартовый SB → BB (стартовый уровень всегда округляется до minDenom)
 	const rawStartSB = startingStack / (startingBBRatio * 2)
 	const startSB = roundUpToChip(rawStartSB, minDenom)
 	const startBB = startSB * 2
 
 	// Целевой финальный BB: ~5% от суммарных базовых фишек
-	// Смысл: totalBaseChips * 0.05 = totalBaseChips/2/10 → у 2 финалистов ~10 BB каждому
 	const totalBaseChips = startingStack * playerCount
 	const rawFinalSB = (totalBaseChips * 0.05) / 2
 	const finalSB = roundUpToChip(rawFinalSB, minDenom)
@@ -156,9 +193,11 @@ export const generateBlindLevels = (
 	let prevBB = 0
 
 	for (let i = 0; i < levelsWithBuffer; i++) {
-		// Вычисляем SB через прогрессию, округляем до minDenom, BB = SB × 2
+		// Вычисляем SB через прогрессию, округляем со ступенчатым шагом
 		const rawSB = startSB * Math.pow(growthRate, i)
-		const sb = roundUpToChip(rawSB, minDenom)
+		const rawBB = rawSB * 2
+		const step = getBlindRoundingStep(rawBB, denominations)
+		const sb = roundUpToChip(rawSB, step)
 		const bb = sb * 2
 
 		// Пропускаем дублирующийся уровень (округление дало тот же BB)
@@ -276,14 +315,15 @@ export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 	}
 
 	// ── Структура блайндов ───────────────────────────────────────
-	const minDenom = getMinDenomination(chipCase)
+	const denominations = getDenominations(chipCase)
+	const minDenom = denominations.length > 0 ? denominations[0]! : 1
 
 	const blindLevels = generateBlindLevels(
 		startingStack,
 		playerCount,
 		gameDurationMinutes,
 		gameSpeed,
-		minDenom,
+		denominations,
 		maxRebuys,
 	)
 
