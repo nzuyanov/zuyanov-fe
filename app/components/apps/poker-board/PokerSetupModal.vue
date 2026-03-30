@@ -139,6 +139,15 @@
 								<span class="blinds-info__item">Ожидаемое завершение: уровень <strong>{{ store.gameSetup.expectedEndLevel }}</strong></span>
 							</div>
 
+							<div v-if="store.isGameTooShort" class="blinds-warn blinds-warn--short">
+								<span class="blinds-warn__icon">⚡</span>
+								<span>Стартовая глубина всего {{ store.gameSetup.startingDepthBB }} BB — игра будет очень быстрой для такого чемодана. Попробуй уменьшить количество ребаев, добавить время или выбрать скорость помедленнее.</span>
+							</div>
+							<div v-if="store.isGameTooLong" class="blinds-warn blinds-warn--long">
+								<span class="blinds-warn__icon">🐢</span>
+								<span>Стартовая глубина {{ store.gameSetup.startingDepthBB }} BB — игра может затянуться. Попробуй уменьшить чемодан, сократить время или выбрать скорость побыстрее.</span>
+							</div>
+
 							<div class="blinds-table-wrap">
 								<table class="blinds-table">
 									<colgroup>
@@ -1043,6 +1052,34 @@ const startTournament = () => {
 .blinds-info__sep {
 	color: var(--poker-text-muted);
 	opacity: 0.5;
+}
+
+/* Предупреждение о длительности */
+.blinds-warn {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 10px 14px;
+	border-radius: var(--poker-radius-sm, 8px);
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.blinds-warn__icon {
+	flex-shrink: 0;
+}
+
+.blinds-warn--short {
+	background: rgb(239 68 68 / 8%);
+	border: 1px solid rgb(239 68 68 / 20%);
+	color: var(--poker-red, #EF4444);
+}
+
+.blinds-warn--long {
+	background: rgb(245 158 11 / 8%);
+	border: 1px solid rgb(245 158 11 / 20%);
+	color: var(--poker-gold, #F59E0B);
 }
 
 .blinds-table-wrap {
