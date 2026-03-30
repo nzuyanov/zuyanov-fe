@@ -13,6 +13,7 @@ export interface ChipCaseEntry {
 	denomination: number
 	color: ChipColor
 	totalCount: number
+	id: string
 }
 
 /** Одна строка раздачи: сколько фишек данного номинала даётся игроку */

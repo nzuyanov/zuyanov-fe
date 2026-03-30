@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { nanoid } from 'nanoid'
 import type {
 	PokerConfig,
 	PokerGameState,
@@ -63,11 +64,14 @@ export const usePokerStore = defineStore('poker', () => {
 			denomination: maxDenom * 2,
 			color: NEW_CHIP_COLOR_DEFAULT,
 			totalCount: NEW_CHIP_COUNT_DEFAULT,
+			id: nanoid(),
 		})
 	}
 
-	const removeChipDenom = (index: number) => {
+	const removeChipDenom = (id: string) => {
 		if (config.value.chipCase.length <= 1) return
+		const index = config.value.chipCase.findIndex(ch => ch.id === id)
+		if (index === -1) return
 		config.value.chipCase.splice(index, 1)
 	}
 

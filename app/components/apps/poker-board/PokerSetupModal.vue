@@ -202,7 +202,7 @@
 											</tr>
 										</thead>
 										<tbody>
-											<tr v-for="(chip, i) in store.config.chipCase" :key="i">
+											<tr v-for="(chip) in store.config.chipCase" :key="chip.id">
 												<td>
 													<PokerInput
 														:model-value="chip.denomination"
@@ -232,7 +232,7 @@
 													<button
 														v-if="store.config.chipCase.length > 1"
 														class="chip-case__remove"
-														@click="store.removeChipDenom(i)"
+														@click="store.removeChipDenom(chip.id)"
 													>
 														<Icon name="ph:trash-bold" />
 													</button>
@@ -259,7 +259,7 @@
 											<span class="nice-rate__icon">💡</span>
 											<span>
 												Округлить стек до&nbsp;{{ store.gameSetup.niceRateAvailable.niceStack }}&nbsp;— курс
-												станет <strong>{{ niceRateFormatted }} ₽</strong>
+												станет <strong>{{ niceRateFormatted }}&nbsp;₽</strong>
 											</span>
 										</div>
 										<label class="nice-rate__toggle">

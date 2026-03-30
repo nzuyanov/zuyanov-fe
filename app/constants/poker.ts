@@ -1,4 +1,6 @@
+import { nanoid } from 'nanoid'
 import type { GameSpeed, PokerConfig } from '~/types/poker'
+
 
 export const CHIP_COLORS = {
 	RED: '#EF4444',
@@ -38,11 +40,11 @@ export const POKER_CONFIG_DEFAULT: PokerConfig = {
 	playerCount: 6,
 	// по реальному примеру на 300 фишек https://ozon.ru/t/Jmkr6YT
 	chipCase: [
-		{ denomination: 5, color: CHIP_COLORS.RED, totalCount: 75 },
-		{ denomination: 25, color: CHIP_COLORS.GREEN, totalCount: 75 },
-		{ denomination: 50, color: CHIP_COLORS.BLUE, totalCount: 50 },
-		{ denomination: 100, color: CHIP_COLORS.SILVER, totalCount: 75 },
-		{ denomination: 500, color: CHIP_COLORS.VIOLET, totalCount: 25 },
+		{ denomination: 5, color: CHIP_COLORS.RED, totalCount: 75, id: nanoid() },
+		{ denomination: 25, color: CHIP_COLORS.GREEN, totalCount: 75, id: nanoid() },
+		{ denomination: 50, color: CHIP_COLORS.BLUE, totalCount: 50, id: nanoid() },
+		{ denomination: 100, color: CHIP_COLORS.SILVER, totalCount: 75, id: nanoid() },
+		{ denomination: 500, color: CHIP_COLORS.VIOLET, totalCount: 25, id: nanoid() },
 	],
 }
 
