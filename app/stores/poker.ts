@@ -3,12 +3,16 @@ import type {
 	PokerConfig,
 	PokerGameState,
 	PokerPlayer,
-	BlindLevel,
 	TournamentStage,
-	ChipDistribution,
-	ChipAvailability, TournamentSetup,
+	TournamentSetup,
 } from '~/types/poker'
-import { POKER_CONFIG_DEFAULT, NEW_CHIP_COLOR_DEFAULT, NEW_CHIP_COUNT_DEFAULT } from '~/constants/poker'
+import {
+	POKER_CONFIG_DEFAULT,
+	NEW_CHIP_COLOR_DEFAULT,
+	NEW_CHIP_COUNT_DEFAULT,
+	MIN_BB_DEPTH,
+	MAX_BB_DEPTH,
+} from '~/constants/poker'
 import { calculateTournament } from '~/utils/poker'
 
 const initGameState: PokerGameState = {
@@ -31,6 +35,8 @@ export const usePokerStore = defineStore('poker', () => {
 
 	const gameSetup = computed<TournamentSetup>(() => calculateTournament(config.value, niceRateEnabled.value))
 
+	const isGameTooShort = computed(() => gameSetup.value.startingDepthBB < MIN_BB_DEPTH)
+	const isGameTooLong = computed(() => gameSetup.value.startingDepthBB > MAX_BB_DEPTH)
 	// TODO: прикрутить
 	// if (startingDepthBB < 20) {
 	// 	warnings.push(
@@ -386,6 +392,8 @@ export const usePokerStore = defineStore('poker', () => {
 		rubInChip,
 		chipInRub,
 		chipInRubUnit,
+		isGameTooShort,
+		isGameTooLong,
 
 		// Actions
 		initGame,

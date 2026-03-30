@@ -66,3 +66,6 @@ export const FUN_NAMES = [
 	'Fish & Tits', 'Бубновый Хуб', 'Нитовый Нил', 'Sharkboy', 'Оверпара Оля',
 	'Paul Fector', 'Сл@вянин', 'Индус', 'Mister BIG', 'ПалСаныч'
 ]
+
+export const MIN_BB_DEPTH = 20
+export const MAX_BB_DEPTH = 200
