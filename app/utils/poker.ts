@@ -450,18 +450,20 @@ export const calculateTournament = (params: PokerConfig, niceRate: boolean = fal
 
 	// ── Анализ доступности фишек ─────────────────────────────────
 	const chipAvailability = calculateChipAvailability(chipCase, distribution, playerCount, maxRebuys)
+	const bottleneckNote = chipAvailability.bottleneck
+		? ` Узкое место: номинал ${chipAvailability.bottleneck}.`
+		: ''
 
 	if (!chipAvailability.enoughForStart) {
 		warnings.push('Фишек не хватает даже на стартовую раздачу всем игрокам')
 	} else if (!chipAvailability.enoughForRebuys) {
-		const bottleneckNote = chipAvailability.bottleneck
-			? ` Узкое место: номинал ${chipAvailability.bottleneck}.`
-			: ''
 		warnings.push(
-			`Фишек хватает на старт, но может не хватить на все ${maxRebuys} ребая(-ев).` + bottleneckNote,
+			'При выдаче ребая может потребоваться разменять фишки.' + bottleneckNote
 		)
 	} else if (!chipAvailability.enoughForAddOns) {
-		warnings.push('Фишек хватает на старт и ребаи, но не хватает на аддон каждому игроку')
+		warnings.push(
+			'При выдаче аддона может потребоваться разменять фишки.' + bottleneckNote
+		)
 	}
 
 	// ── Структура блайндов ───────────────────────────────────────

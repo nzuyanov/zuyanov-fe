@@ -278,7 +278,7 @@
 									>
 										<PokerChip :value="entry.denomination" :color="entry.color" :size="60" />
 										<div>&times;</div>
-										<div>{{ entry.count }}</div>
+										<div class="chipDistCount">{{ entry.count }}</div>
 									</div>
 									<span>=</span>
 									<!-- TODO: add plural -->
@@ -482,8 +482,8 @@ const chipAvailBadgeClass = computed(() => {
 
 const chipAvailBadgeText = computed(() => {
 	if (!store.gameSetup.chipAvailability.enoughForStart) return '❌ Не хватает на старт'
-	if (!store.gameSetup.chipAvailability.enoughForRebuys) return '⚠️ Не хватит на все ребаи'
-	if (!store.gameSetup.chipAvailability.enoughForAddOns) return '⚠️ Не хватит на все аддоны'
+	if (!store.gameSetup.chipAvailability.enoughForRebuys) return '⚠️ Размен на ребаях'
+	if (!store.gameSetup.chipAvailability.enoughForAddOns) return '⚠️ Размен на аддонах'
 	return '✅ Фишек достаточно'
 })
 
@@ -1331,6 +1331,7 @@ const startTournament = () => {
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
+	min-width: 130px;
 }
 
 .chip-dist__summary {
@@ -1686,6 +1687,10 @@ const startTournament = () => {
 .tooltip-fade-leave-to {
 	opacity: 0;
 	transform: translateY(4px);
+}
+
+.chipDistCount {
+	font-size: 1rem;
 }
 
 </style>
