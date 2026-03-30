@@ -221,6 +221,7 @@ onUnmounted(() => {
 	border-radius: var(--poker-radius-sm, 8px);
 	transition: border-color 0.2s, box-shadow 0.2s;
 	overflow: hidden;
+	transition: background-color 0.2s;
 }
 
 .focused {
@@ -254,10 +255,13 @@ onUnmounted(() => {
 	text-align: center;
 }
 
+.wrapper:hover,
 .wrapper:hover .input,
-.wrapper:hover .suffix {
+.wrapper:hover .suffix,
+.wrapper:hover .clear {
 	background-color: var(--poker-bg-input-hover);
 }
+
 
 .input::placeholder {
 	color: var(--poker-text-muted);
@@ -325,6 +329,7 @@ onUnmounted(() => {
 	cursor: pointer;
 	transition: color 0.15s;
 	padding: 0;
+	transition: background-color 0.2s;
 }
 
 .clear:hover {

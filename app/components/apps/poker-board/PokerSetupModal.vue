@@ -237,33 +237,31 @@
 								</button>
 							</div>
 
-							<!-- Стартовый стек + курс -->
+							<!-- Стартовый стек + курс + округление -->
 							<div class="chip-stack-row">
 								<div class="stack-card">
 									<span class="stack-card__label">Стартовый стек</span>
 									<span class="stack-card__value">{{ store.gameSetup.startingStack.toLocaleString('ru-RU') }}</span>
 								</div>
 								<PokerChipRate />
-							</div>
-
-							<!-- Плашка округления курса -->
-							<div v-if="store.gameSetup.niceRateAvailable" class="nice-rate">
-								<div class="nice-rate__content">
-									<div class="nice-rate__text">
-										<span class="nice-rate__icon">💡</span>
-										<span>
-											Курс неровный. Можно округлить стек до {{ store.gameSetup.niceRateAvailable.niceStack }}
-											— курс станет <strong>{{ niceRateFormatted }} ₽</strong> за фишку
-										</span>
+								<div v-if="store.gameSetup.niceRateAvailable" class="nice-rate">
+									<div class="nice-rate__content">
+										<div class="nice-rate__text">
+											<span class="nice-rate__icon">💡</span>
+											<span>
+												Округлить стек до&nbsp;{{ store.gameSetup.niceRateAvailable.niceStack }}&nbsp;— курс
+												станет <strong>{{ niceRateFormatted }} ₽</strong>
+											</span>
+										</div>
+										<label class="nice-rate__toggle">
+											<input
+												v-model="store.niceRateEnabled"
+												type="checkbox"
+												class="nice-rate__checkbox"
+											>
+											<span class="nice-rate__switch" />
+										</label>
 									</div>
-									<label class="nice-rate__toggle">
-										<input
-											v-model="store.niceRateEnabled"
-											type="checkbox"
-											class="nice-rate__checkbox"
-										>
-										<span class="nice-rate__switch" />
-									</label>
 								</div>
 							</div>
 
@@ -277,7 +275,7 @@
 										class="chip-dist__item"
 									>
 										<PokerChip :value="entry.denomination" :color="entry.color" :size="60" />
-										<div>&times;</div>
+										<div class="chipDistCount">&times;</div>
 										<div class="chipDistCount">{{ entry.count }}</div>
 									</div>
 									<span class="chip-dist__eq">=</span>
@@ -1215,7 +1213,7 @@ const startTournament = () => {
 
 .chip-stack-row {
 	display: flex;
-	gap: 16px;
+	gap: 12px;
 	align-items: stretch;
 }
 
@@ -1262,13 +1260,18 @@ const startTournament = () => {
 	border-radius: var(--poker-radius-sm, 8px);
 	background: rgb(245 158 11 / 8%);
 	border: 1px solid rgb(245 158 11 / 20%);
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
 }
 
 .nice-rate__content {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: 12px;
+	width: 100%;
 }
 
 .nice-rate__text {
@@ -1402,7 +1405,7 @@ const startTournament = () => {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	margin-top: 4px;
+	margin-top: 16px;
 }
 
 .chip-avail__badge {
@@ -1725,7 +1728,7 @@ const startTournament = () => {
 }
 
 .chipDistCount {
-	font-size: 1rem;
+	font-size: 1.5rem;
 }
 
 .chip-dist__eq {
