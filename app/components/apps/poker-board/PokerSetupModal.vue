@@ -243,23 +243,27 @@
 									<!-- Сделать красивую карточку -->
 									<label class="field__label">Стартовый стек (в фишках) = {{ store.gameSetup.startingStack }}</label>
 								</div>
-								<div class="chip-rate-card">
-									<div class="chip-rate-card__row">
-										<span class="chip-rate-card__label">1 фишка</span>
-										<span class="chip-rate-card__eq">=</span>
-										<span class="chip-rate-card__value">
-											{{ store.rubInChip }}
-											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+								<PokerChipRate />
+							</div>
+
+							<!-- Плашка округления курса -->
+							<div v-if="store.gameSetup.niceRateAvailable" class="nice-rate">
+								<div class="nice-rate__content">
+									<div class="nice-rate__text">
+										<span class="nice-rate__icon">💡</span>
+										<span>
+											Курс неровный. Можно округлить стек до {{ store.gameSetup.niceRateAvailable.niceStack }}
+											— курс станет <strong>{{ niceRateFormatted }} ₽</strong> за фишку
 										</span>
 									</div>
-									<div class="chip-rate-card__divider">/</div>
-									<div class="chip-rate-card__row">
-										<span class="chip-rate-card__label">1
-											<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
-										</span>
-										<span class="chip-rate-card__eq">=</span>
-										<span class="chip-rate-card__value">{{ store.chipInRub }} {{ store.chipInRubUnit }}</span>
-									</div>
+									<label class="nice-rate__toggle">
+										<input
+											v-model="store.niceRateEnabled"
+											type="checkbox"
+											class="nice-rate__checkbox"
+										>
+										<span class="nice-rate__switch" />
+									</label>
 								</div>
 							</div>
 
@@ -429,6 +433,7 @@ import imgSetting from '~/assets/images/setting.png'
 import pickupCar from '~/assets/images/pickup-car.png'
 import schoolBus from '~/assets/images/school-bus.png'
 import speedCar from '~/assets/images/speed-car.png'
+import PokerChipRate from '~/components/apps/poker-board/PokerChipRate.vue'
 
 const emit = defineEmits<{
 	start: [players: PokerPlayer[]]
@@ -458,6 +463,14 @@ const getSpeedButtonClass = (option: SpeedOption, isSelected: boolean) => ({
 	[`speed-button`]: true,
 	[`speed-button-${option.value}`]: true,
 	[`speed-button-${option.value}-active`]: isSelected,
+})
+
+// --- Секция 4: Фишки — округление курса ---
+const niceRateFormatted = computed(() => {
+	const info = store.gameSetup.niceRateAvailable
+	if (!info) return ''
+	const rate = info.niceRubPerChip
+	return Number.isInteger(rate) ? String(rate) : rate.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')
 })
 
 const chipAvailBadgeClass = computed(() => {
@@ -1208,13 +1221,84 @@ const startTournament = () => {
 	max-width: 220px;
 }
 
-.chip-rate-card {
-	margin-top: 26px;
+/* Плашка округления курса */
+.nice-rate {
+	padding: 12px 16px;
+	border-radius: var(--poker-radius-sm, 8px);
+	background: rgb(245 158 11 / 8%);
+	border: 1px solid rgb(245 158 11 / 20%);
+}
+
+.nice-rate__content {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 16px;
-	padding: 6px 20px;
-	border-radius: var(--poker-radius-sm, 8px);
+}
+
+.nice-rate__text {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.8125rem;
+	color: var(--poker-text-secondary);
+	line-height: 1.5;
+}
+
+.nice-rate__text strong {
+	color: var(--poker-gold);
+	font-weight: 700;
+}
+
+.nice-rate__icon {
+	flex-shrink: 0;
+}
+
+.nice-rate__toggle {
+	flex-shrink: 0;
+	position: relative;
+	display: inline-flex;
+	cursor: pointer;
+}
+
+.nice-rate__checkbox {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.nice-rate__switch {
+	width: 40px;
+	height: 22px;
+	border-radius: 11px;
+	background: var(--poker-bg-input, #2D333B);
+	border: 1px solid var(--poker-border);
+	position: relative;
+	transition: background 0.2s, border-color 0.2s;
+}
+
+.nice-rate__switch::after {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--poker-text-muted);
+	transition: transform 0.2s, background 0.2s;
+}
+
+.nice-rate__checkbox:checked + .nice-rate__switch {
+	background: rgb(245 158 11 / 20%);
+	border-color: var(--poker-gold);
+}
+
+.nice-rate__checkbox:checked + .nice-rate__switch::after {
+	transform: translateX(18px);
+	background: var(--poker-gold);
 }
 
 /* Раздача на игрока */
@@ -1313,45 +1397,6 @@ const startTournament = () => {
 	font-size: 0.75rem;
 	color: var(--poker-text-muted);
 }
-
-.chip-rate-card__row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 4px 0;
-}
-
-.chip-rate-card__label {
-	display: inline-flex;
-	align-items: center;
-	gap: 2px;
-	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 1.125rem;
-	color: var(--poker-text-muted);
-}
-
-.chip-rate-card__eq {
-	font-size: 0.875rem;
-	color: var(--poker-text-muted);
-}
-
-.chip-rate-card__value {
-	display: inline-flex;
-	align-items: center;
-	gap: 2px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.125rem;
-	font-weight: 800;
-	color: var(--poker-gold);
-	font-variant-numeric: tabular-nums;
-}
-
-.chip-rate-card__divider {
-	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 1.125rem;
-	color: var(--poker-text-muted);
-}
-
 
 /* --- Players Grid --- */
 .players-grid {

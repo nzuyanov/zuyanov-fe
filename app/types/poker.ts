@@ -1,5 +1,5 @@
 // --- Скорость игры ---
-import { CHIP_COLORS } from '~/constants/poker'
+import type { CHIP_COLORS } from '~/constants/poker'
 
 export type ChipColor = (typeof CHIP_COLORS)[keyof typeof CHIP_COLORS]
 
@@ -55,7 +55,7 @@ export interface PokerConfig {
 	gameSpeed: GameSpeed
 
 	/** Количество игроков */
- 	playerCount: number
+	playerCount: number
 }
 
 /** Один уровень блайндов */
@@ -66,6 +66,16 @@ export interface BlindLevel {
 	durationMinutes: number
 	/** true — запасной уровень за пределами запланированного времени */
 	isBuffer: boolean
+}
+
+/** Информация о доступном округлении курса */
+export interface NiceRateInfo {
+	/** Исходный стек до округления */
+	originalStack: number
+	/** Стек с красивым курсом */
+	niceStack: number
+	/** Курс рублей за 1 фишку при красивом стеке */
+	niceRubPerChip: number
 }
 
 /** Результат расчёта турнира */
@@ -84,6 +94,8 @@ export interface TournamentSetup {
 	expectedEndLevel: number
 	/** Стартовая глубина игры в BB */
 	startingDepthBB: number
+	/** Доступное округление до красивого курса (null если курс уже красивый или округление невозможно) */
+	niceRateAvailable: NiceRateInfo | null
 	/** Предупреждения и замечания */
 	warnings: string[]
 }

@@ -62,40 +62,133 @@ export const getDenominations = (chipCase: ChipCaseEntry[]): number[] =>
 	chipCase.map(c => c.denomination).sort((a, b) => a - b)
 
 /**
- * Рассчитывает набор фишек, выдаваемый за одну раздачу (старт / ребай / аддон).
- *
- * Принцип: каждый номинал делится поровну на totalDistributions (floor),
- * чтобы чемодан гарантированно хватил на все раздачи.
- * Стартовый стек = сумма (номинал × количество на раздачу).
+ * Проверяет, является ли курс buyIn/stack «красивым» — кратным 0.25.
  */
-export const calculateChipDistribution = (chipCase: ChipCaseEntry[], totalDistributions: number,): ChipDistribution => {
-	if (totalDistributions <= 0) return {
-		distribution: [],
-		startingStack: 0,
-		totalChipCount: 0,
+export const isNiceRate = (buyIn: number, stack: number): boolean => {
+	if (stack <= 0 || buyIn <= 0) return false
+	const rate = buyIn / stack
+	return Math.abs(rate - Math.round(rate * 4) / 4) < 1e-9
+}
+
+/**
+ * Ищет ближайший стек ВНИЗ от rawStack, при котором buyIn/stack кратен 0.25.
+ * Возвращает null, если подходящего значения нет (стек ушёл бы ниже 50% от исходного).
+ */
+export const findNiceRateStack = (buyIn: number, rawStack: number): number | null => {
+	const minStack = Math.floor(rawStack * 0.5)
+	for (let stack = rawStack; stack >= minStack; stack--) {
+		if (stack <= 0) break
+		if (isNiceRate(buyIn, stack)) return stack
+	}
+	return null
+}
+
+/**
+ * Рассчитывает стартовую раздачу фишек из чемодана.
+ *
+ * Набирает targetStack жадно от крупных к мелким.
+ * Каждый номинал ограничен: floor(totalCount / playerCount),
+ * чтобы всем игрокам хватило поровну.
+ *
+ * Если targetStack не задан — берёт максимум доступного.
+ */
+export const calculateChipDistribution = (
+	chipCase: ChipCaseEntry[],
+	playerCount: number,
+	targetStack?: number,
+): ChipDistribution => {
+	if (playerCount <= 0 || chipCase.length === 0) {
+		return { distribution: [], startingStack: 0, totalChipCount: 0 }
 	}
 
-	const distribution: ChipDistributionEntry[] = chipCase
-		.map(entry => {
-			const count = Math.floor(entry.totalCount / totalDistributions)
-			return {
-				denomination: entry.denomination,
-				count,
-				totalValue: entry.denomination * count,
-				color: entry.color,
-			}
-		})
-		.filter(entry => entry.count > 0)
+	// Максимум фишек каждого номинала на одного игрока
+	const perPlayer = chipCase
+		.map(entry => ({
+			denomination: entry.denomination,
+			color: entry.color,
+			maxCount: Math.floor(entry.totalCount / playerCount),
+		}))
+		.filter(e => e.maxCount > 0)
 		.sort((a, b) => a.denomination - b.denomination)
 
-	const startingStack = distribution.reduce((sum, d) => sum + d.totalValue, 0)
-	const totalChipCount = distribution.reduce((sum, d) => sum + d.count, 0)
-
-	return {
-		distribution,
-		startingStack,
-		totalChipCount,
+	if (targetStack === undefined) {
+		// Без целевого стека — раздаём максимум доступного
+		const distribution: ChipDistributionEntry[] = perPlayer.map(e => ({
+			denomination: e.denomination,
+			count: e.maxCount,
+			totalValue: e.denomination * e.maxCount,
+			color: e.color,
+		}))
+		const startingStack = distribution.reduce((s, d) => s + d.totalValue, 0)
+		const totalChipCount = distribution.reduce((s, d) => s + d.count, 0)
+		return { distribution, startingStack, totalChipCount }
 	}
+
+	// Жадно от крупных к мелким
+	const result = perPlayer.map(e => ({
+		denomination: e.denomination,
+		count: 0,
+		totalValue: 0,
+		color: e.color,
+		maxCount: e.maxCount,
+	}))
+
+	let remaining = targetStack
+	for (let i = result.length - 1; i >= 0; i--) {
+		const entry = result[i]!
+		const take = Math.min(entry.maxCount, Math.floor(remaining / entry.denomination))
+		entry.count = take
+		entry.totalValue = entry.denomination * take
+		remaining -= entry.totalValue
+	}
+
+	// Размениваем крупные на мелкие: пока можем разбить 1 крупную
+	// на эквивалент в мелких фишках — делаем. Это максимизирует
+	// количество мелких номиналов для удобства ставок на ранних уровнях.
+	let improved = true
+	let passes = 0
+	while (improved && passes < 100) {
+		passes++
+		improved = false
+		for (let i = result.length - 1; i > 0; i--) {
+			if (result[i]!.count < 2) continue
+
+			const largeValue = result[i]!.denomination
+			let leftover = largeValue
+			const adds: [number, number][] = []
+
+			for (let j = i - 1; j >= 0; j--) {
+				const small = result[j]!
+				const available = small.maxCount - small.count
+				if (available <= 0) continue
+				const add = Math.min(available, Math.floor(leftover / small.denomination))
+				if (add > 0) {
+					adds.push([j, add])
+					leftover -= add * small.denomination
+				}
+			}
+
+			if (leftover === 0 && adds.length > 0) {
+				result[i]!.count--
+				result[i]!.totalValue = result[i]!.denomination * result[i]!.count
+				for (const [j, add] of adds) {
+					result[j]!.count += add
+					result[j]!.totalValue = result[j]!.denomination * result[j]!.count
+				}
+				improved = true
+				break
+			}
+		}
+	}
+
+	const distribution = result
+		.filter(e => e.count > 0)
+		.map(({ denomination, count, totalValue, color }) => ({ denomination, count, totalValue, color }))
+
+	const startingStack = distribution.reduce((s, d) => s + d.totalValue, 0)
+	const totalChipCount = distribution.reduce((s, d) => s + d.count, 0)
+
+	return { distribution, startingStack, totalChipCount }
 }
 
 /**
@@ -277,13 +370,14 @@ export const findExpectedEndLevel = (
  *
  * @returns TournamentSetup с раздачей фишек, таблицей блайндов и предупреждениями
  */
-export const calculateTournament = (params: PokerConfig): TournamentSetup => {
+export const calculateTournament = (params: PokerConfig, niceRate: boolean = false): TournamentSetup => {
 	const {
 		chipCase,
 		playerCount,
 		maxRebuys,
 		gameDurationMinutes,
 		gameSpeed,
+		buyIn,
 	} = params
 
 	const warnings: string[] = []
@@ -301,6 +395,7 @@ export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 		blindLevels: [],
 		expectedEndLevel: 0,
 		startingDepthBB: 0,
+		niceRateAvailable: null,
 		warnings: [],
 	}
 
@@ -309,13 +404,16 @@ export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 		return emptyResult
 	}
 
-	// ── Раздача фишек ────────────────────────────────────────────
-	// Суммарных раздач одного стека: старт + все ребаи + аддон на каждого игрока
+	// ── Раздача фишек (стартовая) ───────────────────────────────
+	// Значение стека: делим чемодан на все раздачи (старт + ребаи + аддоны),
+	// чтобы зарезервировать фишки на докупки
 	const totalDistributions = playerCount * (1 + maxRebuys + 1)
+	const rawStackValue = chipCase.reduce((sum, entry) => {
+		const perDist = Math.floor(entry.totalCount / totalDistributions)
+		return sum + entry.denomination * perDist
+	}, 0)
 
-	const { distribution, startingStack, totalChipCount } = calculateChipDistribution(chipCase, totalDistributions)
-
-	if (startingStack === 0) {
+	if (rawStackValue === 0) {
 		warnings.push(
 			`Фишек недостаточно для раздачи при ${maxRebuys} ребаях на игрока. ` +
 			'Уменьши количество ребаев или добавь фишки в чемодан.',
@@ -323,6 +421,32 @@ export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 		emptyResult.warnings = warnings
 		return emptyResult
 	}
+
+	// ── Округление до красивого курса ────────────────────────────
+	const rawRateIsNice = isNiceRate(buyIn, rawStackValue)
+	let niceRateAvailable: TournamentSetup['niceRateAvailable'] = null
+
+	if (!rawRateIsNice) {
+		const niceStack = findNiceRateStack(buyIn, rawStackValue)
+		if (niceStack !== null && niceStack < rawStackValue) {
+			niceRateAvailable = {
+				originalStack: rawStackValue,
+				niceStack,
+				niceRubPerChip: buyIn / niceStack,
+			}
+		}
+	}
+
+	// Целевой стек: красивый (если включён) или исходный
+	const targetStack = (niceRate && niceRateAvailable)
+		? niceRateAvailable.niceStack
+		: rawStackValue
+
+	// Состав фишек: набираем targetStack с лимитами case/playerCount
+	// (больше мелких номиналов доступно, чем при делении на totalDistributions)
+	const { distribution, startingStack, totalChipCount } = calculateChipDistribution(
+		chipCase, playerCount, targetStack,
+	)
 
 	// ── Анализ доступности фишек ─────────────────────────────────
 	const chipAvailability = calculateChipAvailability(chipCase, distribution, playerCount, maxRebuys)
@@ -368,6 +492,7 @@ export const calculateTournament = (params: PokerConfig): TournamentSetup => {
 		blindLevels,
 		expectedEndLevel,
 		startingDepthBB,
+		niceRateAvailable,
 		warnings,
 	}
 }

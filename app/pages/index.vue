@@ -10,23 +10,23 @@
 				height="300"
 				class="hero__photo"
 			/>
-			<h1 class="hero__name text-heading hero__accent">
+			<h1 class="title text-heading">
 				Зуянов Никита Сергеевич
 			</h1>
-			<p class="hero__tagline text-body">
+			<p class="job text-body">
 				Frontend разработчик
 			</p>
 
-			<div class="hero__contacts">
+			<div class="contacts">
 				<a href="https://t.me/the_last_pride" target="_blank" rel="noopener noreferrer" class="contact">
-					<Icon name="simple-icons:telegram" class="contact__icon contact__icon--tg"/>
-					<span class="contact__text">@the_last_pride</span>
+					<Icon name="simple-icons:telegram" class="contactIcon telegram"/>
+					<span class="contactText">@the_last_pride</span>
 				</a>
 				<div class="contact">
-					<Icon name="ph:envelope-simple-fill" class="contact__icon"/>
-					<span class="contact__text">zuyanov.ns@yandex.ru</span>
+					<Icon name="ph:envelope-simple-fill" class="contactIcon"/>
+					<span class="contactText">zuyanov.ns@yandex.ru</span>
 					<UiTooltip text="Скопировать">
-						<button class="contact__copy" @click="copyToClipboard('zuyanov.ns@yandex.ru', 'Почта скопирована')">
+						<button class="copyButton" @click="copyToClipboard('zuyanov.ns@yandex.ru', 'Почта скопирована')">
 							<Icon name="ph:copy"/>
 						</button>
 					</UiTooltip>
@@ -36,13 +36,13 @@
 
 		<div class="sections">
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:user-circle-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:user-circle-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						О себе
 					</h2>
 				</div>
-				<p class="section__text text-body">
+				<p class="sectionText text-body">
 					Привет! Меня зовут Никита, мне {{ pluralYears(age) }}. Я занимаюсь
 					разработкой уже {{ pluralYears(experience) }}. За плечами большой опыт и множество интересных проектов от стартапов до бигтеха.
 					Сейчас — старший фронтенд-разработчик в Ozon. Люблю, когда под капотом всё сложно, а снаружи — просто и красиво. А ещё я активно учусь быть папой.
@@ -50,29 +50,29 @@
 			</section>
 
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:briefcase-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:briefcase-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						Опыт работы
 					</h2>
 				</div>
 				<div class="jobs">
 					<div class="job">
-						<div class="job__header">
-							<span class="job__company text-body">🎮 Nexters</span>
+						<div class="jobHeader">
+							<span class="company text-body">🎮 Nexters</span>
 						</div>
-						<p class="job__desc text-body">
+						<p class="jobDescription text-body">
 							Админка администрирования мобильных игр, веб-версия
-							<a href="https://www.hero-wars.com" target="_blank" rel="noopener noreferrer" class="job__link">Hero Wars</a>
+							<a href="https://www.hero-wars.com" target="_blank" rel="noopener noreferrer" class="jobLink">Hero Wars</a>
 							(авторизация, комьюнити-портал для игроков)
 						</p>
 					</div>
 					<div class="job">
-						<div class="job__header">
-							<span class="job__company text-body">📦 Ozon</span>
-							<span class="job__badge">сейчас</span>
+						<div class="jobHeader">
+							<span class="company text-body">📦 Ozon</span>
+							<span class="jobBadge">сейчас</span>
 						</div>
-						<p class="job__desc text-body">
+						<p class="jobDescription text-body">
 							Внутреннее облако, платформа фронтенд-проектов, корпоративный мессенджер. Микрофронты, большие команды, сложные продукты.
 						</p>
 					</div>
@@ -80,46 +80,46 @@
 			</section>
 
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:code-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:code-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						Навыки
 					</h2>
 				</div>
 				<div class="skills">
 					<UiTooltip text="TypeScript">
 						<div class="skill">
-							<Icon name="simple-icons:typescript" class="skill__icon skill__icon--ts"/>
+							<Icon name="simple-icons:typescript" class="skillIcon skillIcon--ts"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="Vue.js">
 						<div class="skill">
-							<Icon name="simple-icons:vuedotjs" class="skill__icon skill__icon--vue"/>
+							<Icon name="simple-icons:vuedotjs" class="skillIcon skillIcon--vue"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="Nuxt">
 						<div class="skill">
-							<Icon name="simple-icons:nuxtdotjs" class="skill__icon skill__icon--nuxt"/>
+							<Icon name="simple-icons:nuxtdotjs" class="skillIcon skillIcon--nuxt"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="Pinia">
 						<div class="skill">
-							<Icon name="simple-icons:pinia" class="skill__icon skill__icon--pinia"/>
+							<Icon name="simple-icons:pinia" class="skillIcon skillIcon--pinia"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="Node.js">
 						<div class="skill">
-							<Icon name="simple-icons:nodedotjs" class="skill__icon skill__icon--node"/>
+							<Icon name="simple-icons:nodedotjs" class="skillIcon skillIcon--node"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="Git">
 						<div class="skill">
-							<Icon name="simple-icons:git" class="skill__icon skill__icon--git"/>
+							<Icon name="simple-icons:git" class="skillIcon skillIcon--git"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="CI/CD">
 						<div class="skill">
-							<Icon name="simple-icons:githubactions" class="skill__icon skill__icon--cicd"/>
+							<Icon name="simple-icons:githubactions" class="skillIcon skillIcon--cicd"/>
 						</div>
 					</UiTooltip>
 					<UiTooltip text="UI/UX">
@@ -131,13 +131,13 @@
 			</section>
 
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:graduation-cap-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:graduation-cap-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						Образование
 					</h2>
 				</div>
-				<p class="section__text text-body">
+				<p class="sectionText text-body">
 					МГУ имени М.В. Ломоносова
 					<br>
 					Факультет ВМК
@@ -147,32 +147,32 @@
 			</section>
 
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:snowflake-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:snowflake-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						Увлечения
 					</h2>
 				</div>
-				<p class="section__text text-body">
+				<p class="sectionText text-body">
 					Люблю спорт, кататься на снуоборде, путешествия в новые места, ламповые настолки и коктейли на роме 🍹
 				</p>
 			</section>
 
 			<section class="section">
-				<div class="section__header">
-					<Icon name="ph:microphone-stage-duotone" class="section__icon"/>
-					<h2 class="section__title text-heading">
+				<div class="sectionHeader">
+					<Icon name="ph:microphone-stage-duotone" class="sectionIcon"/>
+					<h2 class="sectionTitle text-heading">
 						Выступления
 					</h2>
 				</div>
 				<div class="talk">
-					<p class="talk__conference text-caption">
+					<p class="conference text-caption">
 						Evrone podcast
 					</p>
-					<p class="talk__name text-body">
+					<p class="conferenceName text-body">
 						OR: React vs Vue
 					</p>
-					<div class="talk__preview">
+					<div class="conferencePreview">
 						<iframe
 							src="https://vkvideo.ru/video_ext.php?oid=-117095393&id=456239595&hash=e88864409811ef04&hd=4"
 							allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
@@ -180,33 +180,33 @@
 							frameborder="0"
 						/>
 					</div>
-					<div class="talk__links">
+					<div class="conferenceLinks">
 						<a
 							href="https://vkvideo.ru/video-117095393_456239595?sh=4"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="talk-link text-inter"
+							class="conferenceLink text-inter"
 						>
-							<Icon name="ph:play-circle-fill" class="talk-link__icon talk-link__icon--vk"/>
+							<Icon name="ph:play-circle-fill" class="conferenceLinkIcon conferenceLinkIcon--vk"/>
 							VK Video
 						</a>
 						<a
 							href="https://youtu.be/wyakGgieWsg"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="talk-link text-inter"
+							class="conferenceLink text-inter"
 						>
-							<Icon name="ph:youtube-logo-fill" class="talk-link__icon talk-link__icon--yt"/>
+							<Icon name="ph:youtube-logo-fill" class="conferenceLinkIcon conferenceLinkIcon--yt"/>
 							YouTube
 						</a>
 					</div>
-					<p class="talk__conference text-caption">
+					<p class="conference text-caption">
 						HolyJS
 					</p>
-					<p class="talk__name text-body">
+					<p class="conferenceName text-body">
 						Вьюххх! Как мы перевели сотни проектов на Vue 3 и не пострадали
 					</p>
-					<div class="talk__preview">
+					<div class="conferencePreview">
 						<iframe
 							src="https://vk.com/video_ext.php?oid=-119450242&id=456240200&hash=4"
 							allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
@@ -214,23 +214,23 @@
 							frameborder="0"
 						/>
 					</div>
-					<div class="talk__links">
+					<div class="conferenceLinks">
 						<a
 							href="https://vk.com/video-119450242_456240200?sh=4"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="talk-link text-inter"
+							class="conferenceLink text-inter"
 						>
-							<Icon name="ph:play-circle-fill" class="talk-link__icon talk-link__icon--vk"/>
+							<Icon name="ph:play-circle-fill" class="conferenceLinkIcon conferenceLinkIcon--vk"/>
 							VK Video
 						</a>
 						<a
 							href="https://youtu.be/E33R-HaXMsE?si=bXcUB-A_yqnHuvwd"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="talk-link text-inter"
+							class="conferenceLink text-inter"
 						>
-							<Icon name="ph:youtube-logo-fill" class="talk-link__icon talk-link__icon--yt"/>
+							<Icon name="ph:youtube-logo-fill" class="conferenceLinkIcon conferenceLinkIcon--yt"/>
 							YouTube
 						</a>
 					</div>
@@ -326,23 +326,18 @@ useSeoMeta({
 	border: 2px solid var(--border);
 }
 
-.hero__name {
+.title {
 	font-size: clamp(1.75rem, 4vw, 2.5rem);
 	font-weight: 800;
 	letter-spacing: -0.02em;
 	line-height: 1.1;
-	background: linear-gradient(135deg, #c4b5fd 30%, var(--accent-2));
 	background-clip: text;
-	-webkit-text-fill-color: transparent;
-}
-
-.hero__accent {
 	background: linear-gradient(135deg, var(--accent) 20%, var(--accent-2));
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
-.hero__tagline {
+.job {
 	margin-top: 16px;
 	font-size: 1.25rem;
 	color: var(--text-2);
@@ -350,7 +345,7 @@ useSeoMeta({
 }
 
 /* Hero contacts */
-.hero__contacts {
+.contacts {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
@@ -376,22 +371,22 @@ useSeoMeta({
 	color: var(--accent-light);
 }
 
-.contact__icon {
+.contactIcon {
 	font-size: 1.1rem;
 	color: var(--text-3);
 	flex-shrink: 0;
 }
 
-.contact__icon--tg {
+.telegram {
 	color: #26a5e4;
 }
 
-.contact__text {
+.contactText {
 	line-height: 1;
 	cursor: pointer;
 }
 
-.contact__copy {
+.copyButton {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -405,11 +400,11 @@ useSeoMeta({
 	transition: color 0.2s, opacity 0.2s;
 }
 
-.contact__copy:hover {
+.copyButton:hover {
 	color: var(--accent-light);
 }
 
-.contact:hover .contact__copy {
+.contact:hover .copyButton {
 	opacity: 1;
 }
 
@@ -435,21 +430,21 @@ useSeoMeta({
 	box-shadow: 0 0 40px rgb(189 52 254 / 4%);
 }
 
-.section__header {
+.sectionHeader {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	margin-bottom: 12px;
 }
 
-.section__icon {
+.sectionIcon {
 	font-size: 1.75rem;
 	color: var(--text-3);
 	flex-shrink: 0;
 	transition: color 0.3s, filter 0.3s;
 }
 
-.section:hover .section__icon {
+.section:hover .sectionIcon {
 	color: var(--accent-light);
 	filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgb(189 52 254 / 40%));
 	animation: neon-flicker 2.5s infinite;
@@ -512,7 +507,7 @@ useSeoMeta({
 	}
 }
 
-.section__title {
+.sectionTitle {
 	font-size: 1.25rem;
 	font-weight: 700;
 	background: linear-gradient(135deg, var(--accent) 20%, var(--accent-2));
@@ -520,7 +515,7 @@ useSeoMeta({
 	-webkit-text-fill-color: transparent;
 }
 
-.section__text {
+.sectionText {
 	color: var(--text-2);
 	line-height: 1.7;
 }
@@ -532,20 +527,20 @@ useSeoMeta({
 	gap: 20px;
 }
 
-.job__header {
+.jobHeader {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	margin-bottom: 6px;
 }
 
-.job__company {
+.company {
 	font-weight: 600;
 	color: var(--text);
 	font-size: 1.05rem;
 }
 
-.job__badge {
+.jobBadge {
 	font-family: var(--font-body);
 	font-size: 0.7rem;
 	font-weight: 600;
@@ -557,18 +552,18 @@ useSeoMeta({
 	color: #00dc82;
 }
 
-.job__desc {
+.jobDescription {
 	color: var(--text-2);
 	line-height: 1.7;
 }
 
-.job__link {
+.jobLink {
 	color: var(--accent-light);
 	text-decoration: none;
 	transition: color 0.2s;
 }
 
-.job__link:hover {
+.jobLink:hover {
 	text-decoration: underline;
 }
 
@@ -587,7 +582,7 @@ useSeoMeta({
 	justify-content: center;
 }
 
-.skill__icon {
+.skillIcon {
 	font-size: 2rem;
 }
 
@@ -596,42 +591,42 @@ useSeoMeta({
 	height: 2rem;
 }
 
-.skill__icon--ts {
+.skillIcon--ts {
 	color: #3178c6;
 }
 
-.skill__icon--vue {
+.skillIcon--vue {
 	color: #4fc08d;
 }
 
-.skill__icon--nuxt {
+.skillIcon--nuxt {
 	color: #00dc82;
 }
 
-.skill__icon--pinia {
+.skillIcon--pinia {
 	color: #ffd859;
 }
 
-.skill__icon--node {
+.skillIcon--node {
 	color: #5fa04e;
 }
 
-.skill__icon--git {
+.skillIcon--git {
 	color: #f05032;
 }
 
-.skill__icon--cicd {
+.skillIcon--cicd {
 	color: #2088ff;
 }
 
 
 /* Talk card */
-.talk__conference {
+.conference {
 	margin-top: 30px;
 	margin-bottom: 4px;
 }
 
-.talk__name {
+.conferenceName {
 	font-size: 1.05rem;
 	font-weight: 600;
 	color: var(--text);
@@ -639,7 +634,7 @@ useSeoMeta({
 	margin-bottom: 16px;
 }
 
-.talk__preview {
+.conferencePreview {
 	position: relative;
 	width: 100%;
 	padding-bottom: 56.25%;
@@ -649,7 +644,7 @@ useSeoMeta({
 	border: 1px solid var(--border);
 }
 
-.talk__preview iframe {
+.conferencePreview iframe {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -658,12 +653,12 @@ useSeoMeta({
 }
 
 /* Talk links */
-.talk__links {
+.conferenceLinks {
 	display: flex;
 	gap: 20px;
 }
 
-.talk-link {
+.conferenceLink {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -674,19 +669,19 @@ useSeoMeta({
 	transition: color 0.25s;
 }
 
-.talk-link:hover {
+.conferenceLink:hover {
 	color: var(--text);
 }
 
-.talk-link__icon {
+.conferenceLinkIcon {
 	font-size: 1.2rem;
 }
 
-.talk-link__icon--vk {
+.conferenceLinkIcon--vk {
 	color: #ff3b5c;
 }
 
-.talk-link__icon--yt {
+.conferenceLinkIcon--yt {
 	color: #f00;
 }
 
