@@ -36,6 +36,7 @@ export const POKER_CONFIG_DEFAULT: PokerConfig = {
 	gameSpeed: 'normal',
 	prizes: [50, 30, 20],
 	playerCount: 6,
+	// по реальному примеру на 300 фишек https://ozon.ru/t/Jmkr6YT
 	chipCase: [
 		{ denomination: 5, color: CHIP_COLORS.RED, totalCount: 75 },
 		{ denomination: 25, color: CHIP_COLORS.GREEN, totalCount: 75 },

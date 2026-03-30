@@ -101,6 +101,8 @@ export const calculateChipDistribution = (
 		return { distribution: [], startingStack: 0, totalChipCount: 0 }
 	}
 
+	chipCase.sort((a, b) => a.denomination - b.denomination)
+
 	// Максимум фишек каждого номинала на одного игрока
 	const perPlayer = chipCase
 		.map(entry => ({
