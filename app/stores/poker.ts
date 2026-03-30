@@ -27,8 +27,9 @@ const initGameState: PokerGameState = {
 export const usePokerStore = defineStore('poker', () => {
 	const config = ref<PokerConfig>(POKER_CONFIG_DEFAULT)
 	const gameState = ref<PokerGameState>(initGameState)
+	const niceRateEnabled = ref(false)
 
-	const gameSetup = computed<TournamentSetup>(() => calculateTournament(config.value))
+	const gameSetup = computed<TournamentSetup>(() => calculateTournament(config.value, niceRateEnabled.value))
 
 	// TODO: прикрутить
 	// if (startingDepthBB < 20) {
@@ -69,9 +70,7 @@ export const usePokerStore = defineStore('poker', () => {
 		return parseFloat(raw.toFixed(4)).toLocaleString('ru-RU', { maximumFractionDigits: 4 })
 	})
 
-	const chipsPerRubRaw = computed(() => {
-		return parseFloat((gameSetup.value.startingStack / config.value.buyIn).toFixed(4))
-	})
+	const chipsPerRubRaw = computed(() => parseFloat((gameSetup.value.startingStack / config.value.buyIn).toFixed(4)))
 
 	const chipInRub = computed(() => {
 		if (config.value.buyIn === 0) return 0
@@ -80,9 +79,7 @@ export const usePokerStore = defineStore('poker', () => {
 
 	const chipInRubUnit = computed(() => pluralizeChip(chipsPerRubRaw.value))
 
-	const activePlayers = computed<PokerPlayer[]>(() => {
-		return gameState.value.players.filter(p => !p.isEliminated)
-	})
+	const activePlayers = computed<PokerPlayer[]>(() => gameState.value.players.filter(p => !p.isEliminated))
 
 	const activePlayerIndices = computed<number[]>(
 		() => gameState.value.players
@@ -151,13 +148,9 @@ export const usePokerStore = defineStore('poker', () => {
 
 	const rebuyPeriodSeconds = computed(() => config.value.rebuyPeriodMinutes * 60)
 
-	const isRebuyPeriod = computed(() => {
-		return gameState.value.elapsedSeconds < rebuyPeriodSeconds.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished'
-	})
+	const isRebuyPeriod = computed(() => gameState.value.elapsedSeconds < rebuyPeriodSeconds.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished')
 
-	const isAddOnAvailable = computed(() => {
-		return !isRebuyPeriod.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished'
-	})
+	const isAddOnAvailable = computed(() => !isRebuyPeriod.value && gameState.value.status !== 'idle' && gameState.value.status !== 'finished')
 
 	const getNextActiveIndex = (fromIndex: number): number => {
 		const indices = activePlayerIndices.value
@@ -365,6 +358,7 @@ export const usePokerStore = defineStore('poker', () => {
 		// State
 		config,
 		gameState,
+		niceRateEnabled,
 
 		// Getters
 		activePlayers,
