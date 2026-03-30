@@ -52,7 +52,7 @@
 								/>
 							</div>
 							<div class="field">
-								<label class="field__label">Максимум ребаев на игрока</label>
+								<label class="field__label">Ребаев на игрока</label>
 								<PokerInput
 									v-model="store.config.maxRebuys"
 									type="number"
@@ -84,7 +84,7 @@
 								>
 									<span class="prizes__label">
 										<img :src="trophyIcons[i]" alt="" class="prizes__trophy">
-										{{ place }}
+										{{ i + 1 }} место
 									</span>
 									<div class="prizes__input-wrap">
 										<PokerInput
@@ -237,11 +237,11 @@
 								</button>
 							</div>
 
-							<!-- Стартовый стек -->
+							<!-- Стартовый стек + курс -->
 							<div class="chip-stack-row">
-								<div class="field">
-									<!-- Сделать красивую карточку -->
-									<label class="field__label">Стартовый стек (в фишках) = {{ store.gameSetup.startingStack }}</label>
+								<div class="stack-card">
+									<span class="stack-card__label">Стартовый стек</span>
+									<span class="stack-card__value">{{ store.gameSetup.startingStack.toLocaleString('ru-RU') }}</span>
 								</div>
 								<PokerChipRate />
 							</div>
@@ -280,9 +280,11 @@
 										<div>&times;</div>
 										<div class="chipDistCount">{{ entry.count }}</div>
 									</div>
-									<span>=</span>
-									<!-- TODO: add plural -->
-									<div>{{ store.gameSetup.startingChipCount }} фишек</div>
+									<span class="chip-dist__eq">=</span>
+									<div class="chip-dist__total-count">
+										<span class="chip-dist__total-value">{{ store.gameSetup.startingChipCount }}</span>
+										<img :src="imgPokerChip" alt="" class="chipImage">
+									</div>
 								</div>
 
 								<!-- Статус доступности -->
@@ -818,7 +820,7 @@ const startTournament = () => {
 	align-items: center;
 	gap: 4px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 0.8125rem;
+	font-size: 1rem;
 	font-weight: 600;
 	color: var(--poker-text-muted);
 	margin-bottom: 6px;
@@ -1031,7 +1033,7 @@ const startTournament = () => {
 	align-items: center;
 	gap: 12px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.8125rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
@@ -1199,7 +1201,7 @@ const startTournament = () => {
 	background: transparent;
 	color: var(--poker-text-muted);
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.8125rem;
+	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
 	transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -1213,12 +1215,45 @@ const startTournament = () => {
 
 .chip-stack-row {
 	display: flex;
-	gap: 24px;
-	align-items: flex-start;
+	gap: 16px;
+	align-items: stretch;
 }
 
-.chip-stack-row .field {
-	max-width: 220px;
+.stack-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	padding: 14px 28px;
+	border-radius: var(--poker-radius-sm, 8px);
+	border: 1px solid var(--poker-border);
+	background: var(--poker-bg-input, #2D333B);
+	min-width: 160px;
+}
+
+.stack-card__label {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--poker-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.stack-card__value {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.75rem;
+	font-weight: 800;
+	color: var(--poker-text);
+	line-height: 1.2;
+}
+
+.stack-card__unit {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: var(--poker-text-muted);
 }
 
 /* Плашка округления курса */
@@ -1372,7 +1407,7 @@ const startTournament = () => {
 
 .chip-avail__badge {
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.8125rem;
+	font-size: 1rem;
 	font-weight: 700;
 	padding: 4px 10px;
 	border-radius: var(--poker-radius-sm, 8px);
@@ -1395,7 +1430,7 @@ const startTournament = () => {
 
 .chip-avail__hint {
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.75rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
@@ -1691,6 +1726,45 @@ const startTournament = () => {
 
 .chipDistCount {
 	font-size: 1rem;
+}
+
+.chip-dist__eq {
+	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--poker-text-muted);
+	padding: 0 4px;
+	align-self: center;
+}
+
+.chip-dist__total-count {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	align-self: center;
+}
+
+.chip-dist__total-value {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 2rem;
+	font-weight: 800;
+	color: var(--poker-text);
+	line-height: 1.2;
+}
+
+.chip-dist__total-label {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: var(--poker-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.chipImage {
+	height: 40px;
+	width: 40px;
 }
 
 </style>

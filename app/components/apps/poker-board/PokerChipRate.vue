@@ -16,19 +16,20 @@
 </template>
 
 <script setup lang="ts">
-	import imgPokerChip from '~/assets/images/poker-chip.png'
+import imgPokerChip from '~/assets/images/poker-chip.png'
 
-	const store = usePokerStore()
+const store = usePokerStore()
 </script>
 
 <style scoped>
 	.chip-rate-card {
-		margin-top: 26px;
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		padding: 6px 20px;
+		gap: 20px;
+		padding: 14px 24px;
 		border-radius: var(--poker-radius-sm, 8px);
+		border: 1px solid var(--poker-border);
+		background: var(--poker-bg-input, #2D333B);
 	}
 
 	.rate {
@@ -41,31 +42,31 @@
 	.label {
 		display: inline-flex;
 		align-items: center;
-		gap: 2px;
+		gap: 4px;
 		font-family: var(--font-body, 'Inter Variable', sans-serif);
-		font-size: 1.125rem;
+		font-size: 1.25rem;
 		color: var(--poker-text-muted);
 	}
 
 	.value {
 		display: inline-flex;
 		align-items: center;
-		gap: 2px;
+		gap: 4px;
 		font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-		font-size: 1.125rem;
+		font-size: 1.375rem;
 		font-weight: 800;
 		color: var(--poker-gold);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.chipImage {
-		height: 24px;
-		width: 24px;
+		height: 28px;
+		width: 28px;
 	}
 
 	.divider {
 		font-family: var(--font-body, 'Inter Variable', sans-serif);
-		font-size: 1.125rem;
+		font-size: 1.375rem;
 		color: var(--poker-text-muted);
 	}
 </style>

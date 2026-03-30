@@ -451,7 +451,7 @@ export const calculateTournament = (params: PokerConfig, niceRate: boolean = fal
 	// ── Анализ доступности фишек ─────────────────────────────────
 	const chipAvailability = calculateChipAvailability(chipCase, distribution, playerCount, maxRebuys)
 	const bottleneckNote = chipAvailability.bottleneck
-		? ` Узкое место: номинал ${chipAvailability.bottleneck}.`
+		? ` Узкое место: номинал ${chipAvailability.bottleneck}`
 		: ''
 
 	if (!chipAvailability.enoughForStart) {
