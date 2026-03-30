@@ -1,16 +1,16 @@
 <template>
 	<div
-		class="poker-input"
+		class="wrapper"
 		:class="{
-			'poker-input--focused': isFocused,
-			'poker-input--error': error,
-			'poker-input--small': small,
-			'poker-input--disabled': disabled,
+			'focused': isFocused,
+			'error': error,
+			'small': small,
+			'disabled': disabled,
 		}"
 	>
 		<button
 			v-if="type === 'number' && !hideSteps"
-			class="poker-input__step poker-input__step--minus"
+			class="step"
 			tabindex="-1"
 			@mousedown.prevent="startDecrement"
 			@mouseup="stopRepeat"
@@ -23,8 +23,8 @@
 			ref="inputRef"
 			:type="type === 'number' ? 'text' : type"
 			:inputmode="type === 'number' ? (allowDecimals ? 'decimal' : 'numeric') : undefined"
-			class="poker-input__native"
-			:class="{ 'poker-input__native--center': type === 'number' }"
+			class="input"
+			:class="{ 'center': type === 'number' }"
 			:value="displayValue"
 			:placeholder="placeholder"
 			:disabled="disabled"
@@ -34,11 +34,11 @@
 			@keydown="onKeydown"
 		>
 
-		<span v-if="suffix" class="poker-input__suffix">{{ suffix }}</span>
+		<div v-if="suffix" class="suffix">{{ suffix }}</div>
 
 		<button
 			v-if="showClear"
-			class="poker-input__clear"
+			class="clear"
 			tabindex="-1"
 			@mousedown.prevent="onClear"
 		>
@@ -47,7 +47,7 @@
 
 		<button
 			v-if="type === 'number' && !hideSteps"
-			class="poker-input__step poker-input__step--plus"
+			class="step"
 			tabindex="-1"
 			@mousedown.prevent="startIncrement"
 			@mouseup="stopRepeat"
@@ -213,7 +213,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.poker-input {
+.wrapper {
 	display: flex;
 	align-items: center;
 	background: var(--poker-bg-input, #2D333B);
@@ -223,20 +223,20 @@ onUnmounted(() => {
 	overflow: hidden;
 }
 
-.poker-input--focused {
+.focused {
 	border-color: var(--poker-green);
 	box-shadow: 0 0 0 3px var(--poker-green-dim, rgb(16 185 129 / 15%));
 }
 
-.poker-input--error {
+.error {
 	border-color: var(--poker-red);
 }
 
-.poker-input--error.poker-input--focused {
+.error.focused {
 	box-shadow: 0 0 0 3px var(--poker-red-dim, rgb(239 68 68 / 15%));
 }
 
-.poker-input__native {
+.input {
 	flex: 1;
 	min-width: 0;
 	padding: 10px 12px;
@@ -250,38 +250,42 @@ onUnmounted(() => {
 	transition: background-color 0.2s;
 }
 
-.poker-input__native--center {
+.center {
 	text-align: center;
 }
 
-.poker-input:hover .poker-input__native {
+.wrapper:hover .input,
+.wrapper:hover .suffix {
 	background-color: var(--poker-bg-input-hover);
 }
 
-.poker-input__native::placeholder {
+.input::placeholder {
 	color: var(--poker-text-muted);
 }
 
 /* Убираем системные стрелки для number-подобного инпута */
-.poker-input__native::-webkit-outer-spin-button,
-.poker-input__native::-webkit-inner-spin-button {
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
 	appearance: none;
 	margin: 0;
 }
 
 /* Суффикс (единица измерения) */
-.poker-input__suffix {
+.suffix {
 	flex-shrink: 0;
 	padding-right: 12px;
+	padding-top: 12px;
+	padding-bottom: 12px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.875rem;
 	color: var(--poker-text-muted);
 	pointer-events: none;
 	user-select: none;
+	transition: background 0.15s, color 0.15s;
 }
 
 /* Кнопки +/- */
-.poker-input__step {
+.step {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -297,18 +301,18 @@ onUnmounted(() => {
 	user-select: none;
 }
 
-.poker-input__step:hover {
+.step:hover {
 	background: var(--poker-border-hover, rgb(255 255 255 / 16%));
 	color: var(--poker-text);
 }
 
-.poker-input__step:active {
+.step:active {
 	background: var(--poker-green-dim, rgb(16 185 129 / 15%));
 	color: var(--poker-green);
 }
 
 /* Кнопка очистки */
-.poker-input__clear {
+.clear {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -323,31 +327,31 @@ onUnmounted(() => {
 	padding: 0;
 }
 
-.poker-input__clear:hover {
+.clear:hover {
 	color: var(--poker-red);
 }
 
 /* Маленький вариант */
-.poker-input--small {
+.small {
 	max-width: 140px;
 }
 
-.poker-input--small .poker-input__native {
+.small .input {
 	padding: 8px 6px;
 	font-size: 1.125rem;
 }
 
-.poker-input--small .poker-input__step {
+.small .step {
 	width: 32px;
 	font-size: 0.75rem;
 }
 
-.poker-input--small .poker-input__clear {
+.small .clear {
 	width: 22px;
 	font-size: 0.6rem;
 }
 
-.poker-input--disabled {
+.disabled {
 	opacity: 0.5;
 	pointer-events: none;
 }

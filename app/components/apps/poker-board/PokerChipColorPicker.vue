@@ -1,27 +1,27 @@
 <template>
 	<div class="chip-color-picker">
-		<div ref="referenceRef" class="chip-color-picker__trigger" @click="toggle">
+		<div ref="referenceRef" class="target" @click="toggle">
 			<PokerChip :value="value" :color="modelValue" :size="size" />
 		</div>
-		<div v-if="isOpen" class="chip-color-picker__backdrop" @click="close" />
+		<div v-if="isOpen" class="backdrop" @click="close" />
 		<Teleport to="body">
-			<Transition name="chip-color-dropdown">
+			<Transition name="dropdown">
 				<div
 					v-if="isOpen"
 					ref="floatingRef"
-					class="chip-color-picker__dropdown"
+					class="dropdown"
 					:style="floatingStyles"
 				>
 					<button
 						v-for="(colorValue, colorKey) in CHIP_COLORS"
 						:key="colorKey"
-						class="chip-color-picker__option"
-						:class="{ 'chip-color-picker__option--active': modelValue === colorValue }"
+						class="option"
+						:class="{ 'optionActive': modelValue === colorValue }"
 						@click="select(colorValue)"
 					>
 						<PokerChip :value="value" :color="colorValue" :size="optionSize" />
 					</button>
-					<div ref="arrowRef" class="chip-color-picker__arrow" :style="arrowStyles" />
+					<div ref="arrowRef" class="arrow" :style="arrowStyles" />
 				</div>
 			</Transition>
 		</Teleport>
@@ -112,7 +112,7 @@ const select = (color: ChipColor) => {
 	display: inline-flex;
 }
 
-.chip-color-picker__trigger {
+.target {
 	cursor: pointer;
 	transition: transform 0.15s;
 
@@ -121,13 +121,13 @@ const select = (color: ChipColor) => {
 	}
 }
 
-.chip-color-picker__backdrop {
+.backdrop {
 	position: fixed;
 	inset: 0;
 	z-index: 9998;
 }
 
-.chip-color-picker__dropdown {
+.dropdown {
 	z-index: 9999;
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -139,7 +139,7 @@ const select = (color: ChipColor) => {
 	box-shadow: 0 12px 32px rgb(0 0 0 / 50%);
 }
 
-.chip-color-picker__option {
+.option {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -149,19 +149,19 @@ const select = (color: ChipColor) => {
 	background: none;
 	cursor: pointer;
 	transition: transform 0.15s, border-color 0.15s, background 0.15s;
-
-	&:hover {
-		transform: scale(1.15);
-		background: rgb(255 255 255 / 6%);
-	}
-
-	&--active {
-		border-color: rgb(255 255 255 / 70%);
-		background: rgb(255 255 255 / 10%);
-	}
 }
 
-.chip-color-picker__arrow {
+.option:hover {
+	transform: scale(1.15);
+	background: rgb(255 255 255 / 6%);
+}
+
+.optionActive {
+	border-color: rgb(255 255 255 / 70%);
+	background: rgb(255 255 255 / 10%);
+}
+
+.arrow {
 	position: absolute;
 	width: 10px;
 	height: 10px;
@@ -171,13 +171,13 @@ const select = (color: ChipColor) => {
 	transform: rotate(45deg);
 }
 
-.chip-color-dropdown-enter-active,
-.chip-color-dropdown-leave-active {
+.dropdown-enter-active,
+.dropdown-leave-active {
 	transition: opacity 0.1s;
 }
 
-.chip-color-dropdown-enter-from,
-.chip-color-dropdown-leave-to {
+.dropdown-enter-from,
+.dropdown-leave-to {
 	opacity: 0;
 }
 </style>

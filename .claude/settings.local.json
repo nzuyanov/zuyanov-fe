@@ -39,7 +39,9 @@
       "Bash(wc -l /e/projects/zuyanov-fe/app/components/apps/poker-board/*.vue)",
       "Bash(npm ls:*)",
       "Bash(npx tsx -e \":*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(grep -E \"\\\\.\\(ts|js|vue\\)$\")",
+      "Bash(xargs grep:*)"
     ]
   }
 }

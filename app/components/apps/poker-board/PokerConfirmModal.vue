@@ -1,15 +1,15 @@
 <template>
 	<Teleport to="body">
-		<div class="confirm-overlay poker-shimmer-overlay" @click.self="$emit('cancel')">
+		<div class="overlay poker-shimmer-overlay" @click.self="$emit('cancel')">
 			<div class="confirm-dialog">
-				<p class="confirm-dialog__message">{{ message }}</p>
-				<div class="confirm-dialog__actions">
-					<button class="confirm-dialog__btn confirm-dialog__btn--cancel" @click="$emit('cancel')">
+				<p class="message">{{ message }}</p>
+				<div class="actions">
+					<button class="button cancel" @click="$emit('cancel')">
 						{{ cancelText }}
 					</button>
 					<button
-						class="confirm-dialog__btn confirm-dialog__btn--confirm"
-						:class="`confirm-dialog__btn--${variant}`"
+						class="button"
+						:class="`button-${variant}`"
 						@click="$emit('confirm')"
 					>
 						{{ confirmText }}
@@ -39,7 +39,7 @@ defineEmits<{
 </script>
 
 <style scoped>
-.confirm-overlay {
+.overlay {
 	position: fixed;
 	inset: 0;
 	z-index: 1000;
@@ -58,7 +58,7 @@ defineEmits<{
 	box-shadow: 0 16px 48px rgb(0 0 0 / 40%);
 }
 
-.confirm-dialog__message {
+.message {
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 1.05rem;
 	font-weight: 600;
@@ -68,12 +68,12 @@ defineEmits<{
 	margin-bottom: 24px;
 }
 
-.confirm-dialog__actions {
+.actions {
 	display: flex;
 	gap: 12px;
 }
 
-.confirm-dialog__btn {
+.button {
 	flex: 1;
 	padding: 12px 16px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
@@ -85,34 +85,34 @@ defineEmits<{
 	transition: background 0.2s, transform 0.15s;
 }
 
-.confirm-dialog__btn:active {
+.button:active {
 	transform: scale(0.97);
 }
 
-.confirm-dialog__btn--cancel {
+.cancel {
 	background: var(--poker-bg-input, #2D333B);
 	color: var(--poker-text-secondary, #D1D5DB);
 }
 
-.confirm-dialog__btn--cancel:hover {
+.cancel:hover {
 	background: var(--poker-border-hover, rgb(255 255 255 / 16%));
 }
 
-.confirm-dialog__btn--danger {
+.button-danger {
 	background: var(--poker-red, #EF4444);
 	color: #fff;
 }
 
-.confirm-dialog__btn--danger:hover {
+.button-danger:hover {
 	background: #DC2626;
 }
 
-.confirm-dialog__btn--primary {
+.button-primary {
 	background: var(--poker-green, #10B981);
 	color: #fff;
 }
 
-.confirm-dialog__btn--primary:hover {
+.button-primary:hover {
 	background: var(--poker-green-hover, #059669);
 }
 </style>

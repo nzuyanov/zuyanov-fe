@@ -1,5 +1,5 @@
 <template>
-	<div class="players-grid" :class="gridClass">
+	<div class="grid" :class="gridClass">
 		<PokerPlayerCard
 			v-for="player in players"
 			:key="player.id"
@@ -39,16 +39,16 @@ const getPlayerRole = (playerId: number): 'D' | 'SB' | 'BB' | null => {
 // Адаптивная сетка в зависимости от количества игроков
 const gridClass = computed(() => {
 	const count = props.players.length
-	if (count <= 4) return 'players-grid--2cols'
-	if (count <= 6) return 'players-grid--3cols'
-	if (count <= 9) return 'players-grid--3cols players-grid--compact'
-	if (count <= 12) return 'players-grid--4cols players-grid--compact'
-	return 'players-grid--5cols players-grid--compact'
+	if (count <= 4) return 'grid--2cols'
+	if (count <= 6) return 'grid--3cols'
+	if (count <= 9) return 'grid--3cols grid--compact'
+	if (count <= 12) return 'grid--4cols grid--compact'
+	return 'grid--5cols grid--compact'
 })
 </script>
 
 <style scoped>
-.players-grid {
+.grid {
 	display: grid;
 	gap: 12px;
 	padding: 16px;
@@ -56,42 +56,42 @@ const gridClass = computed(() => {
 	overflow-y: auto;
 }
 
-.players-grid--2cols {
+.grid--2cols {
 	grid-template-columns: repeat(2, 1fr);
 }
 
-.players-grid--3cols {
+.grid--3cols {
 	grid-template-columns: repeat(3, 1fr);
 }
 
-.players-grid--4cols {
+.grid--4cols {
 	grid-template-columns: repeat(4, 1fr);
 }
 
-.players-grid--5cols {
+.grid--5cols {
 	grid-template-columns: repeat(5, 1fr);
 }
 
-.players-grid--compact :deep(.player-card) {
+.grid--compact :deep(.player-card) {
 	padding: 10px;
 	gap: 8px;
 }
 
-.players-grid--compact :deep(.player-card__avatar) {
+.grid--compact :deep(.player-card__avatar) {
 	width: 36px;
 	height: 36px;
 }
 
-.players-grid--compact :deep(.player-card__name) {
+.grid--compact :deep(.player-card__name) {
 	font-size: 0.85rem;
 }
 
-.players-grid--compact :deep(.player-card__contributed),
-.players-grid--compact :deep(.player-card__rebuys) {
+.grid--compact :deep(.player-card__contributed),
+.grid--compact :deep(.player-card__rebuys) {
 	font-size: 0.7rem;
 }
 
-.players-grid--compact :deep(.player-card__btn) {
+.grid--compact :deep(.player-card__btn) {
 	font-size: 0.65rem;
 	padding: 4px 6px;
 }

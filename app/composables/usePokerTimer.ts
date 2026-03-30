@@ -1,4 +1,4 @@
-import { usePokerStore } from '~/stores/usePokerStore'
+import { usePokerStore } from '~/stores/poker'
 
 export interface PokerTimerCallbacks {
 	onBlindsUp: () => void
