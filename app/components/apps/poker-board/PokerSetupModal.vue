@@ -209,7 +209,8 @@
 														type="number"
 														:min="1"
 														small
-														@update:model-value="chip.denomination = Number($event)"
+														:error="isDenomDuplicate(chip.id, chip.denomination)"
+														@update:model-value="updateDenom(chip, Number($event))"
 													/>
 												</td>
 												<td>
@@ -474,6 +475,22 @@ const getSpeedButtonClass = (option: SpeedOption, isSelected: boolean) => ({
 	[`speed-button-${option.value}-active`]: isSelected,
 })
 
+// --- Секция 4: Фишки — дубликаты номиналов ---
+const isDenomDuplicate = (chipId: string, denom: number): boolean =>
+	store.config.chipCase.some(c => c.id !== chipId && c.denomination === denom)
+
+const updateDenom = (chip: ChipCaseEntry, value: number) => {
+	const duplicate = store.config.chipCase.some(c => c.id !== chip.id && c.denomination === value)
+	if (!duplicate) {
+		chip.denomination = value
+	}
+}
+
+const hasDuplicateDenoms = computed(() => {
+	const denoms = store.config.chipCase.map(c => c.denomination)
+	return new Set(denoms).size !== denoms.length
+})
+
 // --- Секция 4: Фишки — округление курса ---
 const niceRateFormatted = computed(() => {
 	const info = store.gameSetup.niceRateAvailable
@@ -649,6 +666,9 @@ const validationErrors = computed<ValidationError[]>(() => {
 	}
 	if (store.config.chipCase.length === 0) {
 		errors.push({ message: 'Добавьте хотя бы один номинал фишек', section: 'chips' })
+	}
+	if (hasDuplicateDenoms.value) {
+		errors.push({ message: 'Номиналы фишек должны быть уникальными', section: 'chips' })
 	}
 	if (!store.gameSetup.chipAvailability.enoughForStart) {
 		errors.push({ message: 'Не хватает фишек на стартовую раздачу', section: 'chips' })
