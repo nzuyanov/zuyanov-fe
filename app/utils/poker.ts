@@ -145,6 +145,48 @@ export const calculateChipDistribution = (
 		remaining -= entry.totalValue
 	}
 
+	// Откат: если остался неразменный остаток (remaining > 0),
+	// пробуем убрать 1 фишку у каждого номинала (кроме минимального)
+	// и перенабрать остаток из более мелких
+	if (remaining > 0) {
+		for (let i = 1; i < result.length; i++) {
+			if (result[i]!.count === 0) continue
+
+			// Временно убираем 1 фишку этого номинала
+			const freed = result[i]!.denomination
+			result[i]!.count--
+			result[i]!.totalValue = result[i]!.denomination * result[i]!.count
+			const newRemaining = remaining + freed
+
+			// Пробуем набрать newRemaining из номиналов [0..i-1]
+			let left = newRemaining
+			const saved: number[] = result.slice(0, i).map(e => e.count)
+			for (let j = i - 1; j >= 0; j--) {
+				const small = result[j]!
+				const available = small.maxCount - small.count
+				const add = Math.min(available, Math.floor(left / small.denomination))
+				small.count += add
+				small.totalValue = small.denomination * small.count
+				left -= add * small.denomination
+			}
+
+			if (left === 0) {
+				// Удалось набрать точно — применяем
+				remaining = 0
+				break
+			}
+			else {
+				// Не удалось — откатываем
+				result[i]!.count++
+				result[i]!.totalValue = result[i]!.denomination * result[i]!.count
+				for (let j = 0; j < i; j++) {
+					result[j]!.count = saved[j]!
+					result[j]!.totalValue = result[j]!.denomination * result[j]!.count
+				}
+			}
+		}
+	}
+
 	// Размениваем крупные на мелкие: пока можем разбить 1 крупную
 	// на эквивалент в мелких фишках — делаем. Это максимизирует
 	// количество мелких номиналов для удобства ставок на ранних уровнях.
