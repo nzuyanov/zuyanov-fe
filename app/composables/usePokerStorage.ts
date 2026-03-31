@@ -1,4 +1,4 @@
-import { usePokerStore } from '~/stores/usePokerStore'
+import { usePokerStore } from '~/stores/poker'
 import type { PokerSaveData } from '~/types/poker'
 
 const STORAGE_KEY = 'poker-board-state'

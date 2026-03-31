@@ -1,58 +1,119 @@
 // --- Скорость игры ---
-import type { ChipColor } from '~/constants/poker'
+import type { CHIP_COLORS } from '~/constants/poker'
+
+export type ChipColor = (typeof CHIP_COLORS)[keyof typeof CHIP_COLORS]
 
 export type GameSpeed = 'slow' | 'normal' | 'fast'
 
 // --- Стадия турнира ---
 export type TournamentStage = 'early' | 'middle' | 'bubble' | 'in-prizes' | 'final-table' | 'heads-up'
 
-// --- Чемодан фишек ---
+/** Одна запись в чемодане: номинал + количество физических фишек */
 export interface ChipCaseEntry {
 	denomination: number
-	color: string
+	color: ChipColor
 	totalCount: number
+	id: string
 }
 
-// --- Раздача фишек на игрока ---
-export interface ChipDistribution {
-	perPlayer: {
-		denomination: number
-		count: number
-		color: ChipColor
-	}[]
+/** Одна строка раздачи: сколько фишек данного номинала даётся игроку */
+export interface ChipDistributionEntry {
+	denomination: number
+	count: number
+	color: ChipColor
 	totalValue: number
-	totalChips: number
-	isValid: boolean
-	deficit: number
+	id: string
 }
 
-// --- Доступность фишек ---
-export interface ChipAvailability {
-	totalDistributions: number
-	enoughForStart: boolean
-	enoughForRebuys: boolean
-	enoughForAddOns: boolean
-	bottleneck?: string
+export interface ChipDistribution {
+	distribution: ChipDistributionEntry[]
+	startingStack: number
+	totalChipCount: number
 }
 
-// --- Уровень блайндов (расширенный) ---
+/** Входные параметры турнира */
+export interface PokerConfig {
+	/** Название турнира */
+	name: string
+	/** Содержимое чемодана с фишками */
+	chipCase: ChipCaseEntry[]
+
+	/** Сумма закупа в рублях */
+	buyIn: number
+
+	/** Максимальное количество ребаев на одного игрока */
+	maxRebuys: number
+
+	/** Время, в течение которого доступны ребаи (от старта), минуты */
+	rebuyPeriodMinutes: number
+
+	/** Общая длительность турнира, минуты */
+	gameDurationMinutes: number
+
+	/** Распределение выигрыша в процентах */
+	prizes: [number, number, number]
+
+	/** Скорость игры — определяет длину уровней и стартовую глубину */
+	gameSpeed: GameSpeed
+
+	/** Количество игроков */
+	playerCount: number
+}
+
+/** Один уровень блайндов */
 export interface BlindLevel {
 	level: number
 	smallBlind: number
 	bigBlind: number
 	durationMinutes: number
+	/** true — запасной уровень за пределами запланированного времени */
+	isBuffer: boolean
 }
 
-export interface PokerConfig {
-	name: string
-	buyIn: number
-	buyInChips: number
-	maxRebuys: number
-	rebuyPeriodMinutes: number
-	gameDurationMinutes: number
-	prizes: [number, number, number]
-	gameSpeed: GameSpeed
-	chipCase: ChipCaseEntry[]
+/** Информация о доступном округлении курса */
+export interface NiceRateInfo {
+	/** Исходный стек до округления */
+	originalStack: number
+	/** Стек с красивым курсом */
+	niceStack: number
+	/** Курс рублей за 1 фишку при красивом стеке */
+	niceRubPerChip: number
+}
+
+/** Результат расчёта турнира */
+export interface TournamentSetup {
+	/** Стартовый стек одного игрока (в фишечных единицах) */
+	startingStack: number
+	/** Суммарное количество фишек в стартовом стеке */
+	startingChipCount: number
+	/** Набор фишек, который выдаётся каждому игроку */
+	chipDistributionPerPlayer: ChipDistributionEntry[]
+	/** Анализ хватает ли фишек */
+	chipAvailability: ChipAvailability
+	/** Таблица уровней блайндов */
+	blindLevels: BlindLevel[]
+	/** Уровень, на котором ожидается завершение турнира */
+	expectedEndLevel: number
+	/** Стартовая глубина игры в BB */
+	startingDepthBB: number
+	/** Доступное округление до красивого курса (null если курс уже красивый или округление невозможно) */
+	niceRateAvailable: NiceRateInfo | null
+	/** Предупреждения и замечания */
+	warnings: string[]
+}
+
+/** Доступность фишек для всего турнира */
+export interface ChipAvailability {
+	/** Сколько полных раздач (стартовых стеков) поддерживает чемодан */
+	totalDistributions: number
+	/** Хватает на стартовые стеки всем игрокам */
+	enoughForStart: boolean
+	/** Хватает на все возможные ребаи */
+	enoughForRebuys: boolean
+	/** Хватает на аддон каждому игроку */
+	enoughForAddOns: boolean
+	/** Номинал-узкое место (первым иссякает) */
+	bottleneck?: string
 }
 
 export interface PokerPlayer {

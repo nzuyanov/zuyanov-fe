@@ -1,64 +1,61 @@
 <template>
 	<div
-		class="player-card"
+		class="card"
 		:class="{
-			'player-card--eliminated': player.isEliminated,
-			'player-card--dealer': role === 'D',
-			'player-card--sb': role === 'SB',
-			'player-card--bb': role === 'BB',
+			'eliminated': player.isEliminated,
+			'dealer': role === 'D',
+			'smallBlind': role === 'SB',
+			'bigBlind': role === 'BB',
 		}"
 	>
 		<!-- Бейдж роли (фишка) -->
-		<img v-if="role === 'D'" src="~/assets/icons/poker/chip-dealer.svg" alt="D" class="player-card__role-chip">
-		<img v-else-if="role === 'SB'" src="~/assets/icons/poker/chip-sb.svg" alt="SB" class="player-card__role-chip">
-		<img v-else-if="role === 'BB'" src="~/assets/icons/poker/chip-bb.svg" alt="BB" class="player-card__role-chip">
+		<img v-if="role === 'D'" src="~/assets/icons/poker/chip-dealer.svg" alt="D" class="role">
+		<img v-else-if="role === 'SB'" src="~/assets/icons/poker/chip-sb.svg" alt="SB" class="role">
+		<img v-else-if="role === 'BB'" src="~/assets/icons/poker/chip-bb.svg" alt="BB" class="role">
 
-		<div class="player-card__top">
+		<div class="top">
 			<img
 				:src="avatarUri"
 				alt=""
-				class="player-card__avatar"
+				class="avatar"
 			>
-			<div class="player-card__info">
-				<span class="player-card__name">{{ player.name }}</span>
-				<span class="player-card__contributed">
-					Внёс: <span class="player-card__money">{{ formatMoney(player.totalContributed) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
+			<div class="info">
+				<span class="name">{{ player.name }}</span>
+				<span class="totalCash">
+					Внёс: <span class="value">{{ formatMoney(player.totalContributed) }} ₽</span>
 				</span>
-				<span class="player-card__rebuys">
-					Ребаев: <span class="player-card__money">{{ player.rebuysUsed }}/{{ maxRebuys }}</span>
+				<span class="rebuyCount">
+					Ребаев: <span class="value">{{ player.rebuysUsed }}/{{ maxRebuys }}</span>
 				</span>
 			</div>
 		</div>
 
-		<div v-if="!player.isEliminated" class="player-card__actions">
-			<div v-if="canRebuy" class="player-card__rebuy-wrap">
+		<div v-if="!player.isEliminated" class="actions">
+			<div v-if="canRebuy" class="rebuyWrapper">
 				<button
-					class="player-card__btn player-card__btn--rebuy"
-					:class="{ 'player-card__btn--addon': isAddOn }"
+					class="actionButton rebuy"
+					:class="{ 'addon': isAddOn }"
 					@click="$emit('rebuy', player.id)"
 				>
 					{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
 				</button>
-				<span v-if="chipDistribution && chipDistribution.perPlayer.length > 0" class="player-card__chip-hint">
-					Выдать: {{ chipDistribution.perPlayer.map(e => `${e.count}×${e.denomination}`).join(', ') }}
-				</span>
 			</div>
 			<button
-				class="player-card__btn player-card__btn--eliminate"
+				class="actionButton actionButtonEliminate"
 				@click="$emit('eliminate', player.id)"
 			>
 				Выбыл
 			</button>
 		</div>
 
-		<div v-else class="player-card__eliminated-label">
+		<div v-else class="eliminatedLabel">
 			Выбыл
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { PokerPlayer, ChipDistribution } from '~/types/poker'
+import type { PokerPlayer } from '~/types/poker'
 
 const props = defineProps<{
 	player: PokerPlayer
@@ -66,7 +63,6 @@ const props = defineProps<{
 	canRebuy: boolean
 	isAddOn: boolean
 	maxRebuys: number
-	chipDistribution?: ChipDistribution
 }>()
 
 defineEmits<{
@@ -82,7 +78,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 </script>
 
 <style scoped>
-.player-card {
+.card {
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -94,12 +90,12 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	transition: opacity 0.3s, border-color 0.3s;
 }
 
-.player-card--eliminated {
+.eliminated {
 	opacity: 0.4;
 	border-color: transparent;
 }
 
-.player-card__avatar {
+.avatar {
 	width: 48px;
 	height: 48px;
 	border-radius: 50%;
@@ -108,11 +104,11 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 
-.player-card--eliminated .player-card__avatar {
+.eliminated .avatar {
 	filter: grayscale(1);
 }
 
-.player-card--dealer {
+.dealer {
 	border-color: rgb(255 255 255 / 70%);
 	box-shadow:
 		0 0 8px rgb(255 255 255 / 25%),
@@ -120,7 +116,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 		inset 0 0 8px rgb(255 255 255 / 5%);
 }
 
-.player-card--sb {
+.smallBlind {
 	border-color: #4a8fd4;
 	box-shadow:
 		0 0 8px rgb(74 143 212 / 35%),
@@ -128,7 +124,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 		inset 0 0 8px rgb(74 143 212 / 8%);
 }
 
-.player-card--bb {
+.bigBlind {
 	border-color: #d4a020;
 	box-shadow:
 		0 0 8px rgb(212 160 32 / 35%),
@@ -136,7 +132,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 		inset 0 0 8px rgb(240 200 96 / 8%);
 }
 
-.player-card__role-chip {
+.role {
 	position: absolute;
 	top: -14px;
 	right: 8px;
@@ -145,20 +141,20 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	filter: drop-shadow(0 2px 4px rgb(0 0 0 / 50%));
 }
 
-.player-card__top {
+.top {
 	display: flex;
 	gap: 12px;
 	align-items: center;
 }
 
-.player-card__info {
+.info {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	min-width: 0;
 }
 
-.player-card__name {
+.name {
 	font-size: 0.95rem;
 	font-weight: 700;
 	color: var(--poker-text);
@@ -167,45 +163,35 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	text-overflow: ellipsis;
 }
 
-.player-card__contributed,
-.player-card__rebuys {
+.totalCash,
+.rebuyCount {
 	font-size: 0.8rem;
 	color: var(--poker-text-muted);
 }
 
-.player-card__money {
+.value {
 	font-family: var(--poker-font-mono);
 	color: var(--poker-text-secondary);
 }
 
-.player-card__actions {
+.actions {
 	display: flex;
 	gap: 6px;
 	align-items: flex-start;
 }
 
-.player-card__rebuy-wrap {
+.rebuyWrapper {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
 }
 
-.player-card__rebuy-wrap .player-card__btn {
+.rebuyWrapper .actionButton {
 	width: 100%;
 }
 
-.player-card__chip-hint {
-	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
-	font-size: 0.6rem;
-	color: var(--poker-text-muted);
-	line-height: 1.2;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.player-card__btn {
+.actionButton {
 	flex: 1;
 	padding: 6px 8px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
@@ -217,54 +203,41 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	transition: background 0.2s, transform 0.15s;
 }
 
-.player-card__btn:active {
+.actionButton:active {
 	transform: scale(0.97);
 }
 
-.player-card__btn--rebuy {
+.rebuy {
 	background: var(--poker-green-dim);
 	color: var(--poker-green);
 }
 
-.player-card__btn--rebuy:hover {
+.rebuy:hover {
 	background: var(--poker-green);
 	color: #fff;
 }
 
-.player-card__btn--addon {
+.addon {
 	background: var(--poker-gold-dim);
 	color: var(--poker-gold);
 }
 
-.player-card__btn--addon:hover {
+.addon:hover {
 	background: var(--poker-gold);
 	color: #000;
 }
 
-.player-card__btn--eliminate {
+.actionButtonEliminate {
 	background: var(--poker-red-dim);
 	color: var(--poker-red);
 }
 
-.player-card__btn--eliminate:hover {
+.actionButtonEliminate:hover {
 	background: var(--poker-red);
 	color: #fff;
 }
 
-.rub-icon {
-	display: inline-block;
-	vertical-align: middle;
-	width: 1em;
-	height: 1em;
-}
-
-.rub-icon :deep(svg) {
-	width: 1em;
-	height: 1em;
-	vertical-align: middle;
-}
-
-.player-card__eliminated-label {
+.eliminatedLabel {
 	text-align: center;
 	font-size: 0.8rem;
 	font-weight: 700;

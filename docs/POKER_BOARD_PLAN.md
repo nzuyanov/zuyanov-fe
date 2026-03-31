@@ -5,7 +5,7 @@
 1. Создать структуру файлов:
    - `app/pages/apps/poker-board.vue` — страница
    - `app/components/apps/poker-board/` — компоненты
-   - `app/stores/usePokerStore.ts` — Pinia-стор
+   - `app/stores/poker.ts` — Pinia-стор
    - `app/composables/usePokerTimer.ts` — логика таймеров
    - `app/composables/usePokerSound.ts` — Web Audio API звуки
    - `app/composables/usePokerStorage.ts` — localStorage автосохранение
@@ -23,7 +23,7 @@
    - `PokerGameState` (status, elapsedSeconds, currentBlindLevel, blindTimerSeconds, dealerIndex, players, totalPot, eliminationCounter)
    - `PokerSaveData` (version, savedAt, config, gameState)
 
-2. **`stores/usePokerStore.ts`** — Setup Store:
+2. **`stores/poker.ts`** — Setup Store:
    - State: config + gameState
    - Getters: activePlayers, currentBlinds, nextBlinds, prizeAmounts, chipRates, isRebuyPeriod, dealerPlayer, sbPlayer, bbPlayer
    - Actions: initGame, rebuy, addOn, eliminatePlayer, nextDeal, advanceBlinds, pause/resume, finishGame
@@ -161,14 +161,14 @@
      - Добавить `totalAddOns: number` (счётчик использованных аддонов для расчёта среднего стека)
    - Удалить тип `PokerBlindsConfig` (больше не нужен)
 
-2. **`stores/usePokerStore.ts`** — новые геттеры (заглушки, пока без UI):
+2. **`stores/poker.ts`** — новые геттеры (заглушки, пока без UI):
    - `minBet` — `currentBlinds.bb`
    - `minRaise` — `currentBlinds.bb * 2`
    - `averageStackBB` — средний стек в BB (с учётом ребаев и аддонов)
    - `tournamentStage` — стадия турнира по количеству активных игроков
    - `allBlindLevels` — полная таблица уровней (заглушка, будет заменена в фазе 11)
 
-3. **`stores/usePokerStore.ts`** — изменения в экшенах:
+3. **`stores/poker.ts`** — изменения в экшенах:
    - `nextDeal()` — добавить `gameState.handNumber++`
    - `rebuy()` — при аддоне инкрементировать `gameState.totalAddOns`
    - `initGame()` — инициализировать `handNumber: 1`, `totalAddOns: 0`
@@ -178,7 +178,7 @@
 **Риски:** Удаление `PokerBlindsConfig` сломает модалку настроек (секция блайндов) и расчёт блайндов в сторе. Нужно временно оставить заглушку или сразу делать вместе с фазой 11. **Решение:** в этой фазе НЕ удалять старые поля, а добавить новые параллельно. Удаление старых — в фазе 11 после замены UI.
 
 **Итого файлы:**
-- Изменить: `app/types/poker.ts`, `app/stores/usePokerStore.ts` (файл `poker.ts`), `app/composables/usePokerStorage.ts`
+- Изменить: `app/types/poker.ts`, `app/stores/poker.ts` (файл `poker.ts`), `app/composables/usePokerStorage.ts`
 
 ---
 
@@ -195,7 +195,7 @@
      - Округление вверх до ближайшего кратного минимальному номиналу
    - Дедупликация соседних уровней с одинаковым BB
 
-2. **`stores/usePokerStore.ts`** — замена логики блайндов:
+2. **`stores/poker.ts`** — замена логики блайндов:
    - Геттер `allBlindLevels` → использует `generateBlindLevels()` вместо формулы `startBB × multiplier^level`
    - Геттеры `currentBlinds`, `nextBlinds` → читают из `allBlindLevels[currentBlindLevel]`
    - Геттер `blindLevelsPreview` → удалить (заменён на `allBlindLevels`)
@@ -218,7 +218,7 @@
 
 **Итого файлы:**
 - Создать: `app/composables/useBlindStructure.ts`
-- Изменить: `app/types/poker.ts`, `app/stores/usePokerStore.ts`, `app/components/apps/poker-board/PokerSetupModal.vue`
+- Изменить: `app/types/poker.ts`, `app/stores/poker.ts`, `app/components/apps/poker-board/PokerSetupModal.vue`
 
 ---
 
@@ -234,7 +234,7 @@
      - Проверка хватает ли фишек на всех
      - Возвращает `ChipAvailability`
 
-2. **`stores/usePokerStore.ts`** — новые геттеры:
+2. **`stores/poker.ts`** — новые геттеры:
    - `chipDistribution` — рассчитанная раздача на игрока (через composable)
    - `chipAvailability` — хватает ли фишек
    - Обновить `chipRate` — использовать номиналы из `chipCase` вместо старого `buyInChips`
@@ -258,7 +258,7 @@
 
 **Итого файлы:**
 - Создать: `app/composables/useChipDistribution.ts`
-- Изменить: `app/stores/usePokerStore.ts`, `app/components/apps/poker-board/PokerSetupModal.vue`, `app/components/apps/poker-board/PokerPlayerCard.vue`
+- Изменить: `app/stores/poker.ts`, `app/components/apps/poker-board/PokerSetupModal.vue`, `app/components/apps/poker-board/PokerPlayerCard.vue`
 
 ---
 
@@ -380,7 +380,7 @@
 | Файл | Что меняется |
 |------|-------------|
 | `app/types/poker.ts` | Новые типы, удаление `PokerBlindsConfig`, изменение `PokerConfig` и `PokerGameState` |
-| `app/stores/usePokerStore.ts` | 5 новых геттеров, изменение логики блайндов, `handNumber`, `totalAddOns` |
+| `app/stores/poker.ts` | 5 новых геттеров, изменение логики блайндов, `handNumber`, `totalAddOns` |
 | `app/composables/usePokerSound.ts` | 2 новых звука: `bubbleReached`, `bubbleBurst` |
 | `app/composables/usePokerStorage.ts` | Версия 2, новые поля, миграция |
 | `app/components/apps/poker-board/PokerSetupModal.vue` | Переделка секций «Блайнды» и «Фишки» |

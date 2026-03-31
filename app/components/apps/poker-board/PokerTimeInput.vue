@@ -1,14 +1,14 @@
 <template>
-	<div class="time-input-wrap">
+	<div class="wrapper">
 		<div
-			class="time-input"
+			class="container"
 			:class="{
-				'time-input--error': hasError,
-				'time-input--focused': isFocused,
+				'error': hasError,
+				'focused': isFocused,
 			}"
 		>
 			<button
-				class="time-input__step"
+				class="step"
 				tabindex="-1"
 				@mousedown.prevent="startDecrement"
 				@mouseup="stopRepeat"
@@ -18,7 +18,7 @@
 			</button>
 			<input
 				ref="inputRef"
-				class="time-input__native"
+				class="input"
 				:value="isFocused ? rawInput : displayValue"
 				@focus="onFocus"
 				@input="onInput"
@@ -26,7 +26,7 @@
 				@keydown="onKeydown"
 			>
 			<button
-				class="time-input__step"
+				class="step"
 				tabindex="-1"
 				@mousedown.prevent="startIncrement"
 				@mouseup="stopRepeat"
@@ -35,8 +35,8 @@
 				<Icon name="ph:plus-bold" />
 			</button>
 		</div>
-		<Transition name="time-error">
-			<span v-if="hasError" class="time-input__error">
+		<Transition name="caption">
+			<span v-if="hasError" class="captionError">
 				Неверный формат. Примеры: «90», «1 ч 30 мин», «2 ч»
 			</span>
 		</Transition>
@@ -191,13 +191,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.time-input-wrap {
+.wrapper {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.time-input {
+.container {
 	display: flex;
 	align-items: center;
 	background: var(--poker-bg-input, #2D333B);
@@ -207,17 +207,17 @@ onUnmounted(() => {
 	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.time-input--focused {
+.focused {
 	border-color: var(--poker-green);
 	box-shadow: 0 0 0 3px var(--poker-green-dim, rgb(16 185 129 / 15%));
 }
 
-.time-input--error {
+.error {
 	border-color: var(--poker-red, #EF4444);
 	box-shadow: 0 0 0 3px rgb(239 68 68 / 15%);
 }
 
-.time-input__native {
+.input {
 	flex: 1;
 	min-width: 0;
 	padding: 10px 12px;
@@ -232,11 +232,11 @@ onUnmounted(() => {
 	transition: background-color 0.2s;
 }
 
-.time-input:hover .time-input__native {
+.container:hover .input {
 	background-color: var(--poker-bg-input-hover);
 }
 
-.time-input__step {
+.step {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -252,30 +252,30 @@ onUnmounted(() => {
 	user-select: none;
 }
 
-.time-input__step:hover {
+.step:hover {
 	background: var(--poker-border-hover, rgb(255 255 255 / 16%));
 	color: var(--poker-text);
 }
 
-.time-input__step:active {
+.step:active {
 	background: var(--poker-green-dim, rgb(16 185 129 / 15%));
 	color: var(--poker-green);
 }
 
-.time-input__error {
+.captionError {
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 0.75rem;
 	font-weight: 500;
 	color: var(--poker-red, #EF4444);
 }
 
-.time-error-enter-active,
-.time-error-leave-active {
+.caption-enter-active,
+.caption-leave-active {
 	transition: opacity 0.2s, transform 0.2s;
 }
 
-.time-error-enter-from,
-.time-error-leave-to {
+.caption-enter-from,
+.caption-leave-to {
 	opacity: 0;
 	transform: translateY(-4px);
 }
