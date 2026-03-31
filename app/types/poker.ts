@@ -22,6 +22,7 @@ export interface ChipDistributionEntry {
 	count: number
 	color: ChipColor
 	totalValue: number
+	id: string
 }
 
 export interface ChipDistribution {

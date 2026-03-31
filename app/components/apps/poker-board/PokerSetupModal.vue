@@ -280,7 +280,7 @@
 								<div class="chip-dist__list">
 									<div
 										v-for="entry in store.gameSetup.chipDistributionPerPlayer"
-										:key="entry.denomination"
+										:key="entry.id"
 										class="chip-dist__item"
 									>
 										<PokerChip :value="entry.denomination" :color="entry.color" :size="60" />

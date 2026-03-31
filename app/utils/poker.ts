@@ -109,6 +109,7 @@ export const calculateChipDistribution = (
 			denomination: entry.denomination,
 			color: entry.color,
 			maxCount: Math.floor(entry.totalCount / playerCount),
+			id: entry.id,
 		}))
 		.filter(e => e.maxCount > 0)
 		.sort((a, b) => a.denomination - b.denomination)
@@ -120,6 +121,7 @@ export const calculateChipDistribution = (
 			count: e.maxCount,
 			totalValue: e.denomination * e.maxCount,
 			color: e.color,
+			id: e.id,
 		}))
 		const startingStack = distribution.reduce((s, d) => s + d.totalValue, 0)
 		const totalChipCount = distribution.reduce((s, d) => s + d.count, 0)
@@ -133,6 +135,7 @@ export const calculateChipDistribution = (
 		totalValue: 0,
 		color: e.color,
 		maxCount: e.maxCount,
+		id: e.id,
 	}))
 
 	let remaining = targetStack
@@ -185,7 +188,7 @@ export const calculateChipDistribution = (
 
 	const distribution = result
 		.filter(e => e.count > 0)
-		.map(({ denomination, count, totalValue, color }) => ({ denomination, count, totalValue, color }))
+		.map(({ denomination, count, totalValue, color, id }) => ({ denomination, count, totalValue, color, id }))
 
 	const startingStack = distribution.reduce((s, d) => s + d.totalValue, 0)
 	const totalChipCount = distribution.reduce((s, d) => s + d.count, 0)
