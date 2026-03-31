@@ -471,7 +471,11 @@ export const calculateTournament = (params: PokerConfig, niceRate: boolean = fal
 	}
 
 	// ── Структура блайндов ───────────────────────────────────────
-	const denominations = getDenominations(chipCase)
+	// Номиналы берём из реально розданных фишек, а не из чемодана,
+	// чтобы блайнды были кратны тому, что есть у игроков на руках
+	const denominations = distribution
+		.map(d => d.denomination)
+		.sort((a, b) => a - b)
 	const minDenom = denominations.length > 0 ? denominations[0]! : 1
 
 	const blindLevels = generateBlindLevels(
