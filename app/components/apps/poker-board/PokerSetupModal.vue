@@ -191,58 +191,74 @@
 							<!-- Чемодан фишек -->
 							<div class="chip-case">
 								<label class="field__label">Содержимое чемодана</label>
-								<div class="chip-case__table-wrap">
-									<table class="chip-case__table">
+								<div class="chipCaseTableWrap">
+									<table class="chipCaseTable">
 										<thead>
 											<tr>
+												<th class="chipCaseThDrag" />
 												<th>Номинал</th>
 												<th>Цвет</th>
 												<th>Количество</th>
 												<th />
 											</tr>
 										</thead>
-										<tbody>
-											<tr v-for="(chip) in store.config.chipCase" :key="chip.id">
-												<td>
-													<PokerInput
-														:model-value="chip.denomination"
-														type="number"
-														:min="1"
-														small
-														:error="isDenomDuplicate(chip.id, chip.denomination)"
-														@update:model-value="updateDenom(chip, Number($event))"
-													/>
-												</td>
-												<td>
-													<PokerChipColorPicker
-														:model-value="chip.color"
-														:value="chip.denomination"
-														@update:model-value="chip.color = $event"
-													/>
-												</td>
-												<td>
-													<PokerInput
-														:model-value="chip.totalCount"
-														type="number"
-														:min="0"
-														small
-														@update:model-value="chip.totalCount = Number($event)"
-													/>
-												</td>
-												<td>
-													<button
-														v-if="store.config.chipCase.length > 1"
-														class="chip-case__remove"
-														@click="store.removeChipDenom(chip.id)"
-													>
-														<Icon name="ph:trash-bold" />
-													</button>
-												</td>
-											</tr>
-										</tbody>
+										<draggable
+											v-model="store.config.chipCase"
+											tag="tbody"
+											item-key="id"
+											handle=".chipCaseDragHandle"
+											ghost-class="chipCaseGhost"
+											drag-class="chipCaseDrag"
+											animation="200"
+										>
+											<template #item="{ element: chip }">
+												<tr>
+													<td class="chipCaseTdDrag">
+														<button class="chipCaseDragHandle" type="button">
+															<Icon name="ph:dots-six-vertical-bold" />
+														</button>
+													</td>
+													<td>
+														<PokerInput
+															:model-value="chip.denomination"
+															type="number"
+															:min="1"
+															small
+															:error="isDenomDuplicate(chip.id, chip.denomination)"
+															@update:model-value="updateDenom(chip, Number($event))"
+														/>
+													</td>
+													<td>
+														<PokerChipColorPicker
+															:model-value="chip.color"
+															:value="chip.denomination"
+															@update:model-value="chip.color = $event"
+														/>
+													</td>
+													<td>
+														<PokerInput
+															:model-value="chip.totalCount"
+															type="number"
+															:min="0"
+															small
+															@update:model-value="chip.totalCount = Number($event)"
+														/>
+													</td>
+													<td>
+														<button
+															v-if="store.config.chipCase.length > 1"
+															class="chipCaseRemove"
+															@click="store.removeChipDenom(chip.id)"
+														>
+															<Icon name="ph:trash-bold" />
+														</button>
+													</td>
+												</tr>
+											</template>
+										</draggable>
 									</table>
 								</div>
-								<button class="chip-case__add" @click="store.addChipDenom">
+								<button class="chipCaseAdd" @click="store.addChipDenom">
 									<Icon name="ph:plus-bold" /> Добавить номинал
 								</button>
 							</div>
@@ -427,6 +443,7 @@ import {
 	GAME_DURATION_MIN,
 	FUN_NAMES,
 } from '~/constants/poker'
+import draggable from 'vuedraggable'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
 import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
 import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
@@ -1185,13 +1202,13 @@ const startTournament = () => {
 	gap: 20px;
 }
 
-.chip-case__table-wrap {
+.chipCaseTableWrap {
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius-sm, 8px);
 	overflow: hidden;
 }
 
-.chip-case__table {
+.chipCaseTable {
 	width: 100%;
 	border-collapse: separate;
 	border-spacing: 0;
@@ -1199,7 +1216,7 @@ const startTournament = () => {
 	font-size: 0.875rem;
 }
 
-.chip-case__table th {
+.chipCaseTable th {
 	text-align: left;
 	padding: 8px 12px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
@@ -1212,21 +1229,63 @@ const startTournament = () => {
 	border-bottom: 1px solid var(--poker-border);
 }
 
-.chip-case__table th:last-child {
+.chipCaseThDrag,
+.chipCaseTdDrag {
+	width: 32px;
+	text-align: center;
+}
+
+.chipCaseDragHandle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin: 0 auto;
+	padding: 0;
+	border: none;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
+	color: var(--poker-text-muted);
+	cursor: grab;
+	transition: color 0.2s, background 0.2s;
+}
+
+.chipCaseDragHandle:hover {
+	color: var(--poker-text);
+	background: var(--poker-border);
+}
+
+.chipCaseDragHandle:active {
+	cursor: grabbing;
+}
+
+.chipCaseGhost {
+	opacity: 0.4;
+	background: var(--poker-bg-input, #2D333B);
+}
+
+.chipCaseDrag {
+	background: var(--poker-bg-elevated, #2C2C32);
+	box-shadow: 0 4px 16px rgb(0 0 0 / 40%);
+	border-radius: var(--poker-radius-sm);
+}
+
+.chipCaseTable th:last-child {
 	width: 40px;
 }
 
-.chip-case__table td {
+.chipCaseTable td {
 	padding: 6px 8px;
 	border-bottom: 1px solid var(--poker-border);
 	vertical-align: middle;
 }
 
-.chip-case__table tbody tr:last-child td {
+.chipCaseTable tbody tr:last-child td {
 	border-bottom: none;
 }
 
-.chip-case__remove {
+.chipCaseRemove {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1240,12 +1299,12 @@ const startTournament = () => {
 	transition: color 0.2s, background 0.2s;
 }
 
-.chip-case__remove:hover {
+.chipCaseRemove:hover {
 	color: var(--poker-red);
 	background: var(--poker-red-dim);
 }
 
-.chip-case__add {
+.chipCaseAdd {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -1262,7 +1321,7 @@ const startTournament = () => {
 	transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 
-.chip-case__add:hover {
+.chipCaseAdd:hover {
 	border-color: var(--poker-green);
 	color: var(--poker-green);
 	background: rgb(16 185 129 / 8%);
