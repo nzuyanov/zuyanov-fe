@@ -187,6 +187,7 @@ export const calculateChipDistribution = (
 	const distribution = result
 		.filter(e => e.count > 0)
 		.map(({ denomination, count, totalValue, color, id }) => ({ denomination, count, totalValue, color, id }))
+		.sort((a, b) => a.denomination - b.denomination)
 
 	const startingStack = distribution.reduce((s, d) => s + d.totalValue, 0)
 	const totalChipCount = distribution.reduce((s, d) => s + d.count, 0)
