@@ -26,7 +26,7 @@ const props = defineProps<{
 
 const message = computed(() => {
 	if (props.error?.statusCode === 404) {
-		return 'Такой страницы не существует 🤷‍♂️'
+		return 'Такой страницы не существует :('
 	}
 	return props.error?.message || 'Что-то пошло не так 😵'
 })

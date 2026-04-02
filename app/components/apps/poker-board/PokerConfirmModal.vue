@@ -2,7 +2,8 @@
 	<Teleport to="body">
 		<div class="overlay poker-shimmer-overlay" @click.self="$emit('cancel')">
 			<div class="confirm-dialog">
-				<p class="message">{{ message }}</p>
+				<h3 class="text-heading title">{{ title }}</h3>
+				<p class="text-body message" v-html="message"></p>
 				<div class="actions">
 					<button class="button cancel" @click="$emit('cancel')">
 						{{ cancelText }}
@@ -22,6 +23,7 @@
 
 <script setup lang="ts">
 withDefaults(defineProps<{
+	title: string
 	message: string
 	confirmText?: string
 	cancelText?: string
@@ -58,8 +60,11 @@ defineEmits<{
 	box-shadow: 0 16px 48px rgb(0 0 0 / 40%);
 }
 
+.title {
+	margin-bottom: 16px;
+}
+
 .message {
-	font-family: var(--font-body, 'Inter Variable', sans-serif);
 	font-size: 1.05rem;
 	font-weight: 600;
 	color: var(--poker-text, #F9FAFB);

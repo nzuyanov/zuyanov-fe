@@ -44,6 +44,7 @@
 			<!-- Модалка восстановления сохранённой игры -->
 			<PokerConfirmModal
 				v-if="showRestoreModal"
+				title="Обнаружена незавершенная игра"
 				:message="restoreMessage"
 				confirm-text="Продолжить"
 				cancel-text="Начать новую"
@@ -122,7 +123,7 @@ const restoreMessage = computed(() => {
 	const name = savedData.value.config.name || 'Турнир'
 	const playerCount = savedData.value.gameState.players.length
 	const activePlayers = savedData.value.gameState.players.filter(p => !p.isEliminated).length
-	return `Обнаружена незавершённая игра «${name}» (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
+	return `«${name}» </br> ${formatted}, игроков ${playerCount}, в игре ${activePlayers} `
 })
 
 // Проверка localStorage при загрузке страницы!

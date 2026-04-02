@@ -32,7 +32,8 @@
 		<!-- Модалка подтверждения выбывания -->
 		<PokerConfirmModal
 			v-if="eliminatingPlayer"
-			:message="`${eliminatingPlayer.name} выбывает? Это действие нельзя отменить.`"
+			:title="eliminatingPlayer.name + ' выбывает?'"
+			message="Это действие нельзя отменить."
 			confirm-text="Выбыл"
 			cancel-text="Отмена"
 			variant="danger"
@@ -43,7 +44,8 @@
 		<!-- Модалка подтверждения завершения -->
 		<PokerConfirmModal
 			v-if="showFinishConfirm"
-			message="Завершить турнир? Будут определены итоговые места."
+			title="Завершить турнир?"
+			message="Будут определены итоговые места."
 			confirm-text="Завершить"
 			cancel-text="Отмена"
 			variant="danger"
@@ -54,6 +56,7 @@
 		<!-- Модалка подтверждения выхода -->
 		<PokerConfirmModal
 			v-if="showBackConfirm"
+			title="Уходите?"
 			message="Игра будет поставлена на паузу. Вы уверены, что хотите покинуть страницу?"
 			confirm-text="Покинуть"
 			cancel-text="Остаться"
