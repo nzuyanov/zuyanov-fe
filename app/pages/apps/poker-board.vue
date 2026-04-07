@@ -185,7 +185,7 @@ const onNewGame = () => {
 <style>
 /* Покерные переменные на :root для доступа из Teleport-модалок */
 :root {
-	--poker-bg: #0D1117;
+	--poker-bg: #060809;
 	--poker-bg-surface: #1A1D23;
 	--poker-bg-card: #21252D;
 	--poker-bg-input: #2D333B;
@@ -195,7 +195,7 @@ const onNewGame = () => {
 	--poker-green-dim: rgb(16 185 129 / 15%);
 	--poker-blue: #3B82F6;
 	--poker-blue-hover: #2563EB;
-	--poker-blue-bg: rgba(59, 130, 246, 0.1);
+	--poker-blue-bg: rgb(59 130 246 / 10%);
 	--poker-gold: #F59E0B;
 	--poker-gold-hover: #D97706;
 	--poker-gold-dim: rgb(245 158 11 / 15%);
@@ -219,9 +219,11 @@ const onNewGame = () => {
 	0% {
 		background-position: 0% 50%
 	}
+
 	50% {
 		background-position: 100% 50%
 	}
+
 	100% {
 		background-position: 0% 50%
 	}

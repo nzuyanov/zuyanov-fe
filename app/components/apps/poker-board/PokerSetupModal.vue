@@ -357,6 +357,7 @@
 										class="player-card__name"
 										:error="isNameInvalid(i)"
 										:placeholder="`Игрок ${i + 1}`"
+										:maxlength="PLAYER_NAME_MAX_LENGTH"
 									/>
 									<button
 										class="player-card__reroll"
@@ -441,7 +442,7 @@ import {
 	PLAYERS_MIN,
 	GAME_DURATION_MAX,
 	GAME_DURATION_MIN,
-	FUN_NAMES,
+	FUN_NAMES, PLAYER_NAME_MAX_LENGTH,
 } from '~/constants/poker'
 import draggable from 'vuedraggable'
 import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
@@ -663,8 +664,8 @@ const validationErrors = computed<ValidationError[]>(() => {
 	if (store.config.name.trim() === '') {
 		errors.push({ message: 'Название турнира не задано', section: 'basic' })
 	}
-	if (store.config.playerCount < 3 || store.config.playerCount > 9) {
-		errors.push({ message: 'Количество игроков: от 3 до 9', section: 'basic' })
+	if (store.config.playerCount < PLAYERS_MIN || store.config.playerCount > PLAYERS_MAX) {
+		errors.push({ message: `Количество игроков: от ${PLAYERS_MIN} до ${PLAYERS_MAX}`, section: 'basic' })
 	}
 	if (store.config.buyIn <= 0) {
 		errors.push({ message: 'Размер закупа должен быть больше 0', section: 'basic' })

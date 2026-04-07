@@ -8,11 +8,6 @@
 			'bigBlind': role === 'BB',
 		}"
 	>
-		<!-- Бейдж роли (фишка) -->
-		<img v-if="role === 'D'" src="~/assets/icons/poker/chip-dealer.svg" alt="D" class="role">
-		<img v-else-if="role === 'SB'" src="~/assets/icons/poker/chip-sb.svg" alt="SB" class="role">
-		<img v-else-if="role === 'BB'" src="~/assets/icons/poker/chip-bb.svg" alt="BB" class="role">
-
 		<div class="top">
 			<img
 				:src="avatarUri"
@@ -30,22 +25,30 @@
 			</div>
 		</div>
 
-		<div v-if="!player.isEliminated" class="actions">
-			<div v-if="canRebuy" class="rebuyWrapper">
+		<!-- Дропдаун-меню действий -->
+		<div v-if="!player.isEliminated" class="menuWrapper">
+			<button
+				class="menuButton"
+				@click="toggleMenu"
+			>
+				⋮
+			</button>
+			<div v-if="menuOpen" class="menuDropdown">
 				<button
-					class="actionButton rebuy"
+					v-if="canRebuy"
+					class="menuItem rebuy"
 					:class="{ 'addon': isAddOn }"
-					@click="$emit('rebuy', player.id)"
+					@click="onRebuy"
 				>
 					{{ isAddOn ? '+ Add-on' : '+ Ребай' }}
 				</button>
+				<button
+					class="menuItem eliminate"
+					@click="onEliminate"
+				>
+					Выбыл
+				</button>
 			</div>
-			<button
-				class="actionButton actionButtonEliminate"
-				@click="$emit('eliminate', player.id)"
-			>
-				Выбыл
-			</button>
 		</div>
 
 		<div v-else class="eliminatedLabel">
@@ -65,7 +68,7 @@ const props = defineProps<{
 	maxRebuys: number
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
 	rebuy: [playerId: number]
 	eliminate: [playerId: number]
 }>()
@@ -75,6 +78,43 @@ const { getAvatarDataUri } = usePokerAvatars()
 const avatarUri = computed(() => getAvatarDataUri(props.player.avatarId))
 
 const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
+
+// --- Дропдаун-меню ---
+const menuOpen = ref(false)
+
+const toggleMenu = () => {
+	menuOpen.value = !menuOpen.value
+}
+
+const onRebuy = () => {
+	menuOpen.value = false
+	emit('rebuy', props.player.id)
+}
+
+const onEliminate = () => {
+	menuOpen.value = false
+	emit('eliminate', props.player.id)
+}
+
+// Закрытие дропдауна при клике вне
+const closeMenu = (e: MouseEvent) => {
+	const target = e.target as HTMLElement
+	if (!target.closest('.menuWrapper')) {
+		menuOpen.value = false
+	}
+}
+
+watch(menuOpen, (val) => {
+	if (val) {
+		document.addEventListener('click', closeMenu)
+	} else {
+		document.removeEventListener('click', closeMenu)
+	}
+})
+
+onUnmounted(() => {
+	document.removeEventListener('click', closeMenu)
+})
 </script>
 
 <style scoped>
@@ -83,11 +123,13 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	padding: 14px;
+	padding: 16px;
 	background: var(--poker-bg-card);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius);
-	transition: opacity 0.3s, border-color 0.3s;
+	transition: opacity 0.3s, border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+	min-width: 250px;
+	min-height: 150px;
 }
 
 .eliminated {
@@ -96,13 +138,12 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .avatar {
-	width: 48px;
-	height: 48px;
+	width: 64px;
+	height: 64px;
 	border-radius: 50%;
 	background: var(--poker-bg-input);
 	flex-shrink: 0;
 }
-
 
 .eliminated .avatar {
 	filter: grayscale(1);
@@ -132,114 +173,130 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 		inset 0 0 8px rgb(240 200 96 / 8%);
 }
 
-.role {
-	position: absolute;
-	top: -14px;
-	right: 8px;
-	width: 28px;
-	height: 28px;
-	filter: drop-shadow(0 2px 4px rgb(0 0 0 / 50%));
-}
-
 .top {
 	display: flex;
-	gap: 12px;
+	gap: 14px;
 	align-items: center;
 }
 
 .info {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 3px;
 	min-width: 0;
 }
 
 .name {
-	font-size: 0.95rem;
+	font-size: 1.2rem;
 	font-weight: 700;
 	color: var(--poker-text);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	word-break: break-word;
+	line-height: 1.2;
 }
 
 .totalCash,
 .rebuyCount {
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
 .value {
-	font-family: var(--poker-font-mono);
 	color: var(--poker-text-secondary);
 }
 
-.actions {
-	display: flex;
-	gap: 6px;
-	align-items: flex-start;
+/* Кнопка-триггер дропдауна */
+.menuWrapper {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
 }
 
-.rebuyWrapper {
-	flex: 1;
+.menuButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: var(--poker-text-muted);
+	background: var(--poker-border);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+	line-height: 1;
+}
+
+.menuButton:hover {
+	background: var(--poker-border-hover, rgb(255 255 255 / 16%));
+	color: var(--poker-text);
+}
+
+/* Выпадающее меню */
+.menuDropdown {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	margin-bottom: 6px;
 	display: flex;
 	flex-direction: column;
-	gap: 3px;
+	gap: 4px;
+	padding: 6px;
+	background: var(--poker-bg-elevated, #2C2C32);
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm);
+	box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
+	z-index: 20;
+	min-width: 120px;
 }
 
-.rebuyWrapper .actionButton {
-	width: 100%;
-}
-
-.actionButton {
-	flex: 1;
-	padding: 6px 8px;
+.menuItem {
+	padding: 8px 12px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.75rem;
+	font-size: 0.9rem;
 	font-weight: 700;
 	border: none;
 	border-radius: var(--poker-radius-sm);
 	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
+	transition: background 0.15s;
+	text-align: left;
+	white-space: nowrap;
 }
 
-.actionButton:active {
-	transform: scale(0.97);
-}
-
-.rebuy {
+.menuItem.rebuy {
 	background: var(--poker-green-dim);
 	color: var(--poker-green);
 }
 
-.rebuy:hover {
+.menuItem.rebuy:hover {
 	background: var(--poker-green);
 	color: #fff;
 }
 
-.addon {
+.menuItem.addon {
 	background: var(--poker-gold-dim);
 	color: var(--poker-gold);
 }
 
-.addon:hover {
+.menuItem.addon:hover {
 	background: var(--poker-gold);
 	color: #000;
 }
 
-.actionButtonEliminate {
+.menuItem.eliminate {
 	background: var(--poker-red-dim);
 	color: var(--poker-red);
 }
 
-.actionButtonEliminate:hover {
+.menuItem.eliminate:hover {
 	background: var(--poker-red);
 	color: #fff;
 }
 
 .eliminatedLabel {
 	text-align: center;
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	color: var(--poker-red);
 	text-transform: uppercase;

@@ -28,6 +28,7 @@
 			:value="displayValue"
 			:placeholder="placeholder"
 			:disabled="disabled"
+			:maxlength="maxlength"
 			@input="onInput"
 			@focus="isFocused = true"
 			@blur="onBlur"
@@ -72,6 +73,7 @@ const props = withDefaults(defineProps<{
 	suffix?: string
 	disabled?: boolean
 	hideSteps?: boolean
+	maxlength?: string | number
 }>(), {
 	type: 'text',
 	placeholder: '',
@@ -84,6 +86,7 @@ const props = withDefaults(defineProps<{
 	suffix: '',
 	disabled: false,
 	hideSteps: false,
+	maxlength: undefined,
 })
 
 const emit = defineEmits<{
@@ -219,7 +222,6 @@ onUnmounted(() => {
 	background: var(--poker-bg-input, #2D333B);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius-sm, 8px);
-	transition: border-color 0.2s, box-shadow 0.2s;
 	overflow: hidden;
 	transition: background-color 0.2s;
 }
@@ -327,7 +329,6 @@ onUnmounted(() => {
 	color: var(--poker-text-muted);
 	font-size: 1rem;
 	cursor: pointer;
-	transition: color 0.15s;
 	padding: 0;
 	transition: background-color 0.2s;
 }

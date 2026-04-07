@@ -1,33 +1,29 @@
 <template>
 	<div class="board">
-		<PokerHeader
-			:title="store.config.name || 'Poker Tournament'"
-			:is-paused="store.gameState.status === 'paused'"
-			:is-muted="sound.muted.value"
-			:hand-number="store.gameState.handNumber"
-			:stage="isGameRunning ? store.tournamentStage : null"
-			@back="requestBack"
-			@toggle-pause="store.togglePause()"
-			@toggle-sound="sound.toggleMute()"
-		/>
+		<div class="board__left">
+			<PokerHeader
+				:title="store.config.name || 'Poker Tournament'"
+				:is-paused="store.gameState.status === 'paused'"
+				:is-muted="sound.muted.value"
+				@back="requestBack"
+				@toggle-pause="store.togglePause()"
+				@toggle-sound="sound.toggleMute()"
+			/>
 
-		<div class="board__body">
 			<PokerPlayersGrid
 				:players="store.gameState.players"
 				class="board__players"
 				@rebuy="handleRebuy"
 				@eliminate="requestElimination"
-			/>
-
-			<PokerInfoPanel
-				class="board__info"
-				@next-deal="handleNextDeal"
-				@finish="requestFinish"
 				@show-blinds-modal="showBlindsModal = true"
 			/>
 		</div>
 
-		<PokerPositionsBar />
+		<PokerInfoPanel
+			class="board__info"
+			@next-deal="handleNextDeal"
+			@finish="requestFinish"
+		/>
 
 		<!-- Модалка подтверждения выбывания -->
 		<PokerConfirmModal
@@ -124,7 +120,6 @@ import type { PokerPlayer } from '~/types/poker'
 import PokerHeader from './PokerHeader.vue'
 import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
-import PokerPositionsBar from './PokerPositionsBar.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
 import PokerBlindsModal from './PokerBlindsModal.vue'
 
@@ -312,7 +307,6 @@ watch(() => store.gameState.status, (status) => {
 <style scoped>
 .board {
 	display: flex;
-	flex-direction: column;
 	width: 100%;
 	height: 100%;
 	position: relative;
@@ -322,20 +316,22 @@ watch(() => store.gameState.status, (status) => {
 	background-size: 450px 450px, auto;
 }
 
-.board__body {
+.board__left {
 	display: flex;
+	flex-direction: column;
 	flex: 1;
-	min-height: 0;
+	min-width: 0;
 }
 
 .board__players {
 	flex: 1;
-	min-width: 0;
+	min-height: 0;
 }
 
 .board__info {
 	width: 320px;
 	flex-shrink: 0;
+	height: 100%;
 }
 
 /* Toast-уведомление */

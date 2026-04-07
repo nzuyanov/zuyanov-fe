@@ -48,7 +48,7 @@ export const POKER_CONFIG_DEFAULT: PokerConfig = {
 	],
 }
 
-export const PLAYERS_MAX = 9
+export const PLAYERS_MAX = 10
 export const PLAYERS_MIN = 3
 
 export const GAME_DURATION_MIN = 60
@@ -72,3 +72,5 @@ export const FUN_NAMES = [
 
 export const MIN_BB_DEPTH = 20
 export const MAX_BB_DEPTH = 200
+
+export const PLAYER_NAME_MAX_LENGTH = 40
