@@ -368,7 +368,7 @@
 								</div>
 							</div>
 							<button
-								v-if="players.length < 9"
+								v-if="players.length < PLAYERS_MAX"
 								ref="addBtnRef"
 								class="player-card player-card--add"
 								@click="addPlayer"
@@ -588,7 +588,7 @@ watch(() => store.config.playerCount, (count) => {
 const addBtnRef = ref<HTMLButtonElement | null>(null)
 
 const addPlayer = () => {
-	if (players.value.length >= 9) return
+	if (players.value.length >= PLAYERS_MAX) return
 	const usedSeeds = players.value.map(p => p.avatarId)
 	const usedNames = players.value.map(p => p.name)
 	const seed = getRandomSeed(usedSeeds)

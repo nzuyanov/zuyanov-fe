@@ -212,55 +212,6 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	color: var(--poker-text);
 }
 
-.blindsAllBtn {
-	margin-top: 4px;
-	padding: 6px 10px;
-	font-size: 0.75rem;
-	font-weight: 600;
-	color: var(--poker-text-secondary);
-	background: var(--poker-bg-card);
-	border: 1px solid var(--poker-border);
-	border-radius: var(--poker-radius-sm);
-	cursor: pointer;
-	transition: color 0.2s, border-color 0.2s;
-	align-self: flex-start;
-}
-
-.blindsAllBtn:hover {
-	color: var(--poker-text);
-	border-color: var(--poker-border-hover);
-}
-
-/* Курс фишки */
-.chips {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-}
-
-.chip {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	font-size: 1.05rem;
-}
-
-.chipDenom {
-	font-weight: 700;
-	color: var(--poker-text-secondary);
-}
-
-.chipEq {
-	color: var(--poker-text-muted);
-}
-
-.chipRate {
-	font-weight: 700;
-	color: var(--poker-gold);
-	display: flex;
-	align-items: center;
-}
-
 /* Кнопки управления */
 .actions {
 	margin-top: auto;

@@ -91,15 +91,15 @@ const getPlayerRole = (playerId: number): 'D' | 'SB' | 'BB' | null => {
 
 // --- Размеры и позиционирование ---
 
-// Ширина карточки в зависимости от количества игроков
+// Ширина карточки в зависимости от количества игроков (min-width карточки = 250px)
 const cardWidth = computed(() => {
 	const count = props.players.length
-	if (count <= 4) return 270
-	if (count <= 6) return 260
-	if (count <= 8) return 240
-	if (count <= 10) return 220
-	if (count <= 14) return 200
-	return 180
+	if (count <= 4) return 280
+	if (count <= 6) return 270
+	if (count <= 8) return 260
+	if (count <= 10) return 250
+	if (count <= 14) return 250
+	return 250
 })
 
 // Класс размера для компактного отображения
@@ -117,18 +117,18 @@ const chipSizeClass = computed(() => props.players.length > 14 ? 'roleChipSmall'
 const seatRadii = computed(() => {
 	const count = props.players.length
 	if (count <= 4) return { rx: 34, ry: 32 }
-	if (count <= 6) return { rx: 38, ry: 36 }
-	if (count <= 8) return { rx: 41, ry: 38 }
-	if (count <= 10) return { rx: 44, ry: 41 }
-	return { rx: 46, ry: 43 }
+	if (count <= 6) return { rx: 37, ry: 35 }
+	if (count <= 8) return { rx: 37, ry: 35 }
+	if (count <= 10) return { rx: 37, ry: 36 }
+	return { rx: 38, ry: 37 }
 })
 
-// Приблизительная высота карточки для позиционирования фишек
+// Приблизительная высота карточки для позиционирования фишек (min-height карточки = 150px)
 const approxCardHeight = computed(() => {
 	const count = props.players.length
-	if (count <= 10) return 130
-	if (count <= 14) return 110
-	return 90
+	if (count <= 10) return 150
+	if (count <= 14) return 150
+	return 150
 })
 
 const getSeatAngle = (index: number) => Math.PI / 2 + (2 * Math.PI * index / props.players.length)

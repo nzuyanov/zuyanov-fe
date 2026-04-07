@@ -143,7 +143,7 @@ onUnmounted(() => {
 	letter-spacing: 0.06em;
 	border-radius: 9999px;
 	white-space: nowrap;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .stage--early {
@@ -258,13 +258,13 @@ onUnmounted(() => {
 	font-size: 0.8rem;
 	font-weight: 700;
 	//color: #F1F5F9;
-	//background: rgba(37, 99, 235, 0.45);
+	//background: rgb(37 99 235 / 45%);
 	background: linear-gradient(135deg,
-	rgba(59, 130, 246, 0.4) 0%,
-	rgba(37, 99, 235, 0.45) 100%
-	);
+	rgb(59 130 246 / 40%) 0%,
+	rgb(37 99 235 / 45%) 100%
+);
 	color: #DBEEFF;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 	padding: 4px 14px;
 	border-radius: 9999px;
 	white-space: nowrap;
@@ -306,22 +306,21 @@ onUnmounted(() => {
 
 .allLevelsBtn {
 	margin-top: 2px;
-	padding: 3px 10px;
+	padding: 4px 12px;
 	font-size: 0.7rem;
 	font-weight: 600;
-	color: rgb(255 255 255 / 75%);
-	background: rgb(255 255 255 / 8%);
-	border: 1px solid rgb(255 255 255 / 12%);
+	color: #fff;
+	background: #2d5a3d;
+	border: 1px solid #3d7a52;
 	border-radius: 9999px;
 	cursor: pointer;
-	transition: color 0.15s, background 0.15s;
+	transition: background 0.15s;
 	pointer-events: auto;
 	white-space: nowrap;
 }
 
 .allLevelsBtn:hover {
-	color: rgb(255 255 255 / 80%);
-	background: rgb(255 255 255 / 15%);
+	background: #3d7a52;
 }
 
 /* Нижняя строка */

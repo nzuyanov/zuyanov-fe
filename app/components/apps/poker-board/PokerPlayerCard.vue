@@ -19,9 +19,23 @@
 				<span class="totalCash">
 					Внёс: <span class="value">{{ formatMoney(player.totalContributed) }} ₽</span>
 				</span>
-				<span class="rebuyCount">
-					Ребаев: <span class="value">{{ player.rebuysUsed }}/{{ maxRebuys }}</span>
-				</span>
+
+				<!-- Индикаторы ребаев (лампочки) + аддон -->
+				<div class="lives">
+					<span
+						v-for="i in maxRebuys"
+						:key="'r' + i"
+						class="life"
+						:class="i <= player.rebuysUsed ? 'lifeUsed' : 'lifeAvailable'"
+					/>
+					<!-- Индикатор аддона -->
+					<span
+						class="addonIndicator"
+						:class="player.addOnUsed ? 'addonUsed' : 'addonAvailable'"
+					>
+						A
+					</span>
+				</div>
 			</div>
 		</div>
 
@@ -194,14 +208,70 @@ onUnmounted(() => {
 	line-height: 1.2;
 }
 
-.totalCash,
-.rebuyCount {
+.totalCash {
 	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
 .value {
 	color: var(--poker-text-secondary);
+}
+
+/* Индикаторы ребаев — «лампочки» */
+.lives {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin-top: 2px;
+}
+
+.life {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Доступный ребай — зелёная горящая лампочка */
+.lifeAvailable {
+	background: var(--poker-green);
+	box-shadow: 0 0 6px var(--poker-green);
+}
+
+/* Использованный ребай — погасшая лампочка */
+.lifeUsed {
+	background: rgb(255 255 255 / 12%);
+	box-shadow: none;
+}
+
+/* Индикатор аддона */
+.addonIndicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 4px;
+	font-size: 0.6rem;
+	font-weight: 800;
+	line-height: 1;
+	margin-left: 3px;
+	transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+/* Аддон ещё не использован */
+.addonAvailable {
+	background: rgb(255 255 255 / 8%);
+	color: rgb(255 255 255 / 25%);
+	border: 1px solid rgb(255 255 255 / 12%);
+}
+
+/* Аддон использован — золотой */
+.addonUsed {
+	background: var(--poker-gold);
+	color: #000;
+	box-shadow: 0 0 6px var(--poker-gold);
+	border: 1px solid transparent;
 }
 
 /* Кнопка-триггер дропдауна */
