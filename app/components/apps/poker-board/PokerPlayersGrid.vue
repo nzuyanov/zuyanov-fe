@@ -261,12 +261,12 @@ const getRoleChipStyle = (seatIndex: number) => {
 }
 
 .compact :deep(.name) {
-	font-size: 1rem;
+	font-size: 1.15rem;
 }
 
 .compact :deep(.totalCash),
 .compact :deep(.rebuyCount) {
-	font-size: 0.85rem;
+	font-size: 1rem;
 }
 
 /* Ультракомпактный режим (15+ игроков) */
@@ -285,11 +285,11 @@ const getRoleChipStyle = (seatIndex: number) => {
 }
 
 .ultraCompact :deep(.name) {
-	font-size: 0.9rem;
+	font-size: 1.05rem;
 }
 
 .ultraCompact :deep(.totalCash),
 .ultraCompact :deep(.rebuyCount) {
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 }
 </style>

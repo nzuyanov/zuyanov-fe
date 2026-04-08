@@ -201,7 +201,7 @@ onUnmounted(() => {
 }
 
 .name {
-	font-size: 1.2rem;
+	font-size: 1.3rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	word-break: break-word;
@@ -209,7 +209,7 @@ onUnmounted(() => {
 }
 
 .totalCash {
-	font-size: 1rem;
+	font-size: 1.1rem;
 	color: var(--poker-text-muted);
 }
 
