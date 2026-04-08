@@ -4,11 +4,6 @@
 		<section class="section">
 			<h3 class="label">Банк</h3>
 			<span class="pot">{{ formatMoney(store.gameState.totalPot) }} ₽</span>
-			<div class="stats">
-				<span class="statsItem">
-					Игроков: {{ store.activePlayers.length }} / {{ store.gameState.players.length }}
-				</span>
-			</div>
 		</section>
 
 		<!-- Призовые -->
@@ -137,7 +132,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .label {
-	font-size: 0.7rem;
+	font-size: 1rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -197,7 +192,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .statsItem {
-	font-size: 0.85rem;
+	font-size: 1.05rem;
 	color: var(--poker-text-muted);
 }
 
@@ -231,7 +226,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .prizeAmount {
-	font-size: 1.05rem;
+	font-size: 1.25rem;
 	font-weight: 700;
 	color: var(--poker-text);
 }
@@ -247,7 +242,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 .nextDeal {
 	padding: 14px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1rem;
+	font-size: 1.15rem;
 	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -271,7 +266,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 .finish {
 	padding: 10px 14px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;

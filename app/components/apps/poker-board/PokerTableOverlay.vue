@@ -33,7 +33,7 @@
 
 			<!-- Правая: след. уровень + кнопка -->
 			<div class="col colRight">
-				<span class="nextLabel">След:</span>
+				<span class="nextLabel">Далее:</span>
 				<span class="nextValue">{{ store.nextBlinds.sb }} / {{ store.nextBlinds.bb }}</span>
 				<button class="allLevelsBtn" @click="$emit('showBlindsModal')">
 					📋 Все уровни
@@ -137,7 +137,7 @@ onUnmounted(() => {
 /* Стадия турнира */
 .stage {
 	padding: 4px 14px;
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -225,7 +225,7 @@ onUnmounted(() => {
 }
 
 .blindTimerLabel {
-	font-size: 0.7rem;
+	font-size: 1rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -234,7 +234,7 @@ onUnmounted(() => {
 
 /* Центральная колонка: блайнды */
 .blindsLabel {
-	font-size: 0.75rem;
+	font-size: 1rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
@@ -255,7 +255,7 @@ onUnmounted(() => {
 }
 
 .minRaise {
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	//color: #F1F5F9;
 	//background: rgb(37 99 235 / 45%);
@@ -289,7 +289,7 @@ onUnmounted(() => {
 
 /* Правая колонка: след. уровень */
 .nextLabel {
-	font-size: 0.7rem;
+	font-size: 1rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -306,8 +306,8 @@ onUnmounted(() => {
 
 .allLevelsBtn {
 	margin-top: 2px;
-	padding: 4px 12px;
-	font-size: 0.7rem;
+	padding: 6px 16px;
+	font-size: 1rem;
 	font-weight: 600;
 	color: #fff;
 	background: #2d5a3d;
