@@ -1,38 +1,40 @@
 <template>
 	<Teleport to="body">
-		<div class="blinds-modal-overlay" @click.self="$emit('close')">
-			<div class="blinds-modal">
-				<header class="blinds-modal__header">
-					<h2 class="blinds-modal__title">📋 Уровни блайндов</h2>
-					<button class="blinds-modal__close" @click="$emit('close')">✕</button>
+		<div class="overlay poker-shimmer-overlay" @click.self="$emit('close')">
+			<div class="modal">
+				<header class="header">
+					<h2 class="title">📋 Уровни блайндов</h2>
+					<button class="closeBtn" @click="$emit('close')">
+						<Icon name="ph:x-bold" />
+					</button>
 				</header>
 
-				<div class="blinds-modal__body">
-					<table class="blinds-table">
+				<div class="body">
+					<table class="table">
 						<thead>
 							<tr>
-								<th class="blinds-table__th">№</th>
-								<th class="blinds-table__th">SB</th>
-								<th class="blinds-table__th">BB</th>
-								<th class="blinds-table__th">Мин. рейз</th>
-								<th class="blinds-table__th">Длит.</th>
+								<th class="th thCenter">Уровень</th>
+								<th class="th">SB</th>
+								<th class="th">BB</th>
+								<th class="th">MIN рейз</th>
+								<th class="th">Длительность</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr
 								v-for="level in store.allBlindLevels"
 								:key="level.level"
-								class="blinds-table__row"
+								class="row"
 								:class="{
-									'blinds-table__row--current': level.level - 1 === store.gameState.currentBlindLevel,
-									'blinds-table__row--passed': level.level - 1 < store.gameState.currentBlindLevel,
+									'rowCurrent': level.level - 1 === store.gameState.currentBlindLevel,
+									'rowPassed': level.level - 1 < store.gameState.currentBlindLevel,
 								}"
 							>
-								<td class="blinds-table__td blinds-table__td--level">{{ level.level }}</td>
-								<td class="blinds-table__td blinds-table__td--num">{{ level.smallBlind }}</td>
-								<td class="blinds-table__td blinds-table__td--num">{{ level.bigBlind }}</td>
-								<td class="blinds-table__td blinds-table__td--num">{{ level.bigBlind * 2 }}</td>
-								<td class="blinds-table__td blinds-table__td--num">{{ level.durationMinutes }} мин</td>
+								<td class="td tdLevel">{{ level.level }}</td>
+								<td class="td tdNum">{{ level.smallBlind }}</td>
+								<td class="td tdNum">{{ level.bigBlind }}</td>
+								<td class="td tdNum">{{ level.bigBlind * 2 }}</td>
+								<td class="td tdDuration">{{ level.durationMinutes }} мин</td>
 							</tr>
 						</tbody>
 					</table>
@@ -51,51 +53,50 @@ defineEmits<{
 </script>
 
 <style scoped>
-.blinds-modal-overlay {
+.overlay {
 	position: fixed;
 	inset: 0;
-	background: rgb(0 0 0 / 60%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 300;
-	backdrop-filter: blur(4px);
+	backdrop-filter: blur(6px);
 }
 
-.blinds-modal {
-	background: var(--poker-bg-surface);
+.modal {
+	background: var(--poker-bg-card, #21252D);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius);
-	width: 560px;
-	max-height: 80vh;
+	width: 680px;
+	max-height: 85vh;
 	display: flex;
 	flex-direction: column;
 	box-shadow: 0 16px 64px rgb(0 0 0 / 50%);
 }
 
-.blinds-modal__header {
+.header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 16px 20px;
+	padding: 20px 28px;
 	border-bottom: 1px solid var(--poker-border);
 	flex-shrink: 0;
 }
 
-.blinds-modal__title {
+.title {
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.1rem;
-	font-weight: 700;
+	font-size: 1.4rem;
+	font-weight: 800;
 	color: var(--poker-text);
 }
 
-.blinds-modal__close {
+.closeBtn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
-	font-size: 1rem;
+	width: 36px;
+	height: 36px;
+	font-size: 1.1rem;
 	color: var(--poker-text-muted);
 	background: none;
 	border: 1px solid var(--poker-border);
@@ -104,83 +105,108 @@ defineEmits<{
 	transition: color 0.2s, border-color 0.2s;
 }
 
-.blinds-modal__close:hover {
+.closeBtn:hover {
 	color: var(--poker-text);
 	border-color: var(--poker-border-hover);
 }
 
-.blinds-modal__body {
+.body {
 	overflow-y: auto;
-	padding: 12px 20px 20px;
+	padding: 0 28px 28px;
 }
 
-.blinds-modal__body::-webkit-scrollbar {
+.body::-webkit-scrollbar {
 	width: 6px;
 }
 
-.blinds-modal__body::-webkit-scrollbar-track {
+.body::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-.blinds-modal__body::-webkit-scrollbar-thumb {
+.body::-webkit-scrollbar-thumb {
 	background: rgb(255 255 255 / 15%);
 	border-radius: 3px;
 }
 
-.blinds-table {
+.table {
 	width: 100%;
 	border-collapse: collapse;
 }
 
-.blinds-table__th {
-	font-size: 0.7rem;
+/* Заголовки — обычный красивый шрифт */
+.th {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 0.85rem;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.06em;
 	color: var(--poker-text-muted);
-	padding: 8px 12px;
+	padding: 14px 16px;
 	text-align: right;
 	border-bottom: 1px solid var(--poker-border);
+	white-space: nowrap;
+	position: sticky;
+	top: 0;
+	background: var(--poker-bg-card, #21252D);
+	z-index: 1;
 }
 
-.blinds-table__th:first-child {
+.thCenter {
 	text-align: center;
-	width: 40px;
+	width: 50px;
 }
 
-.blinds-table__td {
-	padding: 8px 12px;
-	font-size: 0.9rem;
+/* Ячейки — крупный моноширинный шрифт */
+.td {
+	padding: 14px 16px;
 	border-bottom: 1px solid rgb(255 255 255 / 4%);
 }
 
-.blinds-table__td--level {
+.tdLevel {
 	text-align: center;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: var(--poker-text-muted);
+}
+
+.tdDuration {
+	text-align: right;
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 1.2rem;
 	font-weight: 600;
 	color: var(--poker-text-muted);
 }
 
-.blinds-table__td--num {
+.tdNum {
 	text-align: right;
 	font-family: var(--poker-font-mono);
-	font-weight: 600;
+	font-size: 1.35rem;
+	font-weight: 700;
 	color: var(--poker-text-secondary);
 }
 
-.blinds-table__row--current {
+/* Текущий уровень */
+.rowCurrent {
 	background: var(--poker-green-dim);
 }
 
-.blinds-table__row--current .blinds-table__td--level {
+.rowCurrent .tdLevel {
 	color: var(--poker-green);
 }
 
-.blinds-table__row--current .blinds-table__td--num {
+.rowCurrent .tdNum {
+	color: var(--poker-green);
+	font-weight: 800;
+}
+
+.rowCurrent .tdDuration {
 	color: var(--poker-green);
 	font-weight: 700;
 }
 
-.blinds-table__row--passed {
-	opacity: 0.4;
+/* Пройденные уровни */
+.rowPassed {
+	opacity: 0.35;
 }
 </style>

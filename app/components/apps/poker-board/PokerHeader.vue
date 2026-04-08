@@ -24,6 +24,12 @@
 			>
 				<Icon :name="isMuted ? 'ph:speaker-slash-fill' : 'ph:speaker-high-fill'" />
 			</button>
+			<button
+				class="btn"
+				@click="$emit('openSettings')"
+			>
+				<Icon name="ph:gear-six-fill" />
+			</button>
 		</div>
 	</header>
 </template>
@@ -39,6 +45,7 @@ defineEmits<{
 	back: []
 	togglePause: []
 	toggleSound: []
+	openSettings: []
 }>()
 </script>
 

@@ -8,6 +8,7 @@
 				@back="requestBack"
 				@toggle-pause="store.togglePause()"
 				@toggle-sound="sound.toggleMute()"
+				@open-settings="openSettings"
 			/>
 
 			<PokerPlayersGrid
@@ -29,7 +30,7 @@
 		<PokerConfirmModal
 			v-if="eliminatingPlayer"
 			:title="eliminatingPlayer.name + ' выбывает?'"
-			message="Это действие нельзя отменить."
+			message="Это действие нельзя отменить"
 			confirm-text="Выбыл"
 			cancel-text="Отмена"
 			variant="danger"
@@ -41,7 +42,7 @@
 		<PokerConfirmModal
 			v-if="showFinishConfirm"
 			title="Завершить турнир?"
-			message="Будут определены итоговые места."
+			message="Будут определены итоговые места"
 			confirm-text="Завершить"
 			cancel-text="Отмена"
 			variant="danger"
@@ -61,9 +62,24 @@
 			@cancel="showBackConfirm = false"
 		/>
 
-		<!-- Оверлей паузы -->
+		<!-- Модалка настроек игры -->
+		<PokerSettingsModal
+			v-if="showSettingsModal"
+			@close="closeSettings"
+			@skip-to-add-on="handleSkipToAddOn"
+		/>
+
+		<!-- Модалка аддона (приоритет над обычной паузой) -->
+		<PokerAddOnModal
+			v-if="showAddOnModal"
+			@add-on="addOnPlayer"
+			@undo-add-on="undoAddOnPlayer"
+			@resume="resumeFromAddOn"
+		/>
+
+		<!-- Оверлей паузы (скрыт, когда открыта модалка аддона или настроек) -->
 		<Transition name="pause-overlay">
-			<div v-if="store.gameState.status === 'paused'" class="board__pause-overlay" @click.self="store.resume()">
+			<div v-if="store.gameState.status === 'paused' && !showAddOnModal && !showSettingsModal" class="board__pause-overlay" @click.self="store.resume()">
 				<div class="board__pause-content">
 					<span class="board__pause-icon">⏸</span>
 					<span class="board__pause-text">ПАУЗА</span>
@@ -79,12 +95,6 @@
 			<div v-if="blindsUpNotice" class="board__toast board__toast--blinds">
 				🔺 Блайнды повышены!
 				<span class="board__toast-blinds-value">{{ store.currentBlinds.sb }} / {{ store.currentBlinds.bb }}</span>
-			</div>
-		</Transition>
-
-		<Transition name="toast">
-			<div v-if="rebuyEndNotice" class="board__toast board__toast--addon">
-				🔄 Ребай-период завершён. Доступен Add-on
 			</div>
 		</Transition>
 
@@ -122,6 +132,8 @@ import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
 import PokerBlindsModal from './PokerBlindsModal.vue'
+import PokerAddOnModal from './PokerAddOnModal.vue'
+import PokerSettingsModal from './PokerSettingsModal.vue'
 
 const emit = defineEmits<{
 	back: []
@@ -175,10 +187,7 @@ watch(() => store.tournamentStage, (newStage, oldStage) => {
 // --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)
 const blindsUpNotice = ref(false)
-const rebuyEndNotice = ref(false)
-
 let blindsUpTimeout: ReturnType<typeof setTimeout> | null = null
-let rebuyEndTimeout: ReturnType<typeof setTimeout> | null = null
 
 const showBlindsUpNotice = () => {
 	blindsUpNotice.value = true
@@ -186,14 +195,6 @@ const showBlindsUpNotice = () => {
 	blindsUpTimeout = setTimeout(() => {
 		blindsUpNotice.value = false
 	}, 3000)
-}
-
-const showRebuyEndNotice = () => {
-	rebuyEndNotice.value = true
-	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
-	rebuyEndTimeout = setTimeout(() => {
-		rebuyEndNotice.value = false
-	}, 4000)
 }
 
 usePokerTimer({
@@ -213,16 +214,69 @@ usePokerTimer({
 	},
 	onRebuyPeriodEnd: () => {
 		sound.play('rebuyEnd')
-		showRebuyEndNotice()
+		// Ставим на паузу и показываем модалку аддона
+		store.pause()
+		showAddOnModal.value = true
 	},
 })
 
 onUnmounted(() => {
 	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
-	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
 	if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
 	if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
 })
+
+// --- Модалка настроек ---
+const showSettingsModal = ref(false)
+
+const openSettings = () => {
+	store.pause()
+	showSettingsModal.value = true
+}
+
+const closeSettings = () => {
+	showSettingsModal.value = false
+	store.resume()
+}
+
+const handleSkipToAddOn = () => {
+	showSettingsModal.value = false
+	reEnteredByAddOn.value.clear()
+	showAddOnModal.value = true
+}
+
+// --- Модалка аддона ---
+const showAddOnModal = ref(false)
+
+// Отслеживаем игроков, которых вернули аддоном (чтобы при отмене вернуть в eliminated)
+const reEnteredByAddOn = ref(new Set<number>())
+
+// Обёртки для модалки аддона с учётом re-entry
+const addOnPlayer = (playerId: number) => {
+	const player = store.gameState.players.find(p => p.id === playerId)
+	if (player?.isEliminated) {
+		reEnteredByAddOn.value.add(playerId)
+		store.undoElimination(playerId)
+	}
+	store.rebuy(playerId)
+	storage.saveOnAction()
+}
+
+const undoAddOnPlayer = (playerId: number) => {
+	store.undoRebuy(playerId)
+	// Если игрок был возвращён аддоном — обратно выбываем
+	if (reEnteredByAddOn.value.has(playerId)) {
+		store.eliminatePlayer(playerId)
+		reEnteredByAddOn.value.delete(playerId)
+	}
+	storage.saveOnAction()
+}
+
+const resumeFromAddOn = () => {
+	showAddOnModal.value = false
+	reEnteredByAddOn.value.clear()
+	store.resume()
+}
 
 // --- Ребай ---
 const handleRebuy = (playerId: number) => {

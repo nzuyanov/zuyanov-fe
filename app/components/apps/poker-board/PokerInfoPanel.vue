@@ -1,12 +1,5 @@
 <template>
 	<aside class="infoPanel">
-		<!-- Ребай-статус -->
-		<section v-if="rebuyStatusText" class="section">
-			<div class="rebuyStatus" :class="rebuyStatusClass">
-				{{ rebuyStatusText }}
-			</div>
-		</section>
-
 		<!-- Банк -->
 		<section class="section">
 			<h3 class="label">Банк</h3>
@@ -43,6 +36,14 @@
 			<PokerChipRate variant="column" />
 		</section>
 
+		<!-- Ребай-статус -->
+		<section v-if="rebuyStatusText" class="section rebuySection">
+			<div class="rebuyStatus" :class="rebuyStatusClass">
+				<span class="rebuyLabel">{{ rebuyLabel }}</span>
+				<span v-if="rebuyTimer" class="rebuyTimer">{{ rebuyTimer }}</span>
+			</div>
+		</section>
+
 		<!-- Кнопки управления -->
 		<div class="actions">
 			<button class="nextDeal" @click="$emit('nextDeal')">
@@ -68,29 +69,33 @@ defineEmits<{
 	finish: []
 }>()
 
-// Статус ребаев / add-on
+// Статус ребаев / add-on — разделяем на текст и таймер
 const rebuyStatusText = computed(() => {
 	if (store.gameState.status === 'idle' || store.gameState.status === 'finished') return null
 
-	if (store.isRebuyPeriod) {
-		const remaining = store.rebuyPeriodSeconds - store.gameState.elapsedSeconds
-		const m = Math.floor(remaining / 60)
-		const s = remaining % 60
-		return `Ребай-период: ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-	}
+	if (store.isRebuyPeriod) return 'rebuy'
 
-	if (store.isAddOnAvailable) {
-		const hasAvailable = store.activePlayers.some(p => !p.addOnUsed)
-		if (hasAvailable) return 'Доступен Add-on'
-		return 'Дозакупки завершены'
-	}
+	// Аддон обрабатывается модалкой — в панели не показываем
+	if (store.isAddOnAvailable) return 'done'
 
+	return 'done'
+})
+
+const rebuyLabel = computed(() => {
+	if (rebuyStatusText.value === 'rebuy') return 'Ребай-период'
 	return 'Дозакупки завершены'
+})
+
+const rebuyTimer = computed(() => {
+	if (rebuyStatusText.value !== 'rebuy') return null
+	const remaining = store.rebuyPeriodSeconds - store.gameState.elapsedSeconds
+	const m = Math.floor(remaining / 60)
+	const s = remaining % 60
+	return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
 
 const rebuyStatusClass = computed(() => {
 	if (store.isRebuyPeriod) return 'rebuyStatusActive'
-	if (store.isAddOnAvailable && store.activePlayers.some(p => !p.addOnUsed)) return 'rebuyStatusAddon'
 	return 'rebuyStatusDone'
 })
 
@@ -140,13 +145,32 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 /* Ребай-статус */
+.rebuySection {
+	gap: 0;
+}
+
 .rebuyStatus {
-	font-family: var(--poker-font-mono);
-	font-size: 0.85rem;
-	font-weight: 700;
-	padding: 6px 10px;
-	border-radius: var(--poker-radius-sm);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 14px 16px;
+	border-radius: var(--poker-radius);
 	text-align: center;
+}
+
+.rebuyLabel {
+	font-size: 1.1rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.rebuyTimer {
+	font-family: var(--poker-font-mono);
+	font-size: 2rem;
+	font-weight: 900;
+	line-height: 1;
 }
 
 .rebuyStatusActive {

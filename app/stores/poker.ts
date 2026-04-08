@@ -354,6 +354,55 @@ export const usePokerStore = defineStore('poker', () => {
 		return [...active, ...eliminated]
 	})
 
+	// --- Операторские действия (настройки игры) ---
+
+	const revertBlinds = () => {
+		if (gameState.value.currentBlindLevel <= 0) return
+		gameState.value.currentBlindLevel--
+		const level = allBlindLevels.value[gameState.value.currentBlindLevel]
+		const duration = level ? level.durationMinutes : allBlindLevels.value[0]?.durationMinutes ?? 15
+		gameState.value.blindTimerSeconds = duration * 60
+	}
+
+	const undoElimination = (playerId: number) => {
+		const player = gameState.value.players.find(p => p.id === playerId)
+		if (!player || !player.isEliminated) return
+
+		player.isEliminated = false
+		player.eliminationOrder = null
+
+		// Пересчитаем eliminationCounter — максимальный порядок среди оставшихся выбывших
+		const eliminated = gameState.value.players.filter(p => p.isEliminated)
+		gameState.value.eliminationCounter = eliminated.length > 0
+			? Math.max(...eliminated.map(p => p.eliminationOrder ?? 0))
+			: 0
+	}
+
+	const undoRebuy = (playerId: number) => {
+		const player = gameState.value.players.find(p => p.id === playerId)
+		if (!player) return
+
+		// Сначала отменяем аддон, потом ребаи
+		if (player.addOnUsed) {
+			player.addOnUsed = false
+			gameState.value.totalAddOns = Math.max(0, gameState.value.totalAddOns - 1)
+		}
+		else if (player.rebuysUsed > 0) {
+			player.rebuysUsed--
+		}
+		else {
+			return
+		}
+
+		player.totalContributed -= config.value.buyIn
+		gameState.value.totalPot -= config.value.buyIn
+	}
+
+	const skipToAddOn = () => {
+		// Устанавливаем elapsed ровно на конец ребай-периода
+		gameState.value.elapsedSeconds = rebuyPeriodSeconds.value
+	}
+
 	const reset = () => {
 		config.value = POKER_CONFIG_DEFAULT
 		gameState.value = initGameState
@@ -416,5 +465,9 @@ export const usePokerStore = defineStore('poker', () => {
 		restoreState,
 		addChipDenom,
 		removeChipDenom,
+		revertBlinds,
+		undoElimination,
+		undoRebuy,
+		skipToAddOn,
 	}
 })
