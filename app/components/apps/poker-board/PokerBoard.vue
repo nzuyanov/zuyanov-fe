@@ -383,7 +383,7 @@ watch(() => store.gameState.status, (status) => {
 }
 
 .board__info {
-	width: 320px;
+	width: 380px;
 	flex-shrink: 0;
 	height: 100%;
 }

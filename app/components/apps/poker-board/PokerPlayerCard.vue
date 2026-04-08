@@ -285,9 +285,9 @@ onUnmounted(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
-	font-size: 1.3rem;
+	width: 40px;
+	height: 40px;
+	font-size: 1.5rem;
 	font-weight: 700;
 	color: var(--poker-text-muted);
 	background: var(--poker-border);
@@ -311,20 +311,20 @@ onUnmounted(() => {
 	margin-bottom: 6px;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	padding: 6px;
+	gap: 6px;
+	padding: 8px;
 	background: var(--poker-bg-elevated, #2C2C32);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius-sm);
 	box-shadow: 0 4px 20px rgb(0 0 0 / 50%);
 	z-index: 20;
-	min-width: 120px;
+	min-width: 150px;
 }
 
 .menuItem {
-	padding: 8px 12px;
+	padding: 10px 16px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.9rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	border: none;
 	border-radius: var(--poker-radius-sm);
