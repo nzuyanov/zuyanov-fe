@@ -168,7 +168,7 @@ const handleUndoRebuy = (playerId: number) => {
 	display: flex;
 	flex-direction: column;
 	gap: 0;
-	max-width: 520px;
+	max-width: 620px;
 	width: 100%;
 	max-height: 80vh;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
@@ -205,7 +205,7 @@ const handleUndoRebuy = (playerId: number) => {
 
 .title {
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.3rem;
+	font-size: 1.6rem;
 	font-weight: 800;
 	color: var(--poker-text);
 }
@@ -214,9 +214,9 @@ const handleUndoRebuy = (playerId: number) => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
-	font-size: 1.1rem;
+	width: 44px;
+	height: 44px;
+	font-size: 1.3rem;
 	color: var(--poker-text-muted);
 	background: none;
 	border: 1px solid var(--poker-border);
@@ -241,7 +241,7 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .sectionTitle {
-	font-size: 0.85rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -254,7 +254,7 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .emptyText {
-	font-size: 0.95rem;
+	font-size: 1.1rem;
 	color: var(--poker-text-muted);
 }
 
@@ -267,18 +267,18 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .blindsLabel {
-	font-size: 0.9rem;
+	font-size: 1.05rem;
 	color: var(--poker-text-secondary);
 }
 
 .blindsValue {
-	font-size: 1.15rem;
+	font-size: 1.35rem;
 	font-weight: 800;
 	color: var(--poker-green);
 }
 
 .blindsLevel {
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: var(--poker-text-muted);
 }
 
@@ -296,7 +296,7 @@ const handleUndoRebuy = (playerId: number) => {
 	gap: 8px;
 	padding: 12px 16px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.85rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	background: var(--poker-bg-input, #2D333B);
@@ -358,8 +358,8 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .playerAvatar {
-	width: 36px;
-	height: 36px;
+	width: 44px;
+	height: 44px;
 	border-radius: 50%;
 	flex-shrink: 0;
 }
@@ -374,7 +374,7 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .playerName {
-	font-size: 0.9rem;
+	font-size: 1.1rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	flex: 1;
@@ -385,12 +385,12 @@ const handleUndoRebuy = (playerId: number) => {
 }
 
 .playerMeta {
-	font-size: 0.75rem;
+	font-size: 0.95rem;
 	color: var(--poker-text-muted);
 }
 
 .playerAction {
-	font-size: 0.75rem;
+	font-size: 0.95rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;

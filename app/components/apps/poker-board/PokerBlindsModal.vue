@@ -67,7 +67,7 @@ defineEmits<{
 	background: var(--poker-bg-card, #21252D);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius);
-	width: 680px;
+	width: 780px;
 	max-height: 85vh;
 	display: flex;
 	flex-direction: column;
@@ -85,7 +85,7 @@ defineEmits<{
 
 .title {
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.4rem;
+	font-size: 1.7rem;
 	font-weight: 800;
 	color: var(--poker-text);
 }
@@ -94,9 +94,9 @@ defineEmits<{
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
-	font-size: 1.1rem;
+	width: 44px;
+	height: 44px;
+	font-size: 1.3rem;
 	color: var(--poker-text-muted);
 	background: none;
 	border: 1px solid var(--poker-border);
@@ -136,7 +136,7 @@ defineEmits<{
 /* Заголовки — обычный красивый шрифт */
 .th {
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.85rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;

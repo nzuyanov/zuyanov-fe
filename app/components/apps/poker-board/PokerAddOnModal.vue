@@ -89,7 +89,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 	flex-direction: column;
 	align-items: center;
 	gap: 24px;
-	max-width: 700px;
+	max-width: 800px;
 	width: 100%;
 	padding: 36px 40px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
@@ -111,7 +111,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .subtitle {
-	font-size: 1.05rem;
+	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--poker-text-muted);
 	text-align: center;
@@ -121,7 +121,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 /* Сетка игроков */
 .playersGrid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 	gap: 10px;
 	width: 100%;
 	max-height: 360px;
@@ -170,14 +170,14 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .avatar {
-	width: 52px;
-	height: 52px;
+	width: 64px;
+	height: 64px;
 	border-radius: 50%;
 	background: var(--poker-bg-input);
 }
 
 .playerName {
-	font-size: 0.9rem;
+	font-size: 1.1rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	text-align: center;
@@ -186,7 +186,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .badge {
-	font-size: 0.7rem;
+	font-size: 0.95rem;
 	font-weight: 700;
 	padding: 3px 10px;
 	border-radius: 9999px;
@@ -236,7 +236,7 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 }
 
 .bankLabel {
-	font-size: 0.8rem;
+	font-size: 1.05rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;

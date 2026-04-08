@@ -194,6 +194,7 @@ const getRoleChipStyle = (seatIndex: number) => {
 	width: 60%;
 	height: 52%;
 	border-radius: 9999px;
+	pointer-events: none;
 	background: linear-gradient(160deg, #4a3525 0%, #2e1c10 50%, #1c0f06 100%);
 	padding: 9px;
 	box-shadow:
@@ -235,8 +236,8 @@ const getRoleChipStyle = (seatIndex: number) => {
 /* Летающие фишки ролей — левый верхний угол карточки */
 .roleChip {
 	position: absolute;
-	width: 36px;
-	height: 36px;
+	width: 72px;
+	height: 72px;
 	transform: translate(-50%, -50%);
 	transition: left 0.5s ease-in-out, top 0.5s ease-in-out;
 	z-index: 10;
@@ -245,8 +246,8 @@ const getRoleChipStyle = (seatIndex: number) => {
 }
 
 .roleChipSmall {
-	width: 28px;
-	height: 28px;
+	width: 56px;
+	height: 56px;
 }
 
 /* Компактный режим (11–14 игроков) */

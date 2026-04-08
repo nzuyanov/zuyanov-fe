@@ -260,7 +260,7 @@ onUnmounted(() => {
 	background: linear-gradient(135deg,
 	rgb(59 130 246 / 40%) 0%,
 	rgb(37 99 235 / 45%) 100%
-	);
+);
 	color: #DBEEFF;
 	box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 	padding: 8px 20px;
@@ -358,5 +358,38 @@ onUnmounted(() => {
 	font-weight: 600;
 	line-height: 36px;
 	color: rgb(255 255 255 / 35%);
+}
+
+/* Адаптация для узких экранов */
+@media (width <= 1500px) {
+	.stage {
+		padding: 5px 14px;
+		font-size: 0.95rem;
+	}
+
+	.minRaise {
+		padding: 5px 14px;
+		font-size: 0.95rem;
+	}
+
+	.blindsValue {
+		font-size: 2.6rem;
+	}
+
+	.blindTimerValue {
+		font-size: 1.6rem;
+	}
+
+	.nextValue {
+		font-size: 1.2rem;
+	}
+
+	.col {
+		padding: 0 20px;
+	}
+
+	.overlay {
+		gap: 14px;
+	}
 }
 </style>
