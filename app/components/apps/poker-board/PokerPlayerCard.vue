@@ -221,13 +221,13 @@ onUnmounted(() => {
 .lives {
 	display: flex;
 	align-items: center;
-	gap: 5px;
-	margin-top: 2px;
+	gap: 6px;
+	margin-top: 4px;
 }
 
 .life {
-	width: 10px;
-	height: 10px;
+	width: 16px;
+	height: 16px;
 	border-radius: 50%;
 	transition: background 0.3s, box-shadow 0.3s;
 }
@@ -249,13 +249,13 @@ onUnmounted(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 18px;
-	height: 18px;
-	border-radius: 4px;
-	font-size: 0.6rem;
+	width: 24px;
+	height: 24px;
+	border-radius: 6px;
+	font-size: 0.85rem;
 	font-weight: 800;
 	line-height: 1;
-	margin-left: 3px;
+	margin-left: 4px;
 	transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
