@@ -131,13 +131,13 @@ onUnmounted(() => {
 .topBadges {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 14px;
 }
 
 /* Стадия турнира */
 .stage {
-	padding: 4px 14px;
-	font-size: 1rem;
+	padding: 8px 20px;
+	font-size: 1.2rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -255,17 +255,15 @@ onUnmounted(() => {
 }
 
 .minRaise {
-	font-size: 1rem;
+	font-size: 1.2rem;
 	font-weight: 700;
-	//color: #F1F5F9;
-	//background: rgb(37 99 235 / 45%);
 	background: linear-gradient(135deg,
 	rgb(59 130 246 / 40%) 0%,
 	rgb(37 99 235 / 45%) 100%
-);
+	);
 	color: #DBEEFF;
 	box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
-	padding: 4px 14px;
+	padding: 8px 20px;
 	border-radius: 9999px;
 	white-space: nowrap;
 	letter-spacing: 0.04em;
