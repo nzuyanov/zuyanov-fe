@@ -2,7 +2,8 @@
 	<Teleport to="body">
 		<div class="overlay poker-shimmer-overlay" @click.self="$emit('cancel')">
 			<div class="confirm-dialog">
-				<p class="message">{{ message }}</p>
+				<h3 class="text-heading title">{{ title }}</h3>
+				<p class="text-body message" v-html="message"/>
 				<div class="actions">
 					<button class="button cancel" @click="$emit('cancel')">
 						{{ cancelText }}
@@ -22,6 +23,7 @@
 
 <script setup lang="ts">
 withDefaults(defineProps<{
+	title: string
 	message: string
 	confirmText?: string
 	cancelText?: string
@@ -50,17 +52,22 @@ defineEmits<{
 }
 
 .confirm-dialog {
-	max-width: 420px;
-	padding: 28px;
+	max-width: 540px;
+	padding: 36px;
 	background: var(--poker-bg-card, #21252D);
 	border: 1px solid var(--poker-border, rgb(255 255 255 / 8%));
 	border-radius: var(--poker-radius, 12px);
 	box-shadow: 0 16px 48px rgb(0 0 0 / 40%);
 }
 
+.title {
+	font-size: 1.6rem;
+	text-align: center;
+	margin-bottom: 16px;
+}
+
 .message {
-	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 1.05rem;
+	font-size: 1.3rem;
 	font-weight: 600;
 	color: var(--poker-text, #F9FAFB);
 	line-height: 1.5;
@@ -75,9 +82,9 @@ defineEmits<{
 
 .button {
 	flex: 1;
-	padding: 12px 16px;
+	padding: 14px 20px;
 	font-family: var(--font-body, 'Inter Variable', sans-serif);
-	font-size: 0.9rem;
+	font-size: 1.1rem;
 	font-weight: 700;
 	border: none;
 	border-radius: var(--poker-radius-sm, 8px);

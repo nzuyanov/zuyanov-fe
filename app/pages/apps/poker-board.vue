@@ -18,8 +18,14 @@
 		<ClientOnly v-else>
 			<PokerSetupModal
 				v-if="showSetup"
-				@start="onTournamentStart"
+				@start="onSetupComplete"
 				@close="onClose"
+			/>
+
+			<PokerSeatingScreen
+				v-else-if="showSeating"
+				:players="pendingPlayers!"
+				@confirm="onSeatingConfirm"
 			/>
 
 			<PokerBoard
@@ -44,6 +50,7 @@
 			<!-- Модалка восстановления сохранённой игры -->
 			<PokerConfirmModal
 				v-if="showRestoreModal"
+				title="Обнаружена незавершенная игра"
 				:message="restoreMessage"
 				confirm-text="Продолжить"
 				cancel-text="Начать новую"
@@ -59,6 +66,7 @@
 import type { PokerConfig, PokerPlayer, PokerSaveData } from '~/types/poker'
 import { POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
+import PokerSeatingScreen from '~/components/apps/poker-board/PokerSeatingScreen.vue'
 import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
 import PokerResults from '~/components/apps/poker-board/PokerResults.vue'
 import PokerConfirmModal from '~/components/apps/poker-board/PokerConfirmModal.vue'
@@ -102,6 +110,8 @@ onUnmounted(() => {
 
 const store = usePokerStore()
 const showSetup = ref(false)
+const showSeating = ref(false)
+const pendingPlayers = ref<PokerPlayer[] | null>(null)
 const showResults = ref(false)
 const showRestoreModal = ref(false)
 const savedData = ref<PokerSaveData | null>(null)
@@ -122,7 +132,7 @@ const restoreMessage = computed(() => {
 	const name = savedData.value.config.name || 'Турнир'
 	const playerCount = savedData.value.gameState.players.length
 	const activePlayers = savedData.value.gameState.players.filter(p => !p.isEliminated).length
-	return `Обнаружена незавершённая игра «${name}» (${formatted}, ${playerCount} игроков, ${activePlayers} активных). Продолжить?`
+	return `«${name}» </br> ${formatted}, игроков ${playerCount}, в игре ${activePlayers} `
 })
 
 // Проверка localStorage при загрузке страницы!
@@ -155,9 +165,16 @@ const onDeclineRestore = () => {
 	showSetup.value = true
 }
 
-const onTournamentStart = (players: PokerPlayer[]) => {
-	store.initGame(players)
+const onSetupComplete = (players: PokerPlayer[]) => {
+	pendingPlayers.value = players
 	showSetup.value = false
+	showSeating.value = true
+}
+
+const onSeatingConfirm = (players: PokerPlayer[]) => {
+	store.initGame(players)
+	showSeating.value = false
+	pendingPlayers.value = null
 }
 
 const onClose = () => {
@@ -184,7 +201,7 @@ const onNewGame = () => {
 <style>
 /* Покерные переменные на :root для доступа из Teleport-модалок */
 :root {
-	--poker-bg: #0D1117;
+	--poker-bg: #060809;
 	--poker-bg-surface: #1A1D23;
 	--poker-bg-card: #21252D;
 	--poker-bg-input: #2D333B;
@@ -194,7 +211,7 @@ const onNewGame = () => {
 	--poker-green-dim: rgb(16 185 129 / 15%);
 	--poker-blue: #3B82F6;
 	--poker-blue-hover: #2563EB;
-	--poker-blue-bg: rgba(59, 130, 246, 0.1);
+	--poker-blue-bg: rgb(59 130 246 / 10%);
 	--poker-gold: #F59E0B;
 	--poker-gold-hover: #D97706;
 	--poker-gold-dim: rgb(245 158 11 / 15%);
@@ -218,9 +235,11 @@ const onNewGame = () => {
 	0% {
 		background-position: 0% 50%
 	}
+
 	50% {
 		background-position: 100% 50%
 	}
+
 	100% {
 		background-position: 0% 50%
 	}

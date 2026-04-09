@@ -1,38 +1,37 @@
 <template>
 	<div class="board">
-		<PokerHeader
-			:title="store.config.name || 'Poker Tournament'"
-			:is-paused="store.gameState.status === 'paused'"
-			:is-muted="sound.muted.value"
-			:hand-number="store.gameState.handNumber"
-			:stage="isGameRunning ? store.tournamentStage : null"
-			@back="requestBack"
-			@toggle-pause="store.togglePause()"
-			@toggle-sound="sound.toggleMute()"
-		/>
+		<div class="board__left">
+			<PokerHeader
+				:title="store.config.name || 'Poker Tournament'"
+				:is-paused="store.gameState.status === 'paused'"
+				:is-muted="sound.muted.value"
+				@back="requestBack"
+				@toggle-pause="store.togglePause()"
+				@toggle-sound="sound.toggleMute()"
+				@open-settings="openSettings"
+				@open-chip-info="showChipInfoModal = true"
+			/>
 
-		<div class="board__body">
 			<PokerPlayersGrid
 				:players="store.gameState.players"
 				class="board__players"
 				@rebuy="handleRebuy"
 				@eliminate="requestElimination"
-			/>
-
-			<PokerInfoPanel
-				class="board__info"
-				@next-deal="handleNextDeal"
-				@finish="requestFinish"
 				@show-blinds-modal="showBlindsModal = true"
 			/>
 		</div>
 
-		<PokerPositionsBar />
+		<PokerInfoPanel
+			class="board__info"
+			@next-deal="handleNextDeal"
+			@finish="requestFinish"
+		/>
 
 		<!-- Модалка подтверждения выбывания -->
 		<PokerConfirmModal
 			v-if="eliminatingPlayer"
-			:message="`${eliminatingPlayer.name} выбывает? Это действие нельзя отменить.`"
+			:title="eliminatingPlayer.name + ' выбывает?'"
+			message="Это действие нельзя отменить"
 			confirm-text="Выбыл"
 			cancel-text="Отмена"
 			variant="danger"
@@ -43,7 +42,8 @@
 		<!-- Модалка подтверждения завершения -->
 		<PokerConfirmModal
 			v-if="showFinishConfirm"
-			message="Завершить турнир? Будут определены итоговые места."
+			title="Завершить турнир?"
+			message="Будут определены итоговые места"
 			confirm-text="Завершить"
 			cancel-text="Отмена"
 			variant="danger"
@@ -54,6 +54,7 @@
 		<!-- Модалка подтверждения выхода -->
 		<PokerConfirmModal
 			v-if="showBackConfirm"
+			title="Уходите?"
 			message="Игра будет поставлена на паузу. Вы уверены, что хотите покинуть страницу?"
 			confirm-text="Покинуть"
 			cancel-text="Остаться"
@@ -62,9 +63,24 @@
 			@cancel="showBackConfirm = false"
 		/>
 
-		<!-- Оверлей паузы -->
+		<!-- Модалка настроек игры -->
+		<PokerSettingsModal
+			v-if="showSettingsModal"
+			@close="closeSettings"
+			@skip-to-add-on="handleSkipToAddOn"
+		/>
+
+		<!-- Модалка аддона (приоритет над обычной паузой) -->
+		<PokerAddOnModal
+			v-if="showAddOnModal"
+			@add-on="addOnPlayer"
+			@undo-add-on="undoAddOnPlayer"
+			@resume="resumeFromAddOn"
+		/>
+
+		<!-- Оверлей паузы (скрыт, когда открыта модалка аддона или настроек) -->
 		<Transition name="pause-overlay">
-			<div v-if="store.gameState.status === 'paused'" class="board__pause-overlay" @click.self="store.resume()">
+			<div v-if="store.gameState.status === 'paused' && !showAddOnModal && !showSettingsModal" class="board__pause-overlay" @click.self="store.resume()">
 				<div class="board__pause-content">
 					<span class="board__pause-icon">⏸</span>
 					<span class="board__pause-text">ПАУЗА</span>
@@ -75,20 +91,7 @@
 			</div>
 		</Transition>
 
-		<!-- Уведомления -->
-		<Transition name="toast">
-			<div v-if="blindsUpNotice" class="board__toast board__toast--blinds">
-				🔺 Блайнды повышены!
-				<span class="board__toast-blinds-value">{{ store.currentBlinds.sb }} / {{ store.currentBlinds.bb }}</span>
-			</div>
-		</Transition>
-
-		<Transition name="toast">
-			<div v-if="rebuyEndNotice" class="board__toast board__toast--addon">
-				🔄 Ребай-период завершён. Доступен Add-on
-			</div>
-		</Transition>
-
+		<!-- Уведомление о конце времени -->
 		<Transition name="toast">
 			<div v-if="timeUpNotice" class="board__toast board__toast--danger">
 				⏰ Время вышло! Завершите турнир вручную или продолжайте игру.
@@ -96,22 +99,16 @@
 			</div>
 		</Transition>
 
-		<Transition name="toast">
-			<div v-if="bubbleNotice" class="board__toast board__toast--bubble">
-				🔴 БАББЛ!
-			</div>
-		</Transition>
-
-		<Transition name="toast">
-			<div v-if="inPrizesNotice" class="board__toast board__toast--in-prizes">
-				🎉 ВСЕ В ПРИЗАХ!
-			</div>
-		</Transition>
-
 		<!-- Модалка уровней блайндов -->
 		<PokerBlindsModal
 			v-if="showBlindsModal"
 			@close="showBlindsModal = false"
+		/>
+
+		<!-- Модалка раздачи фишек -->
+		<PokerChipInfoModal
+			v-if="showChipInfoModal"
+			@close="showChipInfoModal = false"
 		/>
 	</div>
 </template>
@@ -121,9 +118,11 @@ import type { PokerPlayer } from '~/types/poker'
 import PokerHeader from './PokerHeader.vue'
 import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
-import PokerPositionsBar from './PokerPositionsBar.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
 import PokerBlindsModal from './PokerBlindsModal.vue'
+import PokerChipInfoModal from './PokerChipInfoModal.vue'
+import PokerAddOnModal from './PokerAddOnModal.vue'
+import PokerSettingsModal from './PokerSettingsModal.vue'
 
 const emit = defineEmits<{
 	back: []
@@ -150,58 +149,25 @@ const isGameRunning = computed(
 	() => store.gameState.status === 'playing' || store.gameState.status === 'paused',
 )
 
-// --- Стадия турнира: звуки и тосты ---
-const bubbleNotice = ref(false)
-const inPrizesNotice = ref(false)
-let bubbleNoticeTimeout: ReturnType<typeof setTimeout> | null = null
-let inPrizesNoticeTimeout: ReturnType<typeof setTimeout> | null = null
-
+// --- Стадия турнира: звуки ---
 watch(() => store.tournamentStage, (newStage, oldStage) => {
 	if (!isGameRunning.value) return
 
 	if (newStage === 'bubble') {
 		sound.play('bubbleReached')
-		bubbleNotice.value = true
-		if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
-		bubbleNoticeTimeout = setTimeout(() => { bubbleNotice.value = false }, 4000)
 	}
 
 	if (oldStage === 'bubble' && (newStage === 'in-prizes' || newStage === 'final-table')) {
 		sound.play('bubbleBurst')
-		inPrizesNotice.value = true
-		if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
-		inPrizesNoticeTimeout = setTimeout(() => { inPrizesNotice.value = false }, 4000)
 	}
 })
 
 // --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)
-const blindsUpNotice = ref(false)
-const rebuyEndNotice = ref(false)
-
-let blindsUpTimeout: ReturnType<typeof setTimeout> | null = null
-let rebuyEndTimeout: ReturnType<typeof setTimeout> | null = null
-
-const showBlindsUpNotice = () => {
-	blindsUpNotice.value = true
-	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
-	blindsUpTimeout = setTimeout(() => {
-		blindsUpNotice.value = false
-	}, 3000)
-}
-
-const showRebuyEndNotice = () => {
-	rebuyEndNotice.value = true
-	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
-	rebuyEndTimeout = setTimeout(() => {
-		rebuyEndNotice.value = false
-	}, 4000)
-}
 
 usePokerTimer({
 	onBlindsUp: () => {
 		sound.play('blindsUp')
-		showBlindsUpNotice()
 	},
 	onGameTimeUp: () => {
 		sound.play('gameEnd')
@@ -215,16 +181,66 @@ usePokerTimer({
 	},
 	onRebuyPeriodEnd: () => {
 		sound.play('rebuyEnd')
-		showRebuyEndNotice()
+		// Ставим на паузу и показываем модалку аддона
+		store.pause()
+		showAddOnModal.value = true
 	},
 })
 
-onUnmounted(() => {
-	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
-	if (rebuyEndTimeout) clearTimeout(rebuyEndTimeout)
-	if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
-	if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
-})
+// --- Модалка раздачи фишек ---
+const showChipInfoModal = ref(false)
+
+// --- Модалка настроек ---
+const showSettingsModal = ref(false)
+
+const openSettings = () => {
+	store.pause()
+	showSettingsModal.value = true
+}
+
+const closeSettings = () => {
+	showSettingsModal.value = false
+	store.resume()
+}
+
+const handleSkipToAddOn = () => {
+	showSettingsModal.value = false
+	reEnteredByAddOn.value.clear()
+	showAddOnModal.value = true
+}
+
+// --- Модалка аддона ---
+const showAddOnModal = ref(false)
+
+// Отслеживаем игроков, которых вернули аддоном (чтобы при отмене вернуть в eliminated)
+const reEnteredByAddOn = ref(new Set<number>())
+
+// Обёртки для модалки аддона с учётом re-entry
+const addOnPlayer = (playerId: number) => {
+	const player = store.gameState.players.find(p => p.id === playerId)
+	if (player?.isEliminated) {
+		reEnteredByAddOn.value.add(playerId)
+		store.undoElimination(playerId)
+	}
+	store.rebuy(playerId)
+	storage.saveOnAction()
+}
+
+const undoAddOnPlayer = (playerId: number) => {
+	store.undoRebuy(playerId)
+	// Если игрок был возвращён аддоном — обратно выбываем
+	if (reEnteredByAddOn.value.has(playerId)) {
+		store.eliminatePlayer(playerId)
+		reEnteredByAddOn.value.delete(playerId)
+	}
+	storage.saveOnAction()
+}
+
+const resumeFromAddOn = () => {
+	showAddOnModal.value = false
+	reEnteredByAddOn.value.clear()
+	store.resume()
+}
 
 // --- Ребай ---
 const handleRebuy = (playerId: number) => {
@@ -309,7 +325,6 @@ watch(() => store.gameState.status, (status) => {
 <style scoped>
 .board {
 	display: flex;
-	flex-direction: column;
 	width: 100%;
 	height: 100%;
 	position: relative;
@@ -319,20 +334,22 @@ watch(() => store.gameState.status, (status) => {
 	background-size: 450px 450px, auto;
 }
 
-.board__body {
+.board__left {
 	display: flex;
-	flex: 1;
-	min-height: 0;
-}
-
-.board__players {
+	flex-direction: column;
 	flex: 1;
 	min-width: 0;
 }
 
+.board__players {
+	flex: 1;
+	min-height: 0;
+}
+
 .board__info {
-	width: 320px;
+	width: 380px;
 	flex-shrink: 0;
+	height: 100%;
 }
 
 /* Toast-уведомление */
@@ -445,57 +462,6 @@ watch(() => store.gameState.status, (status) => {
 	opacity: 0;
 }
 
-/* Toast-уведомления — варианты */
-.board__toast--blinds {
-	background: var(--poker-green);
-	color: #fff;
-	animation: toast-glow-green 0.6s ease-out;
-}
-
-.board__toast-blinds-value {
-	font-family: var(--poker-font-mono);
-	font-size: 1.2rem;
-	font-weight: 800;
-	margin-left: 4px;
-}
-
-.board__toast--addon {
-	background: var(--poker-gold);
-	color: #000;
-	animation: toast-glow-gold 0.6s ease-out;
-}
-
-@keyframes toast-glow-green {
-	0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-.board__toast--bubble {
-	background: var(--poker-red);
-	color: #fff;
-	animation: toast-glow-red 0.6s ease-out;
-}
-
-.board__toast--in-prizes {
-	background: #85b7eb;
-	color: #000;
-	animation: toast-glow-blue 0.6s ease-out;
-}
-
-@keyframes toast-glow-red {
-	0% { box-shadow: 0 0 0 0 rgb(239 68 68 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-@keyframes toast-glow-blue {
-	0% { box-shadow: 0 0 0 0 rgb(133 183 235 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-@keyframes toast-glow-gold {
-	0% { box-shadow: 0 0 0 0 rgb(245 158 11 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
 
 .toast-enter-active,
 .toast-leave-active {

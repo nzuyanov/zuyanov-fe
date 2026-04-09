@@ -1,7 +1,7 @@
 <template>
 	<div
 		ref="referenceRef"
-		class="tooltip-trigger"
+		class="trigger"
 		@mouseenter="show"
 		@mouseleave="hide"
 		@focus="show"
@@ -12,11 +12,11 @@
 			<div
 				ref="floatingRef"
 				class="tooltip"
-				:class="{ 'tooltip--visible': isShown }"
+				:class="{ 'visible': isShown }"
 				:style="floatingStyles"
 			>
 				{{ text }}
-				<div ref="arrowRef" class="tooltip__arrow" :style="arrowStyles"/>
+				<div ref="arrowRef" class="arrow" :style="arrowStyles"/>
 			</div>
 		</Teleport>
 	</div>
@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.tooltip-trigger {
+.trigger {
 	display: inline-flex;
 }
 
@@ -125,11 +125,11 @@ onBeforeUnmount(() => {
 	transition: opacity 0.2s ease;
 }
 
-.tooltip--visible {
+.visible {
 	opacity: 1;
 }
 
-.tooltip__arrow {
+.arrow {
 	position: absolute;
 	width: 8px;
 	height: 8px;

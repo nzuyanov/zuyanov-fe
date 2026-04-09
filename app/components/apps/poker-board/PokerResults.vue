@@ -1,66 +1,40 @@
 <template>
 	<div class="results">
-		<h1 class="results__title">🏆 Турнир завершён!</h1>
+		<!-- Конфетти-частицы -->
+		<div class="confetti">
+			<span v-for="n in 40" :key="n" class="confettiPiece" :style="confettiStyle(n)" />
+		</div>
 
-		<!-- Подиум: 1/2/3 место -->
-		<div class="results__podium">
-			<div
-				v-for="(entry, i) in podium"
-				:key="entry.player.id"
-				class="results__podium-item"
-				:class="`results__podium-item--place-${i + 1}`"
-			>
-				<img :src="placeIcons[i]" alt="" class="results__place-icon">
-				<img
-					:src="getAvatarDataUri(entry.player.avatarId)"
-					alt=""
-					class="results__avatar"
-					:class="`results__avatar--place-${i + 1}`"
+		<div class="content">
+			<h1 class="title">🏆 Турнир завершён!</h1>
+
+			<!-- Подиум: 1/2/3 место -->
+			<div class="podium">
+				<div
+					v-for="(entry, i) in podium"
+					:key="entry.player.id"
+					class="card"
+					:class="`card--place${i + 1}`"
 				>
-				<span class="results__name">{{ entry.player.name }}</span>
-				<span class="results__prize">
-					<template v-if="entry.prize > 0">{{ formatMoney(entry.prize) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></template>
-					<template v-else>—</template>
-				</span>
-				<span class="results__percent">
-					{{ entry.percent > 0 ? `${entry.percent}%` : '' }}
-				</span>
+					<img :src="placeIcons[i]" alt="" class="placeIcon">
+					<img
+						:src="getAvatarDataUri(entry.player.avatarId)"
+						alt=""
+						class="avatar"
+						:class="`avatar--place${i + 1}`"
+					>
+					<span class="name">{{ entry.player.name }}</span>
+					<span class="prize">
+						<template v-if="entry.prize > 0">{{ formatMoney(entry.prize) }} ₽</template>
+						<template v-else>—</template>
+					</span>
+				</div>
 			</div>
-		</div>
 
-		<!-- Остальные игроки -->
-		<div v-if="otherPlayers.length > 0" class="results__others">
-			<h2 class="results__others-title">Остальные участники</h2>
-			<div
-				v-for="(player, i) in otherPlayers"
-				:key="player.id"
-				class="results__others-row"
-			>
-				<span class="results__others-place">{{ i + 4 }}</span>
-				<img
-					:src="getAvatarDataUri(player.avatarId)"
-					alt=""
-					class="results__others-avatar"
-				>
-				<span class="results__others-name">{{ player.name }}</span>
-			</div>
+			<button class="btn" @click="$emit('newGame')">
+				🚀 Новый турнир
+			</button>
 		</div>
-
-		<!-- Статистика -->
-		<div class="results__stats">
-			<div class="results__stat">
-				<span class="results__stat-label">Банк</span>
-				<span class="results__stat-value">{{ formatMoney(store.gameState.totalPot) }} <Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" /></span>
-			</div>
-			<div class="results__stat">
-				<span class="results__stat-label">Игроков</span>
-				<span class="results__stat-value">{{ store.gameState.players.length }}</span>
-			</div>
-		</div>
-
-		<button class="results__btn" @click="$emit('newGame')">
-			🚀 Новый турнир
-		</button>
 	</div>
 </template>
 
@@ -85,226 +59,229 @@ const podium = computed(() => {
 	return top.map((player, i) => ({
 		player,
 		prize: prizeAmounts.value[i] ?? 0,
-		percent: store.config.prizes[i] ?? 0,
 	}))
 })
 
-const otherPlayers = computed(() => results.value.slice(3))
-
 const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
+
+// Генерация стилей для конфетти
+const confettiStyle = (n: number) => {
+	const colors = ['#F59E0B', '#10B981', '#EF4444', '#6366F1', '#EC4899', '#14B8A6', '#F97316']
+	const color = colors[n % colors.length]
+	const left = Math.random() * 100
+	const delay = Math.random() * 5
+	const duration = 3 + Math.random() * 4
+	const size = 6 + Math.random() * 6
+	const rotation = Math.random() * 360
+
+	return {
+		'--color': color,
+		'--left': `${left}%`,
+		'--delay': `${delay}s`,
+		'--duration': `${duration}s`,
+		'--size': `${size}px`,
+		'--rotation': `${rotation}deg`,
+	}
+}
 </script>
 
 <style scoped>
 .results {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background:
+		radial-gradient(ellipse at 50% 30%, rgb(245 158 11 / 12%) 0%, transparent 50%),
+		radial-gradient(ellipse at 20% 80%, rgb(16 185 129 / 10%) 0%, transparent 40%),
+		radial-gradient(ellipse at 80% 70%, rgb(139 92 246 / 10%) 0%, transparent 40%),
+		radial-gradient(ellipse at 50% 100%, rgb(99 102 241 / 8%) 0%, transparent 50%),
+		linear-gradient(180deg, #0D1117 0%, #141820 50%, #0D1117 100%);
+}
+
+/* Конфетти */
+.confetti {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	overflow: hidden;
+}
+
+.confettiPiece {
+	position: absolute;
+	top: -20px;
+	left: var(--left);
+	width: var(--size);
+	height: var(--size);
+	background: var(--color);
+	border-radius: 2px;
+	opacity: 0.8;
+	animation: confettiFall var(--duration) var(--delay) ease-in infinite;
+	transform: rotate(var(--rotation));
+}
+
+@keyframes confettiFall {
+	0% {
+		top: -5%;
+		opacity: 1;
+		transform: rotate(var(--rotation)) translateX(0);
+	}
+
+	100% {
+		top: 105%;
+		opacity: 0;
+		transform: rotate(calc(var(--rotation) + 720deg)) translateX(40px);
+	}
+}
+
+/* Контент */
+.content {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 32px;
-	width: 100%;
-	height: 100%;
-	padding: 48px 32px;
-	overflow-y: auto;
+	gap: 40px;
+	z-index: 1;
 }
 
-.results__title {
+.title {
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 2.5rem;
+	font-size: 3rem;
 	font-weight: 900;
 	letter-spacing: -0.02em;
 	color: var(--poker-gold);
 	text-align: center;
+	text-shadow:
+		0 0 20px rgb(245 158 11 / 30%),
+		0 0 60px rgb(245 158 11 / 15%);
+	animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+	0%, 100% {
+		text-shadow:
+			0 0 20px rgb(245 158 11 / 30%),
+			0 0 60px rgb(245 158 11 / 15%);
+	}
+
+	50% {
+		text-shadow:
+			0 0 30px rgb(245 158 11 / 45%),
+			0 0 80px rgb(245 158 11 / 20%);
+	}
 }
 
 /* Подиум */
-.results__podium {
+.podium {
 	display: flex;
-	gap: 24px;
+	gap: 28px;
 	align-items: flex-end;
 	justify-content: center;
 }
 
-.results__podium-item {
+.card {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
-	padding: 24px 28px;
-	background: var(--poker-bg-card);
+	gap: 10px;
+	padding: 28px 36px;
+	background: rgb(255 255 255 / 4%);
+	backdrop-filter: blur(8px);
 	border-radius: var(--poker-radius);
-	border: 1px solid var(--poker-border);
-	min-width: 180px;
-	transition: transform 0.3s;
+	border: 3px solid var(--poker-border);
+	min-width: 210px;
 }
 
-.results__podium-item--place-1 {
+.card--place1 {
 	border-color: var(--poker-gold);
-	box-shadow: 0 0 24px rgb(245 158 11 / 20%);
-	transform: scale(1.08);
+	border-width: 4px;
+	box-shadow:
+		0 0 40px rgb(245 158 11 / 25%),
+		inset 0 0 30px rgb(245 158 11 / 5%);
+	transform: scale(1.1);
 	order: 2;
+	background: rgb(245 158 11 / 6%);
 }
 
-.results__podium-item--place-2 {
-	border-color: var(--poker-text-muted);
-	box-shadow: 0 0 16px rgb(156 163 175 / 10%);
+.card--place2 {
+	border-color: #A0A8B8;
+	border-width: 3px;
+	box-shadow: 0 0 24px rgb(156 163 175 / 12%);
 	order: 1;
 }
 
-.results__podium-item--place-3 {
+.card--place3 {
 	border-color: #CD7F32;
-	box-shadow: 0 0 16px rgb(205 127 50 / 10%);
+	border-width: 3px;
+	box-shadow: 0 0 24px rgb(205 127 50 / 12%);
 	order: 3;
 }
 
-.results__place-icon {
-	width: 48px;
-	height: 48px;
+.placeIcon {
+	width: 52px;
+	height: 52px;
+	filter: drop-shadow(0 2px 8px rgb(0 0 0 / 30%));
 }
 
-.results__avatar {
+.avatar {
 	border-radius: 50%;
 	background: var(--poker-bg-input);
+	box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
 }
 
-.results__avatar--place-1 {
-	width: 80px;
-	height: 80px;
+.avatar--place1 {
+	width: 88px;
+	height: 88px;
 }
 
-.results__avatar--place-2,
-.results__avatar--place-3 {
-	width: 64px;
-	height: 64px;
+.avatar--place2,
+.avatar--place3 {
+	width: 72px;
+	height: 72px;
 }
 
-.results__name {
-	font-size: 1.1rem;
+.name {
+	font-family: var(--font-body, 'Inter Variable', sans-serif);
+	font-size: 1.15rem;
 	font-weight: 700;
 	color: var(--poker-text);
 	text-align: center;
 }
 
-.results__prize {
-	font-family: var(--poker-font-mono);
-	font-size: 1.2rem;
-	font-weight: 800;
-	color: var(--poker-green);
-}
-
-.results__percent {
-	font-family: var(--poker-font-mono);
-	font-size: 0.85rem;
-	color: var(--poker-text-muted);
-}
-
-/* Остальные игроки */
-.results__others {
-	width: 100%;
-	max-width: 500px;
-}
-
-.results__others-title {
-	font-size: 1rem;
-	font-weight: 700;
-	color: var(--poker-text-muted);
-	margin-bottom: 12px;
-	text-align: center;
-}
-
-.results__others-row {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 10px 16px;
-	border-bottom: 1px solid var(--poker-border);
-}
-
-.results__others-row:last-child {
-	border-bottom: none;
-}
-
-.results__others-place {
-	font-family: var(--poker-font-mono);
-	font-size: 0.9rem;
-	font-weight: 700;
-	color: var(--poker-text-muted);
-	width: 24px;
-	text-align: center;
-}
-
-.results__others-avatar {
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-	background: var(--poker-bg-input);
-}
-
-.results__others-name {
-	font-size: 0.95rem;
-	font-weight: 600;
-	color: var(--poker-text-secondary);
-}
-
-/* Статистика */
-.results__stats {
-	display: flex;
-	gap: 32px;
-}
-
-.results__stat {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-}
-
-.results__stat-label {
-	font-size: 0.8rem;
-	color: var(--poker-text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-}
-
-.results__stat-value {
-	font-family: var(--poker-font-mono);
-	font-size: 1.1rem;
-	font-weight: 700;
-	color: var(--poker-text);
+.prize {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.5rem;
+	font-weight: 900;
+	color: var(--poker-gold);
+	text-shadow: 0 0 16px rgb(245 158 11 / 30%);
 }
 
 /* Кнопка */
-.results__btn {
+.btn {
 	margin-top: 8px;
-	padding: 16px 40px;
+	padding: 18px 48px;
 	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.15rem;
-	font-weight: 700;
+	font-size: 1.2rem;
+	font-weight: 800;
 	border: none;
 	border-radius: var(--poker-radius);
 	background: var(--poker-green);
 	color: #fff;
 	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
+	transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+	box-shadow: 0 4px 20px rgb(16 185 129 / 30%);
 }
 
-.results__btn:hover {
+.btn:hover {
 	background: var(--poker-green-hover);
-	transform: translateY(-1px);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 28px rgb(16 185 129 / 40%);
 }
 
-.results__btn:active {
+.btn:active {
 	transform: translateY(0);
-}
-
-.rub-icon {
-	display: inline-block;
-	vertical-align: middle;
-	width: 1em;
-	height: 1em;
-}
-
-.rub-icon :deep(svg) {
-	width: 1em;
-	height: 1em;
-	vertical-align: middle;
+	box-shadow: 0 2px 12px rgb(16 185 129 / 25%);
 }
 </style>

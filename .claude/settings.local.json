@@ -41,7 +41,11 @@
       "Bash(npx tsx -e \":*)",
       "Bash(npx tsx:*)",
       "Bash(grep -E \"\\\\.\\(ts|js|vue\\)$\")",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(taskkill /PID 16788 /F)",
+      "Bash(taskkill /PID 17828 /F)"
     ]
   }
 }
