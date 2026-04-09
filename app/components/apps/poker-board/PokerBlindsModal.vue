@@ -156,6 +156,10 @@ defineEmits<{
 	width: 50px;
 }
 
+.row {
+	transition: background 0.15s;
+}
+
 /* Ячейки — крупный моноширинный шрифт */
 .td {
 	padding: 14px 16px;
@@ -203,6 +207,16 @@ defineEmits<{
 .rowCurrent .tdDuration {
 	color: var(--poker-green);
 	font-weight: 700;
+}
+
+/* Ховер строки */
+.row:not(.rowPassed):hover {
+	background: rgb(255 255 255 / 6%);
+	cursor: default;
+}
+
+.row:not(.rowPassed, .rowCurrent):hover .tdNum {
+	color: var(--poker-text);
 }
 
 /* Пройденные уровни */

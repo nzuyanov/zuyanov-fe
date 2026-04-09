@@ -26,7 +26,7 @@
 						v-for="i in maxRebuys"
 						:key="'r' + i"
 						class="life"
-						:class="i <= player.rebuysUsed ? 'lifeUsed' : 'lifeAvailable'"
+						:class="i <= player.rebuysUsed ? 'lifeActive' : 'lifeInactive'"
 					/>
 					<!-- Индикатор аддона -->
 					<span
@@ -232,16 +232,16 @@ onUnmounted(() => {
 	transition: background 0.3s, box-shadow 0.3s;
 }
 
-/* Доступный ребай — зелёная горящая лампочка */
-.lifeAvailable {
-	background: var(--poker-green);
-	box-shadow: 0 0 6px var(--poker-green);
-}
-
-/* Использованный ребай — погасшая лампочка */
-.lifeUsed {
+/* Неиспользованный ребай — погасшая лампочка */
+.lifeInactive {
 	background: rgb(255 255 255 / 12%);
 	box-shadow: none;
+}
+
+/* Использованный ребай — зелёная горящая лампочка */
+.lifeActive {
+	background: var(--poker-green);
+	box-shadow: 0 0 6px var(--poker-green);
 }
 
 /* Индикатор аддона */

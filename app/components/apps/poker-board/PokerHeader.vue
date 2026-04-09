@@ -30,6 +30,12 @@
 			>
 				<Icon name="ph:gear-six-fill" />
 			</button>
+			<button
+				class="btn"
+				@click="$emit('openChipInfo')"
+			>
+				<Icon name="ph:info-fill" />
+			</button>
 		</div>
 	</header>
 </template>
@@ -46,6 +52,7 @@ defineEmits<{
 	togglePause: []
 	toggleSound: []
 	openSettings: []
+	openChipInfo: []
 }>()
 </script>
 

@@ -581,7 +581,7 @@ onMounted(() => {
 
 // Обновляем список при изменении количества игроков
 watch(() => store.config.playerCount, (count) => {
-	const clamped = Math.max(3, Math.min(9, count || 3))
+	const clamped = Math.max(PLAYERS_MIN, Math.min(PLAYERS_MAX, count || PLAYERS_MIN))
 	generatePlayers(clamped)
 })
 

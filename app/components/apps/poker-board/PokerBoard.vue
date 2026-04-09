@@ -9,6 +9,7 @@
 				@toggle-pause="store.togglePause()"
 				@toggle-sound="sound.toggleMute()"
 				@open-settings="openSettings"
+				@open-chip-info="showChipInfoModal = true"
 			/>
 
 			<PokerPlayersGrid
@@ -90,14 +91,7 @@
 			</div>
 		</Transition>
 
-		<!-- Уведомления -->
-		<Transition name="toast">
-			<div v-if="blindsUpNotice" class="board__toast board__toast--blinds">
-				🔺 Блайнды повышены!
-				<span class="board__toast-blinds-value">{{ store.currentBlinds.sb }} / {{ store.currentBlinds.bb }}</span>
-			</div>
-		</Transition>
-
+		<!-- Уведомление о конце времени -->
 		<Transition name="toast">
 			<div v-if="timeUpNotice" class="board__toast board__toast--danger">
 				⏰ Время вышло! Завершите турнир вручную или продолжайте игру.
@@ -105,22 +99,16 @@
 			</div>
 		</Transition>
 
-		<Transition name="toast">
-			<div v-if="bubbleNotice" class="board__toast board__toast--bubble">
-				🔴 БАББЛ!
-			</div>
-		</Transition>
-
-		<Transition name="toast">
-			<div v-if="inPrizesNotice" class="board__toast board__toast--in-prizes">
-				🎉 ВСЕ В ПРИЗАХ!
-			</div>
-		</Transition>
-
 		<!-- Модалка уровней блайндов -->
 		<PokerBlindsModal
 			v-if="showBlindsModal"
 			@close="showBlindsModal = false"
+		/>
+
+		<!-- Модалка раздачи фишек -->
+		<PokerChipInfoModal
+			v-if="showChipInfoModal"
+			@close="showChipInfoModal = false"
 		/>
 	</div>
 </template>
@@ -132,6 +120,7 @@ import PokerPlayersGrid from './PokerPlayersGrid.vue'
 import PokerInfoPanel from './PokerInfoPanel.vue'
 import PokerConfirmModal from './PokerConfirmModal.vue'
 import PokerBlindsModal from './PokerBlindsModal.vue'
+import PokerChipInfoModal from './PokerChipInfoModal.vue'
 import PokerAddOnModal from './PokerAddOnModal.vue'
 import PokerSettingsModal from './PokerSettingsModal.vue'
 
@@ -160,47 +149,25 @@ const isGameRunning = computed(
 	() => store.gameState.status === 'playing' || store.gameState.status === 'paused',
 )
 
-// --- Стадия турнира: звуки и тосты ---
-const bubbleNotice = ref(false)
-const inPrizesNotice = ref(false)
-let bubbleNoticeTimeout: ReturnType<typeof setTimeout> | null = null
-let inPrizesNoticeTimeout: ReturnType<typeof setTimeout> | null = null
-
+// --- Стадия турнира: звуки ---
 watch(() => store.tournamentStage, (newStage, oldStage) => {
 	if (!isGameRunning.value) return
 
 	if (newStage === 'bubble') {
 		sound.play('bubbleReached')
-		bubbleNotice.value = true
-		if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
-		bubbleNoticeTimeout = setTimeout(() => { bubbleNotice.value = false }, 4000)
 	}
 
 	if (oldStage === 'bubble' && (newStage === 'in-prizes' || newStage === 'final-table')) {
 		sound.play('bubbleBurst')
-		inPrizesNotice.value = true
-		if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
-		inPrizesNoticeTimeout = setTimeout(() => { inPrizesNotice.value = false }, 4000)
 	}
 })
 
 // --- Таймеры и уведомления ---
 const timeUpNotice = ref(false)
-const blindsUpNotice = ref(false)
-let blindsUpTimeout: ReturnType<typeof setTimeout> | null = null
-
-const showBlindsUpNotice = () => {
-	blindsUpNotice.value = true
-	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
-	blindsUpTimeout = setTimeout(() => {
-		blindsUpNotice.value = false
-	}, 3000)
-}
 
 usePokerTimer({
 	onBlindsUp: () => {
 		sound.play('blindsUp')
-		showBlindsUpNotice()
 	},
 	onGameTimeUp: () => {
 		sound.play('gameEnd')
@@ -220,11 +187,8 @@ usePokerTimer({
 	},
 })
 
-onUnmounted(() => {
-	if (blindsUpTimeout) clearTimeout(blindsUpTimeout)
-	if (bubbleNoticeTimeout) clearTimeout(bubbleNoticeTimeout)
-	if (inPrizesNoticeTimeout) clearTimeout(inPrizesNoticeTimeout)
-})
+// --- Модалка раздачи фишек ---
+const showChipInfoModal = ref(false)
 
 // --- Модалка настроек ---
 const showSettingsModal = ref(false)
@@ -498,57 +462,6 @@ watch(() => store.gameState.status, (status) => {
 	opacity: 0;
 }
 
-/* Toast-уведомления — варианты */
-.board__toast--blinds {
-	background: var(--poker-green);
-	color: #fff;
-	animation: toast-glow-green 0.6s ease-out;
-}
-
-.board__toast-blinds-value {
-	font-family: var(--poker-font-mono);
-	font-size: 1.2rem;
-	font-weight: 800;
-	margin-left: 4px;
-}
-
-.board__toast--addon {
-	background: var(--poker-gold);
-	color: #000;
-	animation: toast-glow-gold 0.6s ease-out;
-}
-
-@keyframes toast-glow-green {
-	0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-.board__toast--bubble {
-	background: var(--poker-red);
-	color: #fff;
-	animation: toast-glow-red 0.6s ease-out;
-}
-
-.board__toast--in-prizes {
-	background: #85b7eb;
-	color: #000;
-	animation: toast-glow-blue 0.6s ease-out;
-}
-
-@keyframes toast-glow-red {
-	0% { box-shadow: 0 0 0 0 rgb(239 68 68 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-@keyframes toast-glow-blue {
-	0% { box-shadow: 0 0 0 0 rgb(133 183 235 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
-
-@keyframes toast-glow-gold {
-	0% { box-shadow: 0 0 0 0 rgb(245 158 11 / 60%); }
-	100% { box-shadow: 0 8px 32px rgb(0 0 0 / 40%); }
-}
 
 .toast-enter-active,
 .toast-leave-active {

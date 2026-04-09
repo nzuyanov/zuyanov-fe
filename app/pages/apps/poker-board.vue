@@ -18,8 +18,14 @@
 		<ClientOnly v-else>
 			<PokerSetupModal
 				v-if="showSetup"
-				@start="onTournamentStart"
+				@start="onSetupComplete"
 				@close="onClose"
+			/>
+
+			<PokerSeatingScreen
+				v-else-if="showSeating"
+				:players="pendingPlayers!"
+				@confirm="onSeatingConfirm"
 			/>
 
 			<PokerBoard
@@ -60,6 +66,7 @@
 import type { PokerConfig, PokerPlayer, PokerSaveData } from '~/types/poker'
 import { POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
 import PokerSetupModal from '~/components/apps/poker-board/PokerSetupModal.vue'
+import PokerSeatingScreen from '~/components/apps/poker-board/PokerSeatingScreen.vue'
 import PokerBoard from '~/components/apps/poker-board/PokerBoard.vue'
 import PokerResults from '~/components/apps/poker-board/PokerResults.vue'
 import PokerConfirmModal from '~/components/apps/poker-board/PokerConfirmModal.vue'
@@ -103,6 +110,8 @@ onUnmounted(() => {
 
 const store = usePokerStore()
 const showSetup = ref(false)
+const showSeating = ref(false)
+const pendingPlayers = ref<PokerPlayer[] | null>(null)
 const showResults = ref(false)
 const showRestoreModal = ref(false)
 const savedData = ref<PokerSaveData | null>(null)
@@ -156,9 +165,16 @@ const onDeclineRestore = () => {
 	showSetup.value = true
 }
 
-const onTournamentStart = (players: PokerPlayer[]) => {
-	store.initGame(players)
+const onSetupComplete = (players: PokerPlayer[]) => {
+	pendingPlayers.value = players
 	showSetup.value = false
+	showSeating.value = true
+}
+
+const onSeatingConfirm = (players: PokerPlayer[]) => {
+	store.initGame(players)
+	showSeating.value = false
+	pendingPlayers.value = null
 }
 
 const onClose = () => {
