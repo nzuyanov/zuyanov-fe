@@ -157,29 +157,60 @@ onUnmounted(() => {
 }
 
 .stage--bubble {
-	background: rgb(239 68 68 / 25%);
-	color: #ff8a8a;
+	background-color: rgba(190, 24, 93, 0.5);
+	color: #F9A8D4;
 	animation: bubblePulse 1s ease-in-out infinite;
 }
 
 .stage--in-prizes {
-	background: rgb(133 183 235 / 20%);
-	color: #a8d4ff;
+	background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #96CEB4, #FFEBA7);
+	background-size: 400% 400%;
+	color: white;
+	animation: rainbow-pulse 4s ease infinite;
+}
+
+@keyframes rainbow-pulse {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
 }
 
 .stage--final-table {
-	background: rgb(245 158 11 / 20%);
-	color: #ffd06a;
+	background: linear-gradient(45deg, #000000, #D4AF37);
+	background-size: 200% 200%;
+	color: white;
+	animation: gradient-shift 4s ease infinite;
+}
+
+@keyframes gradient-shift {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
 }
 
 .stage--heads-up {
-	background: rgb(239 68 68 / 25%);
-	color: #ff8a8a;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: #FF4757;
+	backdrop-filter: blur(3px);
+	box-shadow: 0 0 0 rgba(255, 71, 87, 0);
+	animation: tension-pulse 1.5s infinite;
+}
+
+@keyframes tension-pulse {
+	0%, 100% { box-shadow: 0 0 10px rgba(255, 71, 87, 0.4); }
+	50% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8); }
 }
 
 @keyframes bubblePulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.5; }
+	0% {
+		background-color: rgba(190, 24, 93, 0.5);
+	}
+	50% {
+		background-color: rgba(210, 30, 100, 0.6); /* Чуть ярче и насыщеннее */
+	}
+	100% {
+		background-color: rgba(190, 24, 93, 0.5);
+	}
 }
 
 /* Три колонки */
@@ -207,8 +238,8 @@ onUnmounted(() => {
 }
 
 .timer {
-	height: 28px;
-	width: 28px;
+	height: 36px;
+	width: 36px;
 }
 
 .blindTimerValue {

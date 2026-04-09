@@ -77,7 +77,7 @@ const rebuyStatusText = computed(() => {
 })
 
 const rebuyLabel = computed(() => {
-	if (rebuyStatusText.value === 'rebuy') return 'Ребай-период'
+	if (rebuyStatusText.value === 'rebuy') return 'Add-on через'
 	return 'Дозакупки завершены'
 })
 
