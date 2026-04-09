@@ -48,7 +48,7 @@
 				<Icon name="ph:shuffle-bold" />
 				Перемешать
 			</button>
-			<button class="btnStart" @click="$emit('confirm', orderedPlayers)">
+			<button class="poker-btn-green btnStart" @click="$emit('confirm', orderedPlayers)">
 				🚀 Начать игру
 			</button>
 		</div>
@@ -382,23 +382,6 @@ const onPointerLeave = () => {
 
 .btnStart {
 	padding: 14px 40px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.25rem;
-	font-weight: 700;
-	color: #fff;
-	background: var(--poker-green);
-	border: none;
-	border-radius: var(--poker-radius);
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
-}
-
-.btnStart:hover {
-	background: var(--poker-green-hover);
-	transform: translateY(-2px);
-}
-
-.btnStart:active {
-	transform: translateY(0);
 }
 </style>

@@ -3,38 +3,61 @@
 		<div class="overlay poker-shimmer-overlay" @click.self="$emit('close')">
 			<div class="modal">
 				<header class="header">
-					<h2 class="title">🎰 Раздача фишек</h2>
+					<h2 class="title">ℹ️ Информация об игре</h2>
 					<button class="closeBtn" @click="$emit('close')">
 						<Icon name="ph:x-bold" />
 					</button>
 				</header>
 
 				<div class="body">
-					<p class="subtitle">Каждому игроку выдать:</p>
-					<div
-						v-if="store.gameSetup.chipDistributionPerPlayer.length > 0"
-						class="distList"
-					>
+					<!-- Раздача фишек -->
+					<section class="section">
+						<h3 class="subtitle">Раздача фишек</h3>
 						<div
-							v-for="entry in store.gameSetup.chipDistributionPerPlayer"
-							:key="entry.id"
-							class="distItem"
+							v-if="store.gameSetup.chipDistributionPerPlayer.length > 0"
+							class="distList"
 						>
-							<PokerChip :value="entry.denomination" :color="entry.color" :size="80" />
-							<span class="distCount">&times; {{ entry.count }}</span>
+							<div
+								v-for="entry in store.gameSetup.chipDistributionPerPlayer"
+								:key="entry.id"
+								class="distItem"
+							>
+								<PokerChip :value="entry.denomination" :color="entry.color" :size="80" />
+								<span class="distCount">&times; {{ entry.count }}</span>
+							</div>
 						</div>
-					</div>
+					</section>
 
-					<div class="totals">
-						<div class="totalItem">
-							<span class="totalLabel">Фишек</span>
-							<span class="totalValue">{{ store.gameSetup.startingChipCount }}</span>
+					<!-- Горячие клавиши -->
+					<section class="section">
+						<h3 class="subtitle">⌨️ Горячие клавиши</h3>
+						<div class="hotkeyGrid">
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Пауза / Продолжить</span>
+								<kbd class="hotkeyBadge">Space</kbd>
+							</div>
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Следующая раздача</span>
+								<kbd class="hotkeyBadge">Enter</kbd>
+							</div>
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Настройки</span>
+								<kbd class="hotkeyBadge">S</kbd>
+							</div>
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Звук вкл / выкл</span>
+								<kbd class="hotkeyBadge">M</kbd>
+							</div>
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Информация</span>
+								<kbd class="hotkeyBadge">I</kbd>
+							</div>
+							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Закрыть окно</span>
+								<kbd class="hotkeyBadge">Esc</kbd>
+							</div>
 						</div>
-						<div class="totalItem">
-							<span class="totalLabel">Стек</span>
-							<span class="totalValue">{{ store.gameSetup.startingStack.toLocaleString('ru-RU') }}</span>
-						</div>
-					</div>
+					</section>
 				</div>
 			</div>
 		</div>
@@ -111,9 +134,29 @@ defineEmits<{
 
 .body {
 	padding: 28px;
+	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
+	gap: 32px;
+}
+
+.body::-webkit-scrollbar {
+	width: 6px;
+}
+
+.body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+	background: rgb(255 255 255 / 15%);
+	border-radius: 3px;
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 
 .subtitle {
@@ -123,6 +166,12 @@ defineEmits<{
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	color: var(--poker-text-muted);
+}
+
+.sectionHint {
+	font-size: 1.05rem;
+	color: var(--poker-text-secondary, #D1D5DB);
+	margin-top: -8px;
 }
 
 .distList {
@@ -184,5 +233,49 @@ defineEmits<{
 	font-weight: 800;
 	color: var(--poker-text);
 	font-variant-numeric: tabular-nums;
+}
+
+/* Горячие клавиши */
+.hotkeyGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.hotkeyItem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 12px 16px;
+	background: var(--poker-bg-input, #2D333B);
+	border: 1px solid var(--poker-border);
+	border-radius: var(--poker-radius-sm);
+}
+
+.hotkeyLabel {
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--poker-text);
+	letter-spacing: 0.01em;
+}
+
+.hotkeyBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 48px;
+	padding: 7px 14px;
+	font-family: var(--poker-font-mono, 'JetBrains Mono Variable', monospace);
+	font-size: 1.05rem;
+	font-weight: 800;
+	color: var(--poker-text);
+	background: linear-gradient(180deg, rgb(255 255 255 / 10%) 0%, transparent 100%), var(--poker-bg-elevated, #363640);
+	border: 1px solid rgb(255 255 255 / 16%);
+	border-bottom: 3px solid rgb(0 0 0 / 40%);
+	border-radius: 8px;
+	letter-spacing: 0.03em;
+	flex-shrink: 0;
 }
 </style>

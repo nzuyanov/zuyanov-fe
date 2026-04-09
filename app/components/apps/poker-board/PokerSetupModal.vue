@@ -396,7 +396,7 @@
 					<div class="setup-footer__wrapper">
 						<button
 							ref="startBtnRef"
-							class="setup-footer__btn"
+							class="poker-btn-green setup-footer__btn"
 							:disabled="!isFormValid"
 							@click="startTournament"
 							@mouseenter="!isFormValid && (showErrorsTooltip = true)"
@@ -1716,28 +1716,6 @@ const startTournament = () => {
 .setup-footer__btn {
 	padding: 14px 36px;
 	font-size: 1.0625rem;
-	font-weight: 700;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	border: none;
-	border-radius: var(--poker-radius-sm);
-	background: var(--poker-green);
-	color: #fff;
-	cursor: pointer;
-	transition: background 0.2s, opacity 0.2s, transform 0.15s;
-}
-
-.setup-footer__btn:disabled {
-	opacity: 0.4;
-	cursor: not-allowed;
-}
-
-.setup-footer__btn:hover:not(:disabled) {
-	background: var(--poker-green-hover);
-	transform: translateY(-1px);
-}
-
-.setup-footer__btn:active:not(:disabled) {
-	transform: translateY(0);
 }
 
 .setup-footer__wrapper {

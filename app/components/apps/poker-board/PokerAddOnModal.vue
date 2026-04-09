@@ -37,7 +37,7 @@
 				</div>
 
 				<!-- Кнопка продолжить -->
-				<button class="resumeButton" @click="$emit('resume')">
+				<button class="poker-btn-green resumeButton" @click="$emit('resume')">
 					▶ Продолжить игру
 				</button>
 			</div>
@@ -255,24 +255,5 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 /* Кнопка продолжить */
 .resumeButton {
 	padding: 16px 48px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.15rem;
-	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: #fff;
-	background: var(--poker-green);
-	border: none;
-	border-radius: var(--poker-radius);
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
-}
-
-.resumeButton:hover {
-	background: var(--poker-green-hover);
-}
-
-.resumeButton:active {
-	transform: scale(0.97);
 }
 </style>

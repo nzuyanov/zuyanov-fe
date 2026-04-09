@@ -84,7 +84,7 @@
 				<div class="board__pause-content">
 					<span class="board__pause-icon">⏸</span>
 					<span class="board__pause-text">ПАУЗА</span>
-					<button class="board__pause-resume" @click="store.resume()">
+					<button class="poker-btn-green board__pause-resume" @click="store.resume()">
 						▶ Продолжить
 					</button>
 				</div>
@@ -133,13 +133,91 @@ const store = usePokerStore()
 const sound = usePokerSound()
 const storage = usePokerStorage()
 
+// --- Хоткеи ---
+const hasAnyModalOpen = computed(() =>
+	!!eliminatingPlayer.value
+	|| showFinishConfirm.value
+	|| showBackConfirm.value
+	|| showSettingsModal.value
+	|| showAddOnModal.value
+	|| showBlindsModal.value
+	|| showChipInfoModal.value,
+)
+
+const handleKeydown = (e: KeyboardEvent) => {
+	// Не обрабатываем хоткеи, если фокус в инпуте или открыта модалка
+	const tag = (e.target as HTMLElement)?.tagName
+	if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
+	// Space — пауза / продолжить
+	if (e.code === 'Space' && !hasAnyModalOpen.value) {
+		e.preventDefault()
+		store.togglePause()
+		return
+	}
+
+	// Enter — следующая раздача
+	if (e.code === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		if (hasAnyModalOpen.value) return
+		e.preventDefault()
+		handleNextDeal()
+		return
+	}
+
+	// S — настройки
+	if (e.code === 'KeyS' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		e.preventDefault()
+		if (showSettingsModal.value) {
+			closeSettings()
+		}
+		else if (!hasAnyModalOpen.value) {
+			openSettings()
+		}
+		return
+	}
+
+	// M — переключить звук
+	if (e.code === 'KeyM' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		if (hasAnyModalOpen.value) return
+		e.preventDefault()
+		sound.toggleMute()
+		return
+	}
+
+	// I — информация об игре
+	if (e.code === 'KeyI' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		e.preventDefault()
+		if (showChipInfoModal.value) {
+			showChipInfoModal.value = false
+		}
+		else if (!hasAnyModalOpen.value) {
+			showChipInfoModal.value = true
+		}
+		return
+	}
+
+	// Escape — закрыть модалку настроек
+	if (e.code === 'Escape') {
+		if (showSettingsModal.value) {
+			e.preventDefault()
+			closeSettings()
+		}
+		else if (showChipInfoModal.value) {
+			e.preventDefault()
+			showChipInfoModal.value = false
+		}
+	}
+}
+
 // Запуск автосохранения и beforeunload при монтировании доски
 onMounted(() => {
 	storage.setupAutoSaveListeners()
+	window.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
 	storage.cleanupAutoSaveListeners()
+	window.removeEventListener('keydown', handleKeydown)
 })
 
 // --- Модалка уровней блайндов ---
@@ -424,24 +502,7 @@ watch(() => store.gameState.status, (status) => {
 .board__pause-resume {
 	margin-top: 16px;
 	padding: 14px 40px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.25rem;
-	font-weight: 700;
-	color: #fff;
-	background: var(--poker-green);
-	border: none;
-	border-radius: var(--poker-radius);
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
-}
-
-.board__pause-resume:hover {
-	background: var(--poker-green-hover);
-	transform: translateY(-2px);
-}
-
-.board__pause-resume:active {
-	transform: translateY(0);
 }
 
 @keyframes pause-pulse {
