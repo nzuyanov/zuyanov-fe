@@ -41,7 +41,7 @@
 
 		<!-- Кнопки управления -->
 		<div class="actions">
-			<button class="nextDeal" @click="$emit('nextDeal')">
+			<button class="poker-btn-green nextDeal" @click="$emit('nextDeal')">
 				Следующая раздача →
 			</button>
 			<button class="finish" @click="$emit('finish')">
@@ -241,26 +241,6 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 
 .nextDeal {
 	padding: 14px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	font-size: 1.15rem;
-	font-weight: 800;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: #fff;
-	background: var(--poker-green);
-	border: none;
-	border-radius: var(--poker-radius);
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
-}
-
-.nextDeal:hover {
-	background: var(--poker-green-hover);
-	transform: translateY(-1px);
-}
-
-.nextDeal:active {
-	transform: translateY(0);
 }
 
 .finish {

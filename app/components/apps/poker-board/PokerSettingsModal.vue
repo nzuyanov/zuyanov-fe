@@ -60,7 +60,7 @@
 								@click="handleUndoElimination(player.id)"
 							>
 								<img
-									:src="getAvatarDataUri(player.avatarId)"
+									:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 									alt=""
 									class="playerAvatar"
 								>
@@ -81,7 +81,7 @@
 								@click="handleUndoRebuy(player.id)"
 							>
 								<img
-									:src="getAvatarDataUri(player.avatarId)"
+									:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 									alt=""
 									class="playerAvatar"
 								>
@@ -101,6 +101,7 @@
 					<section v-if="eliminatedPlayers.length === 0 && playersWithRebuys.length === 0" class="section sectionEmpty">
 						<p class="emptyText">Нет действий для отмены 👌</p>
 					</section>
+
 				</div>
 			</div>
 		</div></Teleport>
@@ -405,4 +406,5 @@ const handleUndoRebuy = (playerId: number) => {
 	color: var(--poker-red, #EF4444);
 	background: rgb(239 68 68 / 12%);
 }
+
 </style>

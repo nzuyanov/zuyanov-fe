@@ -2,7 +2,7 @@ import { usePokerStore } from '~/stores/poker'
 import type { PokerSaveData } from '~/types/poker'
 
 const STORAGE_KEY = 'poker-board-state'
-const SAVE_VERSION = 2
+const SAVE_VERSION = 3
 const AUTOSAVE_INTERVAL = 60_000
 
 export const usePokerStorage = () => {
@@ -45,6 +45,16 @@ export const usePokerStorage = () => {
 				data.gameState.handNumber = data.gameState.handNumber ?? 1
 				data.gameState.totalAddOns = data.gameState.totalAddOns ?? 0
 				data.version = 2
+			}
+
+			// Миграция v2 → v3: добавляем пол игрокам (по умолчанию — мужской)
+			if (data.version === 2) {
+				if (Array.isArray(data.gameState.players)) {
+					for (const p of data.gameState.players) {
+						if (!p.gender) p.gender = 'male'
+					}
+				}
+				data.version = 3
 			}
 
 			if (data.version !== SAVE_VERSION) return null

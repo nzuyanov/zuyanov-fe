@@ -42,7 +42,7 @@
 			<div v-else class="poker-start">
 				<h1 class="poker-start__title">🃏 Poker Tournament</h1>
 				<p class="poker-start__desc">Настрой турнир и начинай игру</p>
-				<button class="poker-start__btn" @click="showSetup = true">
+				<button class="poker-btn-green poker-start__btn" @click="showSetup = true">
 					🚀 Новый турнир
 				</button>
 			</div>
@@ -246,6 +246,94 @@ const onNewGame = () => {
 }
 
 
+/* Общая премиальная изумрудная кнопка для покерной доски */
+.poker-btn-green {
+	position: relative;
+	padding: 14px 36px;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.15rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #fff;
+	background:
+		/* Глянцевый блик сверху — стекло поверх камня */
+		linear-gradient(
+			180deg,
+			rgb(255 255 255 / 28%) 0%,
+			rgb(255 255 255 / 10%) 20%,
+			transparent 45%,
+			rgb(0 0 0 / 6%) 75%,
+			rgb(0 0 0 / 15%) 100%
+		),
+		/* Изумрудная текстура камня с гранями */
+		url('~/assets/images/emerald-texture.svg');
+	background-size: auto, 200px 200px;
+	border: none;
+	border-top: 1px solid rgb(255 255 255 / 30%);
+	border-bottom: 2px solid #043a2c;
+	border-radius: var(--poker-radius);
+	cursor: pointer;
+	box-shadow:
+		/* Внешнее свечение */
+		0 4px 24px rgb(16 185 129 / 40%),
+		0 0 50px rgb(16 185 129 / 15%),
+		/* Внутреннее свечение по краям */
+		0 1px 0 rgb(255 255 255 / 15%) inset,
+		0 -1px 0 rgb(0 0 0 / 20%) inset;
+	text-shadow: 0 1px 3px rgb(0 0 0 / 50%), 0 0 12px rgb(16 185 129 / 30%);
+	transition: transform 0.15s, box-shadow 0.25s, filter 0.2s;
+	overflow: hidden;
+}
+
+/* Световой блик — анимированный отблеск на поверхности камня */
+.poker-btn-green::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: radial-gradient(
+		ellipse 80% 50% at 30% 20%,
+		rgb(255 255 255 / 18%) 0%,
+		transparent 70%
+	);
+	pointer-events: none;
+	transition: opacity 0.3s;
+}
+
+.poker-btn-green:hover:not(:disabled)::before {
+	background: radial-gradient(
+		ellipse 90% 60% at 35% 25%,
+		rgb(255 255 255 / 24%) 0%,
+		transparent 70%
+	);
+}
+
+.poker-btn-green:hover:not(:disabled) {
+	transform: translateY(-2px);
+	filter: brightness(1.1) saturate(1.1);
+	box-shadow:
+		0 6px 32px rgb(16 185 129 / 50%),
+		0 0 70px rgb(16 185 129 / 20%),
+		0 1px 0 rgb(255 255 255 / 18%) inset,
+		0 -1px 0 rgb(0 0 0 / 20%) inset;
+}
+
+.poker-btn-green:active:not(:disabled) {
+	transform: translateY(1px);
+	filter: brightness(0.92) saturate(1.05);
+	box-shadow:
+		0 1px 8px rgb(16 185 129 / 30%),
+		0 1px 0 rgb(0 0 0 / 20%) inset;
+	border-top-color: rgb(255 255 255 / 12%);
+}
+
+.poker-btn-green:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	filter: saturate(0.5);
+}
+
 .poker-shimmer-overlay {
 	background:
 		radial-gradient(ellipse at 15% 50%, rgb(16 185 129 / 35%) 0%, transparent 50%),
@@ -304,24 +392,7 @@ const onNewGame = () => {
 .poker-start__btn {
 	margin-top: 8px;
 	padding: 16px 40px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.25rem;
-	font-weight: 700;
-	border: none;
-	border-radius: var(--poker-radius);
-	background: var(--poker-green);
-	color: #fff;
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s;
-}
-
-.poker-start__btn:hover {
-	background: var(--poker-green-hover);
-	transform: translateY(-1px);
-}
-
-.poker-start__btn:active {
-	transform: translateY(0);
 }
 
 /* Заглушка для маленьких экранов */

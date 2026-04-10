@@ -18,7 +18,7 @@
 				>
 					<img :src="placeIcons[i]" alt="" class="placeIcon">
 					<img
-						:src="getAvatarDataUri(entry.player.avatarId)"
+						:src="getAvatarDataUri(entry.player.avatarId, entry.player.gender, entry.player.avatarBackground)"
 						alt=""
 						class="avatar"
 						:class="`avatar--place${i + 1}`"
@@ -31,7 +31,7 @@
 				</div>
 			</div>
 
-			<button class="btn" @click="$emit('newGame')">
+			<button class="poker-btn-green btn" @click="$emit('newGame')">
 				🚀 Новый турнир
 			</button>
 		</div>
@@ -262,26 +262,6 @@ const confettiStyle = (n: number) => {
 .btn {
 	margin-top: 8px;
 	padding: 18px 48px;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
 	font-size: 1.2rem;
-	font-weight: 800;
-	border: none;
-	border-radius: var(--poker-radius);
-	background: var(--poker-green);
-	color: #fff;
-	cursor: pointer;
-	transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-	box-shadow: 0 4px 20px rgb(16 185 129 / 30%);
-}
-
-.btn:hover {
-	background: var(--poker-green-hover);
-	transform: translateY(-2px);
-	box-shadow: 0 6px 28px rgb(16 185 129 / 40%);
-}
-
-.btn:active {
-	transform: translateY(0);
-	box-shadow: 0 2px 12px rgb(16 185 129 / 25%);
 }
 </style>

@@ -344,13 +344,39 @@
 									<Icon name="ph:trash-bold" />
 								</button>
 								<span class="player-card__num">{{ i + 1 }}</span>
-								<button
-									class="player-card__avatar"
-									@click="cycleAvatar(i)"
-								>
-									<!-- eslint-disable-next-line vue/no-v-html -->
-									<span class="player-avatar-wrapper" v-html="getAvatarSvg(player.avatarId)" />
-								</button>
+								<div class="player-card__avatar-row">
+									<button
+										class="player-card__bg"
+										@click="setPlayerBg(i)"
+									>
+										<Icon name="solar:wallpaper-bold-duotone" size="32px" />
+									</button>
+									<button
+										class="player-card__avatar"
+										@click="cycleAvatar(i)"
+									>
+										<!-- eslint-disable-next-line vue/no-v-html -->
+										<span class="player-avatar-wrapper" v-html="getAvatarSvg(player.avatarId, player.gender, player.avatarBackground)"/>
+									</button>
+									<div class="player-card__gender-switch" role="group" aria-label="Пол игрока">
+										<button
+											type="button"
+											class="player-card__gender-btn player-card__gender-btn--male"
+											:class="{ 'player-card__gender-btn--active': player.gender === 'male' }"
+											@click="setGender(i, 'male')"
+										>
+											♂
+										</button>
+										<button
+											type="button"
+											class="player-card__gender-btn player-card__gender-btn--female"
+											:class="{ 'player-card__gender-btn--active': player.gender === 'female' }"
+											@click="setGender(i, 'female')"
+										>
+											♀
+										</button>
+									</div>
+								</div>
 								<div class="player-card__name-row">
 									<PokerInput
 										v-model="player.name"
@@ -363,7 +389,7 @@
 										class="player-card__reroll"
 										@click="rerollName(i)"
 									>
-										<Icon name="ph:dice-five-bold" />
+										<Icon name="ph:dice-five-bold" size="20px" />
 									</button>
 								</div>
 							</div>
@@ -396,7 +422,7 @@
 					<div class="setup-footer__wrapper">
 						<button
 							ref="startBtnRef"
-							class="setup-footer__btn"
+							class="poker-btn-green setup-footer__btn"
 							:disabled="!isFormValid"
 							@click="startTournament"
 							@mouseenter="!isFormValid && (showErrorsTooltip = true)"
@@ -435,41 +461,41 @@
 </template>
 
 <script setup lang="ts">
-import type { PokerConfig, PokerPlayer, GameSpeed, BlindLevel, ChipCaseEntry, ChipColor } from '~/types/poker'
-import {
-	CHIP_COLORS,
-	PLAYERS_MAX,
-	PLAYERS_MIN,
-	GAME_DURATION_MAX,
-	GAME_DURATION_MIN,
-	FUN_NAMES, PLAYER_NAME_MAX_LENGTH,
-} from '~/constants/poker'
-import draggable from 'vuedraggable'
-import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
-import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
-import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
-import PokerChipColorPicker from '~/components/apps/poker-board/PokerChipColorPicker.vue'
-import trophyGold from '~/assets/images/trophy-gold.png'
-import trophySilver from '~/assets/images/trophy-silver.png'
-import trophyBronze from '~/assets/images/trophy-bronze.png'
-import imgPokerCards from '~/assets/images/poker-cards.png'
-import imgBandit from '~/assets/images/bandit.png'
-import imgPokerChip from '~/assets/images/poker-chip.png'
-import imgHelmet from '~/assets/images/helmet.png'
-import moneyCase from '~/assets/images/money-case.png'
-import imgSetting from '~/assets/images/setting.png'
-import pickupCar from '~/assets/images/pickup-car.png'
-import schoolBus from '~/assets/images/school-bus.png'
-import speedCar from '~/assets/images/speed-car.png'
-import PokerChipRate from '~/components/apps/poker-board/PokerChipRate.vue'
+	import type { AvatarBackground, ChipCaseEntry, GameSpeed, PlayerGender, PokerPlayer } from '~/types/poker'
+	import {
+		FUN_NAMES,
+		GAME_DURATION_MAX,
+		GAME_DURATION_MIN,
+		PLAYER_NAME_MAX_LENGTH,
+		PLAYERS_MAX,
+		PLAYERS_MIN,
+	} from '~/constants/poker'
+	import draggable from 'vuedraggable'
+	import PokerInput from '~/components/apps/poker-board/PokerInput.vue'
+	import PokerTimeInput from '~/components/apps/poker-board/PokerTimeInput.vue'
+	import PokerChip from '~/components/apps/poker-board/PokerChip.vue'
+	import PokerChipColorPicker from '~/components/apps/poker-board/PokerChipColorPicker.vue'
+	import trophyGold from '~/assets/images/trophy-gold.png'
+	import trophySilver from '~/assets/images/trophy-silver.png'
+	import trophyBronze from '~/assets/images/trophy-bronze.png'
+	import imgPokerCards from '~/assets/images/poker-cards.png'
+	import imgBandit from '~/assets/images/bandit.png'
+	import imgPokerChip from '~/assets/images/poker-chip.png'
+	import imgHelmet from '~/assets/images/helmet.png'
+	import moneyCase from '~/assets/images/money-case.png'
+	import imgSetting from '~/assets/images/setting.png'
+	import pickupCar from '~/assets/images/pickup-car.png'
+	import schoolBus from '~/assets/images/school-bus.png'
+	import speedCar from '~/assets/images/speed-car.png'
+	import PokerChipRate from '~/components/apps/poker-board/PokerChipRate.vue'
 
-const emit = defineEmits<{
+	const emit = defineEmits<{
 	start: [players: PokerPlayer[]]
 	close: []
 }>()
 
 const store = usePokerStore()
-const { getAvatarSvg, getRandomSeed, getNextSeed } = usePokerAvatars()
+const { getAvatarSvg, getRandomSeed, getNextSeed, generateRandomBackground } = usePokerAvatars()
 
 
 const trophyIcons = [trophyGold, trophySilver, trophyBronze]
@@ -544,9 +570,14 @@ interface SetupPlayer {
 	id: number
 	name: string
 	avatarId: string
+	gender: PlayerGender
+	avatarBackground: AvatarBackground
 }
 
 const players = ref<SetupPlayer[]>([])
+
+// Случайный пол для нового игрока
+const getRandomGender = (): PlayerGender => (Math.random() < 0.5 ? 'male' : 'female')
 
 const generatePlayers = (count: number) => {
 	const usedSeeds: string[] = []
@@ -565,10 +596,13 @@ const generatePlayers = (count: number) => {
 			usedSeeds.push(seed)
 			const name = getRandomName(usedNames)
 			usedNames.push(name)
+
 			newPlayers.push({
 				id: i + 1,
 				name,
 				avatarId: seed,
+				gender: getRandomGender(),
+				avatarBackground: generateRandomBackground(),
 			})
 		}
 	}
@@ -598,6 +632,8 @@ const addPlayer = () => {
 		id,
 		name,
 		avatarId: seed,
+		gender: getRandomGender(),
+		avatarBackground: generateRandomBackground(),
 	})
 	store.config.playerCount = players.value.length
 	nextTick(() => {
@@ -616,6 +652,18 @@ const cycleAvatar = (index: number) => {
 	if (player) {
 		player.avatarId = getNextSeed(player.avatarId)
 	}
+}
+
+const setGender = (index: number, gender: PlayerGender) => {
+	const player = players.value[index]
+	if (!player || player.gender === gender) return
+	player.gender = gender
+}
+
+const setPlayerBg = (index: number) => {
+	const player = players.value[index]
+	if (!player) return
+	player.avatarBackground = generateRandomBackground()
 }
 
 const rerollName = (index: number) => {
@@ -733,6 +781,8 @@ const startTournament = () => {
 		id: p.id,
 		name: p.name.trim(),
 		avatarId: p.avatarId,
+		gender: p.gender,
+		avatarBackground: p.avatarBackground,
 		totalContributed: store.config.buyIn,
 		rebuysUsed: 0,
 		addOnUsed: false,
@@ -1567,14 +1617,21 @@ const startTournament = () => {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 10px;
-	padding: 20px 12px 16px;
+	gap: 14px;
+	padding: 28px 14px 16px;
 	min-width: 0;
-	height: 180px;
+	height: 232px;
 	background: var(--poker-bg-input);
 	border: 1px solid var(--poker-border);
 	border-radius: var(--poker-radius);
 	transition: border-color 0.2s;
+}
+
+.player-card__avatar-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
 }
 
 
@@ -1610,9 +1667,56 @@ const startTournament = () => {
 	background: var(--poker-red-dim);
 }
 
+/* Переключатель пола — вертикальный тумблер справа от аватарки */
+.player-card__gender-switch {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 4px;
+	background: var(--poker-bg-card);
+	border: 1px solid var(--poker-border);
+	border-radius: 28px;
+	flex-shrink: 0;
+}
+
+.player-card__gender-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1;
+	color: var(--poker-text-muted);
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: color 0.2s, background 0.2s;
+}
+
+.player-card__gender-btn:hover:not(.player-card__gender-btn--active) {
+	color: var(--poker-text-primary);
+}
+
+/* Мужская — синий */
+.player-card__gender-btn--male.player-card__gender-btn--active {
+	color: #fff;
+	background: #3b82f6;
+}
+
+/* Женская — розовый */
+.player-card__gender-btn--female.player-card__gender-btn--active {
+	color: #fff;
+	background: #ec4899;
+}
+
 .player-card__avatar {
-	width: 80px;
-	height: 80px;
+	width: 120px;
+	height: 120px;
 	border: none;
 	border-radius: 50%;
 	outline: 2px solid var(--poker-border);
@@ -1671,6 +1775,26 @@ const startTournament = () => {
 	background: var(--poker-gold-dim);
 }
 
+.player-card__bg {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	padding: 5px;
+	border-radius: var(--poker-radius-sm);
+	background: transparent;
+	color: var(--poker-text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.player-card__bg:hover {
+	color: var(--poker-green);
+	background: var(--poker-green-dim);
+}
+
+.player-card__bg:active,
 .player-card__reroll:active {
 	transform: rotate(90deg);
 }
@@ -1716,28 +1840,6 @@ const startTournament = () => {
 .setup-footer__btn {
 	padding: 14px 36px;
 	font-size: 1.0625rem;
-	font-weight: 700;
-	font-family: var(--font-heading, 'Montserrat Variable', sans-serif);
-	border: none;
-	border-radius: var(--poker-radius-sm);
-	background: var(--poker-green);
-	color: #fff;
-	cursor: pointer;
-	transition: background 0.2s, opacity 0.2s, transform 0.15s;
-}
-
-.setup-footer__btn:disabled {
-	opacity: 0.4;
-	cursor: not-allowed;
-}
-
-.setup-footer__btn:hover:not(:disabled) {
-	background: var(--poker-green-hover);
-	transform: translateY(-1px);
-}
-
-.setup-footer__btn:active:not(:disabled) {
-	transform: translateY(0);
 }
 
 .setup-footer__wrapper {

@@ -116,10 +116,25 @@ export interface ChipAvailability {
 	bottleneck?: string
 }
 
+/** Пол игрока — влияет на набор возможных аватарок */
+export type PlayerGender = 'male' | 'female'
+
+/** Линейный градиентный фон аватарки: два цвета (hex без #) и угол поворота */
+export interface AvatarBackground {
+	/** Первый цвет градиента — 6 символов hex без # */
+	color1: string
+	/** Второй цвет градиента — 6 символов hex без # */
+	color2: string
+	/** Угол поворота градиента в градусах */
+	rotation: number
+}
+
 export interface PokerPlayer {
 	id: number
 	name: string
 	avatarId: string
+	gender: PlayerGender
+	avatarBackground: AvatarBackground
 	totalContributed: number
 	rebuysUsed: number
 	addOnUsed: boolean
