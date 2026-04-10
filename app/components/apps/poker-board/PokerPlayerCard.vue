@@ -89,7 +89,7 @@ const emit = defineEmits<{
 
 const { getAvatarDataUri } = usePokerAvatars()
 
-const avatarUri = computed(() => getAvatarDataUri(props.player.avatarId))
+const avatarUri = computed(() => getAvatarDataUri(props.player.avatarId, props.player.gender, props.player.avatarBackground))
 
 const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 

@@ -18,7 +18,7 @@
 				>
 					<img :src="placeIcons[i]" alt="" class="placeIcon">
 					<img
-						:src="getAvatarDataUri(entry.player.avatarId)"
+						:src="getAvatarDataUri(entry.player.avatarId, entry.player.gender, entry.player.avatarBackground)"
 						alt=""
 						class="avatar"
 						:class="`avatar--place${i + 1}`"

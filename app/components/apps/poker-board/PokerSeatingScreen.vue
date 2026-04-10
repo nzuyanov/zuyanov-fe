@@ -33,7 +33,7 @@
 				>
 					<span class="seatNum">{{ index + 1 }}</span>
 					<img
-						:src="getAvatarDataUri(player.avatarId)"
+						:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 						alt=""
 						class="seatAvatar"
 					>

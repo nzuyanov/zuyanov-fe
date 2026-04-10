@@ -18,7 +18,7 @@
 						@click="toggleAddOn(player.id)"
 					>
 						<img
-							:src="getAvatarDataUri(player.avatarId)"
+							:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 							alt=""
 							class="avatar"
 							:class="{ 'avatarEliminated': player.isEliminated && !player.addOnUsed }"

@@ -60,7 +60,7 @@
 								@click="handleUndoElimination(player.id)"
 							>
 								<img
-									:src="getAvatarDataUri(player.avatarId)"
+									:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 									alt=""
 									class="playerAvatar"
 								>
@@ -81,7 +81,7 @@
 								@click="handleUndoRebuy(player.id)"
 							>
 								<img
-									:src="getAvatarDataUri(player.avatarId)"
+									:src="getAvatarDataUri(player.avatarId, player.gender, player.avatarBackground)"
 									alt=""
 									class="playerAvatar"
 								>
