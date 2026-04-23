@@ -12,9 +12,15 @@
 		<div class="columns">
 			<!-- Левая: таймер до смены блайндов -->
 			<div class="col colLeft">
-				<img :src="imgSandTimer" alt="" class="timer">
-				<span class="blindTimerValue" :class="{ 'blindTimerWarning': isBlindTimerLow }">{{ formatBlindTimer }}</span>
-				<span class="blindTimerLabel">до смены</span>
+				<img :src="imgSandTimer" alt="" class="timer" :class="{ 'timerPending': store.gameState.blindsPending }">
+				<span
+					class="blindTimerValue"
+					:class="{
+						'blindTimerWarning': isBlindTimerLow && !store.gameState.blindsPending,
+						'blindTimerPending': store.gameState.blindsPending,
+					}"
+				>{{ formatBlindTimer }}</span>
+				<span class="blindTimerLabel" :class="{ 'blindTimerLabelPending': store.gameState.blindsPending }">{{ store.gameState.blindsPending ? 'ждёт раздачу' : 'до смены' }}</span>
 			</div>
 
 			<!-- Разделитель -->
@@ -157,7 +163,7 @@ onUnmounted(() => {
 }
 
 .stage--bubble {
-	background-color: rgba(190, 24, 93, 0.5);
+	background-color: rgb(190 24 93 / 50%);
 	color: #F9A8D4;
 	animation: bubblePulse 1s ease-in-out infinite;
 }
@@ -176,7 +182,7 @@ onUnmounted(() => {
 }
 
 .stage--final-table {
-	background: linear-gradient(45deg, #000000, #D4AF37);
+	background: linear-gradient(45deg, #000, #D4AF37);
 	background-size: 200% 200%;
 	color: white;
 	animation: gradient-shift 4s ease infinite;
@@ -189,27 +195,29 @@ onUnmounted(() => {
 }
 
 .stage--heads-up {
-	background-color: rgba(0, 0, 0, 0.6);
+	background-color: rgb(0 0 0 / 60%);
 	color: #FF4757;
 	backdrop-filter: blur(3px);
-	box-shadow: 0 0 0 rgba(255, 71, 87, 0);
+	box-shadow: 0 0 0 rgb(255 71 87 / 0%);
 	animation: tension-pulse 1.5s infinite;
 }
 
 @keyframes tension-pulse {
-	0%, 100% { box-shadow: 0 0 10px rgba(255, 71, 87, 0.4); }
-	50% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8); }
+	0%, 100% { box-shadow: 0 0 10px rgb(255 71 87 / 40%); }
+	50% { box-shadow: 0 0 20px rgb(255 71 87 / 80%); }
 }
 
 @keyframes bubblePulse {
 	0% {
-		background-color: rgba(190, 24, 93, 0.5);
+		background-color: rgb(190 24 93 / 50%);
 	}
+
 	50% {
-		background-color: rgba(210, 30, 100, 0.6); /* Чуть ярче и насыщеннее */
+		background-color: rgb(210 30 100 / 60%); /* Чуть ярче и насыщеннее */
 	}
+
 	100% {
-		background-color: rgba(190, 24, 93, 0.5);
+		background-color: rgb(190 24 93 / 50%);
 	}
 }
 
@@ -255,12 +263,31 @@ onUnmounted(() => {
 	color: #ffd06a;
 }
 
+.blindTimerPending {
+	color: #5dffba;
+	animation: pendingPulse 1.2s ease-in-out infinite;
+}
+
+.timerPending {
+	animation: pendingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.55; }
+}
+
 .blindTimerLabel {
 	font-size: 1rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	color: rgb(255 255 255 / 35%);
+}
+
+.blindTimerLabelPending {
+	color: #5dffba;
+	font-weight: 700;
 }
 
 /* Центральная колонка: блайнды */

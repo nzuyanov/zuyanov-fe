@@ -2,7 +2,7 @@ import { usePokerStore } from '~/stores/poker'
 import type { PokerSaveData } from '~/types/poker'
 
 const STORAGE_KEY = 'poker-board-state'
-const SAVE_VERSION = 3
+const SAVE_VERSION = 4
 const AUTOSAVE_INTERVAL = 60_000
 
 export const usePokerStorage = () => {
@@ -55,6 +55,12 @@ export const usePokerStorage = () => {
 					}
 				}
 				data.version = 3
+			}
+
+			// Миграция v3 → v4: добавляем флаг ожидания повышения блайндов
+			if (data.version === 3) {
+				data.gameState.blindsPending = data.gameState.blindsPending ?? false
+				data.version = 4
 			}
 
 			if (data.version !== SAVE_VERSION) return null

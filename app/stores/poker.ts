@@ -27,6 +27,7 @@ const initGameState: PokerGameState = {
 	eliminationCounter: 0,
 	handNumber: 1,
 	totalAddOns: 0,
+	blindsPending: false,
 }
 
 export const usePokerStore = defineStore('poker', () => {
@@ -227,6 +228,7 @@ export const usePokerStore = defineStore('poker', () => {
 			eliminationCounter: 0,
 			handNumber: 1,
 			totalAddOns: 0,
+			blindsPending: false,
 		}
 	}
 
@@ -291,6 +293,11 @@ export const usePokerStore = defineStore('poker', () => {
 		const active = activePlayers.value
 		if (active.length < 2) return
 
+		// Если уровень блайндов ждёт применения — применяем вместе с новой раздачей
+		if (gameState.value.blindsPending) {
+			advanceBlinds()
+		}
+
 		gameState.value.dealerIndex = getNextActiveIndex(gameState.value.dealerIndex)
 		gameState.value.handNumber++
 	}
@@ -300,16 +307,22 @@ export const usePokerStore = defineStore('poker', () => {
 		const nextLevel = allBlindLevels.value[gameState.value.currentBlindLevel]
 		const duration = nextLevel ? nextLevel.durationMinutes : allBlindLevels.value[0]?.durationMinutes ?? 15
 		gameState.value.blindTimerSeconds = duration * 60
+		gameState.value.blindsPending = false
 	}
 
 	const tick = () => {
 		if (gameState.value.status !== 'playing') return
 
 		gameState.value.elapsedSeconds++
-		gameState.value.blindTimerSeconds--
 
-		if (gameState.value.blindTimerSeconds <= 0) {
-			advanceBlinds()
+		// Пока новые блайнды ждут раздачи — таймер уровня не убывает
+		if (!gameState.value.blindsPending) {
+			gameState.value.blindTimerSeconds--
+
+			if (gameState.value.blindTimerSeconds <= 0) {
+				gameState.value.blindTimerSeconds = 0
+				gameState.value.blindsPending = true
+			}
 		}
 
 		if (gameState.value.elapsedSeconds >= gameDurationSeconds.value) {
@@ -362,6 +375,7 @@ export const usePokerStore = defineStore('poker', () => {
 		const level = allBlindLevels.value[gameState.value.currentBlindLevel]
 		const duration = level ? level.durationMinutes : allBlindLevels.value[0]?.durationMinutes ?? 15
 		gameState.value.blindTimerSeconds = duration * 60
+		gameState.value.blindsPending = false
 	}
 
 	const undoElimination = (playerId: number) => {

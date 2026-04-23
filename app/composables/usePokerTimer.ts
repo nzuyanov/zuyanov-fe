@@ -24,16 +24,9 @@ export const usePokerTimer = (callbacks: PokerTimerCallbacks) => {
 			if (store.gameState.status !== 'playing') return
 
 			const prevElapsed = store.gameState.elapsedSeconds
-			const prevBlindTimer = store.gameState.blindTimerSeconds
 			const wasRebuyPeriod = prevElapsed < store.rebuyPeriodSeconds
 
 			store.tick()
-
-			// Check blind level advance (blindTimerSeconds was reset)
-			if (prevBlindTimer <= 1 && store.gameState.blindTimerSeconds > 1) {
-				callbacks.onBlindsUp()
-				warned1minBlinds.value = false
-			}
 
 			// Check game time up
 			if (store.remainingGameSeconds <= 0) {
@@ -59,6 +52,14 @@ export const usePokerTimer = (callbacks: PokerTimerCallbacks) => {
 			}
 		}, 1000)
 	}
+
+	// Звук повышения блайндов играем, когда уровень реально применён (по кнопке «Следующая раздача»)
+	watch(() => store.gameState.currentBlindLevel, (newLevel, oldLevel) => {
+		if (newLevel > oldLevel) {
+			callbacks.onBlindsUp()
+			warned1minBlinds.value = false
+		}
+	})
 
 	const stop = () => {
 		if (intervalId !== null) {
