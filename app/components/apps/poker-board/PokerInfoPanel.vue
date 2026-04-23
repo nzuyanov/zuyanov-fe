@@ -1,13 +1,13 @@
 <template>
 	<aside class="infoPanel">
 		<!-- Банк -->
-		<section class="section">
+		<section v-if="!stealthMode" class="section">
 			<h3 class="label">Банк</h3>
 			<span class="pot">{{ formatMoney(store.gameState.totalPot) }} ₽</span>
 		</section>
 
 		<!-- Призовые -->
-		<section class="section">
+		<section v-if="!stealthMode" class="section">
 			<h3 class="label">Призовые</h3>
 			<div class="prizes">
 				<div class="prize">
@@ -26,7 +26,7 @@
 		</section>
 
 		<!-- Курс фишки -->
-		<section class="section">
+		<section v-if="!stealthMode" class="section">
 			<h3 class="label">Курс фишки</h3>
 			<PokerChipRate variant="column" />
 		</section>
@@ -65,6 +65,10 @@ import trophyBronzeImg from '~/assets/images/trophy-bronze.png'
 import PokerChipRate from '~/components/apps/poker-board/PokerChipRate.vue'
 
 const store = usePokerStore()
+
+defineProps<{
+	stealthMode: boolean
+}>()
 
 defineEmits<{
 	nextDeal: []

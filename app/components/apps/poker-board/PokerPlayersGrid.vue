@@ -28,6 +28,7 @@
 				:can-rebuy="store.canRebuy(player.id)"
 				:is-add-on="store.isPlayerAddOn(player.id)"
 				:max-rebuys="store.config.maxRebuys"
+				:stealth-mode="stealthMode"
 				@rebuy="$emit('rebuy', $event)"
 				@eliminate="$emit('eliminate', $event)"
 			/>
@@ -68,6 +69,7 @@ import PokerTableOverlay from './PokerTableOverlay.vue'
 
 const props = defineProps<{
 	players: PokerPlayer[]
+	stealthMode: boolean
 }>()
 
 defineEmits<{

@@ -16,7 +16,7 @@
 			>
 			<div class="info">
 				<span class="name">{{ player.name }}</span>
-				<span class="totalCash">
+				<span v-if="!stealthMode" class="totalCash">
 					Внёс: <span class="value">{{ formatMoney(player.totalContributed) }} ₽</span>
 				</span>
 
@@ -80,6 +80,7 @@ const props = defineProps<{
 	canRebuy: boolean
 	isAddOn: boolean
 	maxRebuys: number
+	stealthMode: boolean
 }>()
 
 const emit = defineEmits<{

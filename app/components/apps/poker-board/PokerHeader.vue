@@ -28,6 +28,14 @@
 			</button>
 			<button
 				class="btn"
+				:class="{ 'btnActive': isStealth }"
+				@click="$emit('toggleStealth')"
+			>
+				<Fa6EyeSlash v-if="isStealth" />
+				<Fa6Eye v-else />
+			</button>
+			<button
+				class="btn"
 				@click="$emit('openSettings')"
 			>
 				<Fa6Gear />
@@ -43,21 +51,23 @@
 </template>
 
 <script setup lang="ts">
-	import { Fa6Gear, Fa6ArrowLeft, Fa6Play, Fa6Pause, Fa6VolumeHigh, Fa6VolumeXmark, Fa6CircleInfo } from 'vue-icons-plus/fa6'
+import { Fa6Gear, Fa6ArrowLeft, Fa6Play, Fa6Pause, Fa6VolumeHigh, Fa6VolumeXmark, Fa6CircleInfo, Fa6Eye, Fa6EyeSlash } from 'vue-icons-plus/fa6'
 
-	defineProps<{
-		title: string
-		isPaused: boolean
-		isMuted: boolean
-	}>()
+defineProps<{
+	title: string
+	isPaused: boolean
+	isMuted: boolean
+	isStealth: boolean
+}>()
 
-	defineEmits<{
-		back: []
-		togglePause: []
-		toggleSound: []
-		openSettings: []
-		openChipInfo: []
-	}>()
+defineEmits<{
+	back: []
+	togglePause: []
+	toggleSound: []
+	toggleStealth: []
+	openSettings: []
+	openChipInfo: []
+}>()
 </script>
 
 <style scoped>
