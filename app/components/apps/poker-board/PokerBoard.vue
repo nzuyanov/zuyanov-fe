@@ -5,15 +5,18 @@
 				:title="store.config.name || 'Poker Tournament'"
 				:is-paused="store.gameState.status === 'paused'"
 				:is-muted="sound.muted.value"
+				:is-stealth="stealthMode"
 				@back="requestBack"
 				@toggle-pause="store.togglePause()"
 				@toggle-sound="sound.toggleMute()"
+				@toggle-stealth="toggleStealth"
 				@open-settings="openSettings"
 				@open-chip-info="showChipInfoModal = true"
 			/>
 
 			<PokerPlayersGrid
 				:players="store.gameState.players"
+				:stealth-mode="stealthMode"
 				class="board__players"
 				@rebuy="handleRebuy"
 				@eliminate="requestElimination"
@@ -23,6 +26,7 @@
 
 		<PokerInfoPanel
 			class="board__info"
+			:stealth-mode="stealthMode"
 			@next-deal="handleNextDeal"
 			@finish="requestFinish"
 		/>
@@ -196,6 +200,14 @@ const handleKeydown = (e: KeyboardEvent) => {
 		return
 	}
 
+	// H — беспалевный режим
+	if (e.code === 'KeyH' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		if (hasAnyModalOpen.value) return
+		e.preventDefault()
+		toggleStealth()
+		return
+	}
+
 	// Escape — закрыть модалку настроек
 	if (e.code === 'Escape') {
 		if (showSettingsModal.value) {
@@ -219,6 +231,13 @@ onUnmounted(() => {
 	storage.cleanupAutoSaveListeners()
 	window.removeEventListener('keydown', handleKeydown)
 })
+
+// --- Беспалевный режим (скрытие денежных блоков) ---
+const stealthMode = ref(false)
+
+const toggleStealth = () => {
+	stealthMode.value = !stealthMode.value
+}
 
 // --- Модалка уровней блайндов ---
 const showBlindsModal = ref(false)

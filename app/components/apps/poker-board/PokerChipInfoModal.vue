@@ -53,6 +53,10 @@
 								<kbd class="hotkeyBadge">I</kbd>
 							</div>
 							<div class="hotkeyItem">
+								<span class="hotkeyLabel">Беспалевный режим</span>
+								<kbd class="hotkeyBadge">H</kbd>
+							</div>
+							<div class="hotkeyItem">
 								<span class="hotkeyLabel">Закрыть окно</span>
 								<kbd class="hotkeyBadge">Esc</kbd>
 							</div>
