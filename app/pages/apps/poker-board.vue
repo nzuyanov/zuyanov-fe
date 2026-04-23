@@ -50,7 +50,7 @@
 			<!-- Модалка восстановления сохранённой игры -->
 			<PokerConfirmModal
 				v-if="showRestoreModal"
-				title="Обнаружена незавершенная игра"
+				title="Найдена незавершенная игра"
 				:message="restoreMessage"
 				confirm-text="Продолжить"
 				cancel-text="Начать новую"

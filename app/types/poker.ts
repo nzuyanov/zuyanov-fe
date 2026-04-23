@@ -155,6 +155,8 @@ export interface PokerGameState {
 	eliminationCounter: number
 	handNumber: number
 	totalAddOns: number
+	/** true — таймер уровня истёк, но новые блайнды ждут следующей раздачи */
+	blindsPending: boolean
 }
 
 export interface PokerSaveData {

@@ -5,7 +5,7 @@
 				<header class="setup-header">
 					<h1 class="setup-header__title"><img :src="imgPokerCards" alt="" class="section-icon"> Настройки турнира</h1>
 					<button class="setup-header__close" @click="emit('close')">
-						<Icon name="ph:x-bold" />
+						<RxCross2 />
 					</button>
 				</header>
 
@@ -99,8 +99,7 @@
 										/>
 									</div>
 									<span class="prizes__amount">
-										{{ (store.prizeInCash[i] ?? 0).toLocaleString('ru-RU') }}
-										<Icon name="material-symbols:currency-ruble-rounded" class="rub-icon" />
+										{{ (store.prizeInCash[i] ?? 0).toLocaleString('ru-RU') }} ₽
 									</span>
 								</div>
 							</div>
@@ -215,7 +214,7 @@
 												<tr>
 													<td class="chipCaseTdDrag">
 														<button class="chipCaseDragHandle" type="button">
-															<Icon name="ph:dots-six-vertical-bold" />
+															<MdOutlineDragIndicator />
 														</button>
 													</td>
 													<td>
@@ -250,7 +249,7 @@
 															class="chipCaseRemove"
 															@click="store.removeChipDenom(chip.id)"
 														>
-															<Icon name="ph:trash-bold" />
+															<Fa6Trash size="15" />
 														</button>
 													</td>
 												</tr>
@@ -259,7 +258,7 @@
 									</table>
 								</div>
 								<button class="chipCaseAdd" @click="store.addChipDenom">
-									<Icon name="ph:plus-bold" /> Добавить номинал
+									<Fa6Plus /> Добавить номинал
 								</button>
 							</div>
 
@@ -341,7 +340,7 @@
 									class="player-card__remove"
 									@click="removePlayer(i)"
 								>
-									<Icon name="ph:trash-bold" />
+									<Fa6Trash size="15" />
 								</button>
 								<span class="player-card__num">{{ i + 1 }}</span>
 								<div class="player-card__avatar-row">
@@ -349,7 +348,7 @@
 										class="player-card__bg"
 										@click="setPlayerBg(i)"
 									>
-										<Icon name="solar:wallpaper-bold-duotone" size="32px" />
+										<PiSelectionBackgroundDuotone size="32" />
 									</button>
 									<button
 										class="player-card__avatar"
@@ -389,7 +388,7 @@
 										class="player-card__reroll"
 										@click="rerollName(i)"
 									>
-										<Icon name="ph:dice-five-bold" size="20px" />
+										<GiPerspectiveDiceSixFacesRandom size="20px" />
 									</button>
 								</div>
 							</div>
@@ -399,7 +398,7 @@
 								class="player-card player-card--add"
 								@click="addPlayer"
 							>
-								<Icon name="ph:plus-bold" class="player-card__add-icon" />
+								<Fa6Plus class="player-card__add-icon" />
 								<span class="player-card__add-text">Добавить игрока</span>
 							</button>
 						</div>
@@ -488,6 +487,11 @@
 	import schoolBus from '~/assets/images/school-bus.png'
 	import speedCar from '~/assets/images/speed-car.png'
 	import PokerChipRate from '~/components/apps/poker-board/PokerChipRate.vue'
+	import { RxCross2 } from 'vue-icons-plus/rx'
+	import { Fa6Plus, Fa6Trash } from 'vue-icons-plus/fa6'
+	import { MdOutlineDragIndicator } from 'vue-icons-plus/md'
+	import { PiSelectionBackgroundDuotone } from 'vue-icons-plus/pi'
+	import { GiPerspectiveDiceSixFacesRandom } from 'vue-icons-plus/gi'
 
 	const emit = defineEmits<{
 	start: [players: PokerPlayer[]]

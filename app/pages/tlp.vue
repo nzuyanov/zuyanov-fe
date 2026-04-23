@@ -4,7 +4,7 @@
 
 		<header class="hero">
 			<div class="hero__row">
-				<Icon name="ph:rocket-launch-duotone" class="hero__icon"/>
+				<Io5Rocket class="hero__icon" />
 				<h1 class="hero__title text-heading">TLP</h1>
 			</div>
 			<p class="hero__desc text-body">Разное полезное</p>
@@ -33,7 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { META_TITLE, META_DESCRIPTION, META_IMAGE, POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
+	import { Io5Rocket} from 'vue-icons-plus/io5'
+	import { META_TITLE, META_DESCRIPTION, META_IMAGE, POKER_BOARD_TITLE, POKER_BOARD_DESCRIPTION, POKER_BOARD_IMAGE } from '~/constants/meta'
 
 useHead({
 	title: `TLP — ${META_TITLE}`,

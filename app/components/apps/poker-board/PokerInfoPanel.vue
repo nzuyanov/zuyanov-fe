@@ -41,7 +41,14 @@
 
 		<!-- Кнопки управления -->
 		<div class="actions">
-			<button class="poker-btn-green nextDeal" @click="$emit('nextDeal')">
+			<span v-if="store.gameState.blindsPending" class="nextDealHint">
+				⏳ Новый уровень: {{ store.nextBlinds.sb }} / {{ store.nextBlinds.bb }}
+			</span>
+			<button
+				class="poker-btn-green nextDeal"
+				:class="{ 'nextDealPending': store.gameState.blindsPending }"
+				@click="$emit('nextDeal')"
+			>
 				Следующая раздача →
 			</button>
 			<button class="finish" @click="$emit('finish')">
@@ -241,6 +248,31 @@ const formatMoney = (value: number): string => value.toLocaleString('ru-RU')
 
 .nextDeal {
 	padding: 14px;
+}
+
+.nextDealPending {
+	animation: nextDealPulse 1.4s ease-in-out infinite;
+	box-shadow: 0 0 24px rgb(93 255 186 / 60%), 0 0 48px rgb(93 255 186 / 30%);
+}
+
+@keyframes nextDealPulse {
+	0%, 100% { box-shadow: 0 0 24px rgb(93 255 186 / 60%), 0 0 48px rgb(93 255 186 / 30%); }
+	50% { box-shadow: 0 0 32px rgb(93 255 186 / 90%), 0 0 64px rgb(93 255 186 / 50%); }
+}
+
+.nextDealHint {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 12px;
+	font-size: 1rem;
+	font-weight: 700;
+	color: #5dffba;
+	background: rgb(93 255 186 / 12%);
+	border: 1px solid rgb(93 255 186 / 30%);
+	border-radius: var(--poker-radius);
+	letter-spacing: 0.02em;
 }
 
 .finish {

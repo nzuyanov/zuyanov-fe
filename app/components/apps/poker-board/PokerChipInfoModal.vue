@@ -5,7 +5,7 @@
 				<header class="header">
 					<h2 class="title">ℹ️ Информация об игре</h2>
 					<button class="closeBtn" @click="$emit('close')">
-						<Icon name="ph:x-bold" />
+						<RxCross2 />
 					</button>
 				</header>
 
@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import PokerChip from './PokerChip.vue'
+import { RxCross2 } from 'vue-icons-plus/rx'
 
 const store = usePokerStore()
 
