@@ -16,7 +16,7 @@
 			@mouseup="stopRepeat"
 			@mouseleave="stopRepeat"
 		>
-			<Icon name="ph:minus-bold" />
+			<Fa6Minus />
 		</button>
 
 		<input
@@ -43,7 +43,7 @@
 			tabindex="-1"
 			@mousedown.prevent="onClear"
 		>
-			<Icon name="ph:x-bold" />
+			<RxCross2 />
 		</button>
 
 		<button
@@ -54,12 +54,15 @@
 			@mouseup="stopRepeat"
 			@mouseleave="stopRepeat"
 		>
-			<Icon name="ph:plus-bold" />
+			<Fa6Plus />
 		</button>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { RxCross2 } from 'vue-icons-plus/rx'
+import { Fa6Minus, Fa6Plus } from 'vue-icons-plus/fa6'
+
 const props = withDefaults(defineProps<{
 	modelValue: number | string
 	type?: 'text' | 'number'

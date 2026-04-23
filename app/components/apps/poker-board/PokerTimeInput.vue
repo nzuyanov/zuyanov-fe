@@ -14,7 +14,7 @@
 				@mouseup="stopRepeat"
 				@mouseleave="stopRepeat"
 			>
-				<Icon name="ph:minus-bold" />
+				<Fa6Minus />
 			</button>
 			<input
 				ref="inputRef"
@@ -32,7 +32,7 @@
 				@mouseup="stopRepeat"
 				@mouseleave="stopRepeat"
 			>
-				<Icon name="ph:plus-bold" />
+				<Fa6Plus />
 			</button>
 		</div>
 		<Transition name="caption">
@@ -44,7 +44,9 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
+	import { Fa6Minus, Fa6Plus } from 'vue-icons-plus/fa6'
+
+	interface Props {
 	modelValue: number
 	min?: number
 	max?: number

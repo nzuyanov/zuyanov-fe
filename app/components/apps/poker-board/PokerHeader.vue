@@ -1,7 +1,7 @@
 <template>
 	<header class="pokerHeader">
 		<button class="back" @click="$emit('back')">
-			<Icon name="ph:arrow-left-bold" />
+			<Fa6ArrowLeft />
 			<span>Назад</span>
 		</button>
 
@@ -15,45 +15,49 @@
 				:class="{ 'btnActive': !isPaused }"
 				@click="$emit('togglePause')"
 			>
-				<Icon :name="isPaused ? 'ph:play-fill' : 'ph:pause-fill'" />
+				<Fa6Play v-if="isPaused" />
+				<Fa6Pause v-else />
 			</button>
 			<button
 				class="btn"
 				:class="{ 'btnActive': !isMuted }"
 				@click="$emit('toggleSound')"
 			>
-				<Icon :name="isMuted ? 'ph:speaker-slash-fill' : 'ph:speaker-high-fill'" />
+				<Fa6VolumeXmark v-if="isMuted" />
+				<Fa6VolumeHigh v-else />
 			</button>
 			<button
 				class="btn"
 				@click="$emit('openSettings')"
 			>
-				<Icon name="ph:gear-six-fill" />
+				<Fa6Gear />
 			</button>
 			<button
 				class="btn"
 				@click="$emit('openChipInfo')"
 			>
-				<Icon name="ph:info-fill" />
+				<Fa6CircleInfo />
 			</button>
 		</div>
 	</header>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-	title: string
-	isPaused: boolean
-	isMuted: boolean
-}>()
+	import { Fa6Gear, Fa6ArrowLeft, Fa6Play, Fa6Pause, Fa6VolumeHigh, Fa6VolumeXmark, Fa6CircleInfo } from 'vue-icons-plus/fa6'
 
-defineEmits<{
-	back: []
-	togglePause: []
-	toggleSound: []
-	openSettings: []
-	openChipInfo: []
-}>()
+	defineProps<{
+		title: string
+		isPaused: boolean
+		isMuted: boolean
+	}>()
+
+	defineEmits<{
+		back: []
+		togglePause: []
+		toggleSound: []
+		openSettings: []
+		openChipInfo: []
+	}>()
 </script>
 
 <style scoped>

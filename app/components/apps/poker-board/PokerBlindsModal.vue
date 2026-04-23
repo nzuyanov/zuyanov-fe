@@ -5,7 +5,7 @@
 				<header class="header">
 					<h2 class="title">📋 Уровни блайндов</h2>
 					<button class="closeBtn" @click="$emit('close')">
-						<Icon name="ph:x-bold" />
+						<RxCross2 />
 					</button>
 				</header>
 
@@ -45,11 +45,13 @@
 </template>
 
 <script setup lang="ts">
-const store = usePokerStore()
+	import { RxCross2 } from 'vue-icons-plus/rx'
 
-defineEmits<{
-	close: []
-}>()
+	const store = usePokerStore()
+
+	defineEmits<{
+		close: []
+	}>()
 </script>
 
 <style scoped>

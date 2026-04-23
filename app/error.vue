@@ -10,7 +10,7 @@
 				{{ message }}
 			</p>
 			<NuxtLink to="/" class="error-page__link text-inter">
-				<Icon name="ph:arrow-left-bold" class="error-page__link-icon"/>
+				<Fa6ArrowLeft />
 				На главную
 			</NuxtLink>
 		</div>
@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import type { NuxtError } from '#app'
+import { Fa6ArrowLeft } from 'vue-icons-plus/fa6'
 
 const props = defineProps<{
 	error: NuxtError
